@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<OpenSimDocument Version="40000">
+	<InverseKinematicsTool name="subject20_rfs_trial11_ik">
+		<!--Name of the directory where results are written. Be default this is the directory in which the setup file is be  executed.-->
+		<results_directory>./</results_directory>
+		<!--Name/path to the xml .osim file.-->
+		<model_file>./out_scaled.osim</model_file>
+		<!--The relative weighting of kinematic constraint errors. By default this is Infinity, which means constraints are strictly enforced as part of the optimization and are not appended to the objective (cost) function. Any other non-zero positive scalar is the penalty factor for constraint violations.-->
+		<constraint_weight>Inf</constraint_weight>
+		<!--The accuracy of the solution in absolute terms, i.e. the number of significant digits to which the solution can be trusted. Default 1e-5.-->
+		<accuracy>1.0000000000000001e-05</accuracy>
+		<!--The time range for the study.-->
+		<time_range>0 1.44</time_range>
+		<!--Name of the resulting inverse kinematics motion (.mot) file.-->
+		<output_motion_file>.\out_ik.mot</output_motion_file>
+		<!--Flag (true or false) indicating whether or not to report errors from the inverse kinematics solution. Default is true.-->
+		<report_errors>true</report_errors>
+		<!--Markers and coordinates to be considered (tasks) and their weightings. The sum of weighted-squared task errors composes the cost function.-->
+		<IKTaskSet name="subject20_rfs_trial11">
+			<objects>
+				<IKMarkerTask name="R.Shoulder">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>2</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Shoulder">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>2</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Clavicle">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>2</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Clavicle">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>2</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.ASIS">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>10</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.ASIS">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>10</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="S2">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>10</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.PSIS">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>10</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.PSIS">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>10</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.TH1">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.TH2">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.TH3">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Knee">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>3</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.SH1">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.SH2">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.SH3">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.SH4">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>false</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Ankle">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>3</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.MAnkle">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>false</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>3</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Toe">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.MT5">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="R.Heel">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.TH1">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.TH2">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.TH3">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.TH4">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>false</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Knee">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>3</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.SH1">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.SH2">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.SH3">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Ankle">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>3</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.MAnkle">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>false</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>3</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Toe">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.Heel">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+				<IKMarkerTask name="L.MT5">
+					<!--Whether or not this task will be used during inverse kinematics solve, default is true.-->
+					<apply>true</apply>
+					<!--Weight given to the task when solving inverse kinematics problems, default is 0.-->
+					<weight>4</weight>
+				</IKMarkerTask>
+			</objects>
+			<groups />
+		</IKTaskSet>
+		<!--TRC file (.trc) containing the time history of observations of marker positions obtained during a motion capture experiment. Markers in this file that have a corresponding task and model marker are included.-->
+		<marker_file>exp_markers.trc</marker_file>
+		<!--The name of the storage (.sto or .mot) file containing the time history of coordinate observations. Coordinate values from this file are included if there is a corresponding model coordinate and task. -->
+		<coordinate_file>Unassigned</coordinate_file>
+		<!--Flag indicating whether or not to report model marker locations. Note, model marker locations are expressed in Ground.-->
+		<report_marker_locations>flase</report_marker_locations>
+	</InverseKinematicsTool>
+</OpenSimDocument>

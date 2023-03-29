@@ -1,0 +1,10 @@
+
+*.txt
+out_scaled_upd.osim
+*.moco
+*.sto
+PFJRF.py
+Rajagopal2015_passiveCal_hipAbdMoved_noArms.osim
+treadmill
+Geometry
+*.log
