@@ -1,5 +1,6 @@
 import opensim as osim
 import numpy as np
+from scipy.signal import filtfilt, butter
 
 # only one step
 t0 = 0.245 # init time
@@ -10,14 +11,7 @@ model = osim.Model('out_scaled.osim')
 
 # model.set_ForceSet(osim.ForceSet()) # remove all forces
 model.set_MarkerSet(osim.MarkerSet()) # remove all markers
-
 state = model.initSystem()
-# muscles = model.getMuscles()
-# nameMuscles = [i.getName() for i in muscles]
-# nMuscles = muscles.getSize()
-# coordinates = model.getCoordinateSet()
-# nCoordinates = coordinates.getSize()
-# nameCoordinates = [i.getName() for i in coordinates]
 
 # # external load setup for right foot
 # extLoad = osim.ExternalLoads()
@@ -36,9 +30,11 @@ state = model.initSystem()
 # extLoad.printToXML('setup_extLoad_r.xml')
 
 # add residual and reserve actuators
+nfC = 0 # total number of free coordinates
 for i in model.getCoordinateSet():
 	path = i.getAbsolutePathString()
 	if i.getMotionType()!=3 and i.get_locked()==False:
+		nfC += 1
 		CA = osim.CoordinateActuator()
 		CA.setCoordinate(i)
 		CA.setMinControl(-np.inf)
@@ -49,9 +45,9 @@ for i in model.getCoordinateSet():
 		else: 
 			CA.setName(i.getName()+'_reserve')
 			if 'lumbar' in i.getName():
-				CA.setOptimalForce(100)
+				CA.setOptimalForce(100) # strong
 			else:
-				CA.setOptimalForce(1)
+				CA.setOptimalForce(1) # weak
 		model.addForce(CA)
 
 # add contact geometries (only right foot)
@@ -104,16 +100,67 @@ for i in contacts.keys():
 	contacts[i].set_constant_contact_force(1e-5)
 	model.addForce(contacts[i])
 
-model.finalizeConnections()
-
 # set static motion as default pose
 static = osim.TimeSeriesTable('out_static.mot')
 for i in model.getCoordinateSet():
 	i.set_default_value(static.getDependentColumn(i.getAbsolutePathString()+'/value').getElt(0,0))
 
+# read ik file 
+fileIK = osim.TimeSeriesTable('out_ik.mot')
+model.getSimbodyEngine().convertDegreesToRadians(fileIK)
+time = np.array(fileIK.getIndependentColumn())
+fs = round(1/(time[1]-time[0]))
+f0 = list(time).index(t0) # find time range based on frame
+f1 = list(time).index(t1)
+time = time[f0:f1+1]
+row = len(time)
+q = {'time': time}
+u = {'time': time}
+# apply filter [may be unnecessary]
+b,a = butter(4, 2*15/fs, btype='lowpass', output='ba')
+for i in fileIK.getColumnLabels():
+	temp = fileIK.getDependentColumn(i).to_numpy()[f0:f1+1]
+	q[i] = filtfilt(b,a, temp, padlen=10)
+	u[i] = filtfilt(b,a, np.gradient(temp, edge_order=2), padlen=10)
 
+# collate state variables
+s, nameS = list(), list()
+s.append(q['time'])
+nameS.append('time')
+
+for i in model.getCoordinateSet():
+	# set value
+	nameS.append(i.getAbsolutePathString()+'/value')
+	s.append(q[i.getName()])
+	# set speed
+	nameS.append(i.getAbsolutePathString()+'/speed')
+	s.append(u[i.getName()])
+
+# for i in model.getMuscles():
+# 	# set activation
+# 	nameS.append(i.getAbsolutePathString()+'/activation')
+# 	s.append(np.ones(row)*0.01)
+	# # set fiber_length
+	# nameS.append(i.getAbsolutePathString()+'/fiber_length')
+	# s.append(np.ones(row)*0.01)
+
+# for i in model.getForceSet():
+# 	# set activation
+# 	nameS.append(i.getAbsolutePathString())
+# 	s.append(np.ones(row)*0.01)
+
+# write state file
+col = len(nameS)
+# nF = model.getForceSet().getSize()      # total number of controls
+# nM = model.getMuscles().getSize()       # total number of muscles
+# nC = model.getCoordinateSet().getSize() # total number of coordinates
+# nS = nC + nF                            # total number of states
+head =  f'state\nversion=1\nnRows={row}\nnColumns={col}\ninDegrees=yes\nendheader\n' + '\t'.join(nameS)
+np.savetxt('out_state.sto', np.transpose(s), 
+	fmt='%.6f', delimiter='\t', newline='\n', header=head, comments='')
+
+model.finalizeConnections()
 model.printToXML('out_scaled_upd.osim')
-
 
 # %% Tracking
 ######################################################################
@@ -168,6 +215,11 @@ markerWeights.cloneAndAppend(osim.MocoWeight('L.Toe', 4))
 markerWeights.cloneAndAppend(osim.MocoWeight('L.MT5', 4))
 track.set_markers_weight_set(markerWeights)
 
+track.set_guess_file('out_state.sto')
+# model = osim.Model('out_scaled_upd.osim')
+# model.buildSystem()
+# model.initializeState()
+# model.getWorkingState()
 modelProc = osim.ModelProcessor('out_scaled_upd.osim')
 modelProc.append(osim.ModOpAddExternalLoads('setup_extLoad.xml'))
 modelProc.append(osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
@@ -186,6 +238,8 @@ track.set_mesh_interval(0.08) # ???
 
 study = track.initialize()
 problem = study.updProblem()
+model = modelProc.process()
+model.initSystem()
 
 ########## Bounds
 # set joint RoM as min and max bounds for each free coordinate
@@ -199,22 +253,20 @@ effort = osim.MocoControlGoal.safeDownCast(problem.updGoal('control_effort'))
 # effort.setWeight(1)
 
 # why???
-model = modelProc.process()
-model.initSystem()
 forceSet = model.getForceSet()
 for i in range(forceSet.getSize()):
     forcePath = forceSet.get(i).getAbsolutePathString()
     if 'pelvis' in forcePath:
         effort.setWeightForControl(forcePath, 10)
 
-# contact tracking goal (weight = 1). Necessary???
+# contact tracking goal (weight = 1).
 contact = osim.MocoContactTrackingGoal('contact_r', 1)
 contact.setExternalLoadsFile('setup_extload.xml')
 nameContacts = osim.StdVectorString()
-nameContacts.append('ground_heel_r');  nameContacts.append('ground_mid1_r')
-nameContacts.append('ground_mid2_r');  nameContacts.append('ground_fore1_r')
-nameContacts.append('ground_fore2_r'); nameContacts.append('ground_fore3_r')
-nameContacts.append('ground_toe1_r');  nameContacts.append('ground_toe2_r')
+nameContacts.append('/forceset/ground_heel_r');  nameContacts.append('/forceset/ground_mid1_r')
+nameContacts.append('/forceset/ground_mid2_r');  nameContacts.append('/forceset/ground_fore1_r')
+nameContacts.append('/forceset/ground_fore2_r'); nameContacts.append('/forceset/ground_fore3_r')
+nameContacts.append('/forceset/ground_toe1_r');  nameContacts.append('/forceset/ground_toe2_r')
 contact.addContactGroup(nameContacts, 'right')
 contact.setProjection('plane')
 contact.setProjectionVector(osim.Vec3(0, 0, 1))
@@ -222,15 +274,39 @@ problem.addGoal(contact)
 
 ########## Solver
 # solver = study.initCasADiSolver()
+solver = osim.MocoCasADiSolver.safeDownCast(study.updSolver())
+solver.resetProblem(problem)
+# solver.set_num_mesh_intervals(50)
+# solver.set_verbosity(2)
+# solver.set_optim_solver("ipopt")
 # solver.set_parameters_require_initsystem(False)
-# solver.set_optim_constraint_tolerance(1e-3)
-# solver.set_optim_convergence_tolerance(1e-3)
+solver.set_optim_constraint_tolerance(1e-3)
+solver.set_optim_convergence_tolerance(1e-3)
+# solver.set_optim_max_iterations(1000)
+# solver.set_parallel(2)
+
+# set coordinates value and speed as default
+initGuess = solver.createGuess()
+fileState = osim.TimeSeriesTable('out_state.sto')
+for i in model.getCoordinateSet():
+	x = osim.Vector(fileState.getIndependentColumn())
+	nx = initGuess.getTime()
+	for j in ['/value', '/speed']:
+		name = i.getAbsolutePathString()+j
+		y = osim.Vector(fileState.getDependentColumn(name).to_numpy())
+		vector = osim.interpolate(x,y,nx)
+		initGuess.setState(name, vector)
+
+# initGuess.write('out_tracking_init_guess.sto')
+solver.setGuess(initGuess)
 
 study.printToXML('out_tracking.moco')
 
-# trackingSolution = study.solve()
-# trackingSolution.write('out_tracking_solution.sto')
+trackingSolution = study.solve()
+trackingSolution.write('out_tracking_solution.sto')
 # study.visualize(trackingSolution)
+
+
 
 
 
