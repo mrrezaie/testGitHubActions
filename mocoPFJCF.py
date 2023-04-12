@@ -155,9 +155,11 @@ col = len(nameS)
 # nM = model.getMuscles().getSize()       # total number of muscles
 # nC = model.getCoordinateSet().getSize() # total number of coordinates
 # nS = nC + nF                            # total number of states
-head =  f'state\nversion=1\nnRows={row}\nnColumns={col}\ninDegrees=yes\nendheader\n' + '\t'.join(nameS)
+head =  f'state\nversion=1\nnRows={row}\nnColumns={col}\ninDegrees=no\nendheader\n' + '\t'.join(nameS)
 np.savetxt('out_state.sto', np.transpose(s), 
 	fmt='%.6f', delimiter='\t', newline='\n', header=head, comments='')
+
+##### NOTE: the above code needed the inDegrees= changed to no
 
 model.finalizeConnections()
 model.printToXML('out_scaled_upd.osim')
