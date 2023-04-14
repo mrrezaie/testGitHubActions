@@ -194,6 +194,11 @@ modelProc.append(osim.ModOpIgnoreTendonCompliance())
 modelProc.append(osim.ModOpIgnorePassiveFiberForcesDGF())
 modelProc.append(osim.ModOpScaleMaxIsometricForce(2)) # FUN???
 modelProc.append(osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
+locked = osim.StdVectorString()
+for i in model.getCoordinateSet():
+	if i.get_locked():
+		locked.append(i.getJoint().getName())
+modelProc.append(osim.ModOpReplaceJointsWithWelds(locked))
 # modelProc.append(osim.ModOpAddReserves(1)) # already included
 # modelProc.process().printToXML('out_scaled_upd.osim')
 
@@ -266,11 +271,12 @@ fileState = osim.TimeSeriesTable('out_state.sto')
 x = osim.Vector(fileState.getIndependentColumn())
 nx = initGuess.getTime()
 for i in model.getCoordinateSet():
-	for j in ['/value', '/speed']:
-		name = i.getAbsolutePathString()+j
-		y = osim.Vector(fileState.getDependentColumn(name).to_numpy())
-		vector = osim.interpolate(x,y,nx)
-		initGuess.setState(name, vector)
+	if i.get_locked()==False:
+		for j in ['/value', '/speed']:
+			name = i.getAbsolutePathString()+j
+			y = osim.Vector(fileState.getDependentColumn(name).to_numpy())
+			vector = osim.interpolate(x,y,nx)
+			initGuess.setState(name, vector)
 
 # initGuess.write('out_tracking_init_guess.sto')
 solver.setGuess(initGuess)
