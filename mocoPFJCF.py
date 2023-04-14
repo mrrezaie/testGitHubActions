@@ -217,9 +217,10 @@ problem = study.updProblem()
 ########## Bounds
 # set joint RoM as min and max bounds for each free coordinate
 for i in model.getCoordinateSet():
+	name = i.getAbsolutePathString()
 	if i.getMotionType()!=3 and i.get_locked()==False:
-		name = i.getAbsolutePathString()+'/value'
-		problem.setStateInfo(name, [i.getRangeMin(), i.getRangeMax()])
+		problem.setStateInfo(name+'/value', [i.getRangeMin(), i.getRangeMax()])
+		problem.setStateInfo(name+'/speed', [-15, 15])
 
 # problem.setStateInfoPattern('/forceset/.*/activation', [0, 1])
 # problem.setStateInfoPattern('/forceset/.*/normalized_tendon_force', [0, 1.8], [], []);
