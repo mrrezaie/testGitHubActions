@@ -241,8 +241,8 @@ for i in model.getForceSet():
         effort.setWeightForControl(forcePath, 10)
 
 # contact tracking goal (weight = 1).
-def GRFTrackingGoal(weight=1, projectionVector=[0,0,0]):
-	contact = osim.MocoContactTrackingGoal('contact_r', weight)
+def GRFTrackingGoal(name, weight=1, projectionVector=[0,0,0]):
+	contact = osim.MocoContactTrackingGoal(name, weight)
 	contact.setExternalLoadsFile('setup_extload.xml')
 	nameContacts = osim.StdVectorString()
 	for i in ['heel_r', 'mid1_r', 'mid2_r', 'fore1_r', 'fore2_r', 'fore3_r', 'toe1_r', 'toe2_r']:
@@ -252,9 +252,9 @@ def GRFTrackingGoal(weight=1, projectionVector=[0,0,0]):
 	contact.setProjectionVector(osim.Vec3(projectionVector))
 	return contact
 # one goal for every axis
-contactX = GRFTrackingGoal(weight=1, projectionVector=[1,0,0])
-contactY = GRFTrackingGoal(weight=1, projectionVector=[0,1,0])
-contactZ = GRFTrackingGoal(weight=1, projectionVector=[0,0,1])
+contactX = GRFTrackingGoal('contactX_r', weight=1, projectionVector=[1,0,0])
+contactY = GRFTrackingGoal('contactY_r', weight=1, projectionVector=[0,1,0])
+contactZ = GRFTrackingGoal('contactZ_r', weight=1, projectionVector=[0,0,1])
 problem.addGoal(contactX)
 problem.addGoal(contactY)
 problem.addGoal(contactZ)
