@@ -20,7 +20,6 @@ for i in model.getMuscles():
 		muscles[i.getName()] = i.clone()
 
 model.set_ForceSet(osim.ForceSet()) # remove all forces
-model.set_MarkerSet(osim.MarkerSet()) # remove all markers
 
 # remove left muscles
 for ii in muscles.values():
@@ -242,15 +241,23 @@ for i in model.getForceSet():
         effort.setWeightForControl(forcePath, 10)
 
 # contact tracking goal (weight = 1).
-contact = osim.MocoContactTrackingGoal('contact_r', 1)
-contact.setExternalLoadsFile('setup_extload.xml')
-nameContacts = osim.StdVectorString()
-for i in ['heel_r', 'mid1_r', 'mid2_r', 'fore1_r', 'fore2_r', 'fore3_r', 'toe1_r', 'toe2_r']:
-	nameContacts.append('/forceset/ground_'+i)
-contact.addContactGroup(nameContacts, 'right')
-contact.setProjection('plane')
-contact.setProjectionVector(osim.Vec3(0, 0, 1))
-# problem.addGoal(contact) # Not included yet
+def GRFTrackingGoal(weight=1, projectionVector=[0,0,0]):
+	contact = osim.MocoContactTrackingGoal('contact_r', weight)
+	contact.setExternalLoadsFile('setup_extload.xml')
+	nameContacts = osim.StdVectorString()
+	for i in ['heel_r', 'mid1_r', 'mid2_r', 'fore1_r', 'fore2_r', 'fore3_r', 'toe1_r', 'toe2_r']:
+		nameContacts.append('/forceset/ground_'+i)
+	contact.addContactGroup(nameContacts, 'right')
+	contact.setProjection('vector')
+	contact.setProjectionVector(osim.Vec3(projectionVector))
+	return contact
+# one goal for every axis
+contactX = GRFTrackingGoal(weight=1, projectionVector=[1,0,0])
+contactY = GRFTrackingGoal(weight=1, projectionVector=[0,1,0])
+contactZ = GRFTrackingGoal(weight=1, projectionVector=[0,0,1])
+problem.addGoal(contactX)
+problem.addGoal(contactY)
+problem.addGoal(contactZ)
 
 ########## Solver
 # solver = study.initCasADiSolver()
