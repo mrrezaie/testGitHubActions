@@ -236,6 +236,6 @@
 		<!--The name of the storage (.sto or .mot) file containing the time history of coordinate observations. Coordinate values from this file are included if there is a corresponding model coordinate and task. -->
 		<coordinate_file>Unassigned</coordinate_file>
 		<!--Flag indicating whether or not to report model marker locations. Note, model marker locations are expressed in Ground.-->
-		<report_marker_locations>flase</report_marker_locations>
+		<report_marker_locations>false</report_marker_locations>
 	</InverseKinematicsTool>
 </OpenSimDocument>
