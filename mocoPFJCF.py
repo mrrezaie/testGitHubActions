@@ -19,7 +19,7 @@ for muscle in model.getMuscles():
 	if muscle.getName().endswith('_r'):
 		# muscle.set_ignore_activation_dynamics(True)
 		# muscle.set_ignore_tendon_compliance(True)
-		muscle.set_max_contraction_velocity(15)
+		muscle.set_max_contraction_velocity(25)
 		muscles[muscle.getName()] = muscle.clone()
 
 # model.set_ForceSet(osim.ForceSet()) # remove all forces
@@ -31,18 +31,19 @@ for ii in muscles.values():
 
 # add residual and reserve actuators
 for coordinate in model.getCoordinateSet():
+    cName = coordinate.getName()
 	if coordinate.getMotionType()!=3 and coordinate.get_locked()==False:
 		CA = osim.CoordinateActuator()
 		CA.setCoordinate(coordinate)
 		CA.setMinControl(float('-inf'))
 		CA.setMaxControl(float('+inf'))
-		if 'pelvis' in coordinate.getName(): 
-			CA.setName(coordinate.getName()+'_residual')
+		if 'pelvis' in cName: 
+			CA.setName(cName+'_residual')
 			CA.setOptimalForce(1000)
 		else: 
-			CA.setName(coordinate.getName()+'_reserve')
-			if 'lumbar' in coordinate.getName() or coordinate.getName().endswith('_l'):
-				CA.setOptimalForce(100) # strong
+			CA.setName(cName+'_reserve')
+			if ('lumbar' in cName) or (cName.endswith('_l')):
+				CA.setOptimalForce(500) # strong
 			else:
 				CA.setOptimalForce(1) # weak
 		model.addForce(CA)
@@ -105,18 +106,18 @@ for i in model.getCoordinateSet():
 model.finalizeConnections()
 model.finalizeFromProperties()
 model.initSystem()	
-model.printToXML('output/scaled_upd.osim')
+# model.printToXML('./output/scaled_upd.osim')
 
 
-# read ik file and convert it to a state file (speeds are included)
-tableIK = osim.TableProcessor('input/out_ik.mot')
-tableIK.append(osim.TabOpLowPassFilter(15))
-tableIK.append(osim.TabOpConvertDegreesToRadians())
-tableIK.append(osim.TabOpUseAbsoluteStateNames())
-tableIK.append(osim.TabOpAppendCoordinateValueDerivativesAsSpeeds ())
-tableIK = tableIK.process(model)
-tableIK.trim(t0, t1)
-osim.STOFileAdapter.write(tableIK, 'output/state.sto')
+# kinematics to state
+stateTable = osim.TableProcessor('input/out_ik.mot')
+stateTable.append(osim.TabOpLowPassFilter(15))
+stateTable.append(osim.TabOpConvertDegreesToRadians())
+stateTable.append(osim.TabOpUseAbsoluteStateNames())
+stateTable.append(osim.TabOpAppendCoordinateValueDerivativesAsSpeeds ())
+stateTable = stateTable.process(model)
+stateTable.trim(t0, t1)
+# osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
 
 # %% Tracking
@@ -185,8 +186,9 @@ markerWeights.cloneAndAppend(osim.MocoWeight('L.Toe', 4))
 markerWeights.cloneAndAppend(osim.MocoWeight('L.MT5', 4))
 track.set_markers_weight_set(markerWeights)
 
-model = osim.Model('output/scaled_upd.osim')
-modelProc = osim.ModelProcessor('output/scaled_upd.osim')
+# model = osim.Model('output/scaled_upd.osim')
+# modelProc = osim.ModelProcessor('output/scaled_upd.osim')
+modelProc = osim.ModelProcessor(model)
 # # modelProc.append(osim.ModOpAddExternalLoads('input/setup_extLoad.xml')) # already exist in contact tracking
 modelProc.append(osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
 modelProc.append(osim.ModOpIgnoreTendonCompliance())
@@ -194,7 +196,7 @@ modelProc.append(osim.ModOpIgnorePassiveFiberForcesDGF())
 modelProc.append(osim.ModOpScaleMaxIsometricForce(1.5))
 modelProc.append(osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
 # # modelProc.append(osim.ModOpUseImplicitTendonComplianceDynamicsDGF()) # tendon is already rigid
-modelProc.append(osim.ModOpIgnoreActivationDynamics())
+# modelProc.append(osim.ModOpIgnoreActivationDynamics())
 # # modelProc.append(osim.ModOpRemoveMuscles())
 # # modelProc.append(osim.ModOpAddReserves(1))
 
@@ -213,7 +215,7 @@ track.set_minimize_control_effort(True)
 track.set_control_effort_weight(controlW) # default weight
 track.set_initial_time(t0)
 track.set_final_time(t1)
-track.set_mesh_interval(0.01) # ???
+# track.set_mesh_interval(0.01) # ???
 
 # track.printToXML('output/track.xml')
 study = track.initialize()
@@ -273,10 +275,10 @@ problem.addGoal(contactZ)
 # solver = study.initCasADiSolver()
 solver = osim.MocoCasADiSolver.safeDownCast(study.updSolver())
 solver.resetProblem(problem)
-# solver.set_num_mesh_intervals(50)
 # solver.set_verbosity(2)
 # solver.set_optim_solver("ipopt")
 # solver.set_parameters_require_initsystem(False)
+solver.set_num_mesh_intervals(100)
 solver.set_optim_constraint_tolerance(1e-3)
 solver.set_optim_convergence_tolerance(1e-3)
 solver.set_optim_max_iterations(10000)
@@ -284,14 +286,14 @@ solver.set_optim_max_iterations(10000)
 
 # set coordinates value and speed as initial guesses
 initGuess = solver.createGuess('bounds')
-fileState = osim.TimeSeriesTable('output/state.sto')
-x = osim.Vector(fileState.getIndependentColumn())
+# stateTable = osim.TimeSeriesTable('output/state.sto')
+x = osim.Vector(stateTable.getIndependentColumn())
 nx = initGuess.getTime()
 for i in model.getCoordinateSet():
 	if i.get_locked()==False:
 		for j in ['/value', '/speed']:
 			name = i.getAbsolutePathString()+j
-			y = osim.Vector(fileState.getDependentColumn(name).to_numpy())
+			y = osim.Vector(stateTable.getDependentColumn(name).to_numpy())
 			vector = osim.interpolate(x,y,nx)
 			initGuess.setState(name, vector)
 
@@ -303,5 +305,5 @@ study.set_write_solution(True)
 
 trackingSolution = study.solve()
 # trackingSolution.unseal()
-trackingSolution.write('output/tracking_solution.sto')
+# trackingSolution.write('output/tracking_solution.sto')
 # study.visualize(trackingSolution)
