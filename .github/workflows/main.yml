@@ -1,0 +1,33 @@
+name: Main
+
+on: push
+
+jobs:
+  # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-of-jobsjob_idsteps
+  build-and-run:
+    name: Main
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          activate-environment: 'moco'
+          python-version: '3.11'
+
+      - name: Install opensim-moco package
+        run: conda install -c opensim-org opensim-moco
+
+      - name: Run OpenSim Moco script
+        run: python mocoPFJCF.py
+
+      - name: List files in the repository
+        run: dir
+
+      - name: Upload Moco solution file
+        uses: actions/upload-artifact@v4
+        with:
+          name: 'Moco Solution'
+          path: 'MocoStudy_solution.sto'
