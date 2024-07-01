@@ -16,96 +16,96 @@ model.setName('moco_adjusted')
 # store right muscles
 muscles = dict()
 for muscle in model.getMuscles():
-	if muscle.getName().endswith('_r'):
-		# muscle.set_ignore_activation_dynamics(True)
-		# muscle.set_ignore_tendon_compliance(True)
-		muscle.set_max_contraction_velocity(25)
-		muscles[muscle.getName()] = muscle.clone()
+    if muscle.getName().endswith('_r'):
+        # muscle.set_ignore_activation_dynamics(True)
+        # muscle.set_ignore_tendon_compliance(True)
+        muscle.set_max_contraction_velocity(25)
+        muscles[muscle.getName()] = muscle.clone()
 
 # model.set_ForceSet(osim.ForceSet()) # remove all forces
 model.updForceSet().clearAndDestroy()
 
 # remove left muscles
 for ii in muscles.values():
-		model.addForce(ii)
+        model.addForce(ii)
 
 # add residual and reserve actuators
 for coordinate in model.getCoordinateSet():
     cName = coordinate.getName()
-	if coordinate.getMotionType()!=3 and coordinate.get_locked()==False:
-		CA = osim.CoordinateActuator()
-		CA.setCoordinate(coordinate)
-		CA.setMinControl(float('-inf'))
-		CA.setMaxControl(float('+inf'))
-		if 'pelvis' in cName: 
-			CA.setName(cName+'_residual')
-			CA.setOptimalForce(1000)
-		else: 
-			CA.setName(cName+'_reserve')
-			if ('lumbar' in cName) or (cName.endswith('_l')):
-				CA.setOptimalForce(500) # strong
-			else:
-				CA.setOptimalForce(1) # weak
-		model.addForce(CA)
-		# model.addComponent(CA)
+    if coordinate.getMotionType()!=3 and coordinate.get_locked()==False:
+        CA = osim.CoordinateActuator()
+        CA.setCoordinate(coordinate)
+        CA.setMinControl(float('-inf'))
+        CA.setMaxControl(float('+inf'))
+        if 'pelvis' in cName: 
+            CA.setName(cName+'_residual')
+            CA.setOptimalForce(1000)
+        else: 
+            CA.setName(cName+'_reserve')
+            if ('lumbar' in cName) or (cName.endswith('_l')):
+                CA.setOptimalForce(500) # strong
+            else:
+                CA.setOptimalForce(1) # weak
+        model.addForce(CA)
+        # model.addComponent(CA)
 
 
 # add contact geometries and forces (only right foot)
 contacts = {
-			'S1': osim.ContactSphere(0.03, osim.Vec3([0.02,0,0]),
-						model.getBodySet().get('calcn_r'), 'heel_r'),
-			'S2': osim.ContactSphere(0.02, osim.Vec3([0.1,-0.001,-0.02]),
-						model.getBodySet().get('calcn_r'), 'mid1_r'),
-			'S3': osim.ContactSphere(0.02, osim.Vec3([0.09,-0.001,0.02]),
-						model.getBodySet().get('calcn_r'), 'mid2_r'),
-			'S4': osim.ContactSphere(0.02, osim.Vec3([0.18,-0.001,-0.03]),
-						model.getBodySet().get('calcn_r'), 'fore1_r'),
-			'S5': osim.ContactSphere(0.02, osim.Vec3([0.16,-0.001,0]),
-						model.getBodySet().get('calcn_r'), 'fore2_r'),
-			'S6': osim.ContactSphere(0.02, osim.Vec3([0.14,-0.001,0.03]),
-						model.getBodySet().get('calcn_r'), 'fore3_r'),
-			'S7': osim.ContactSphere(0.02, osim.Vec3([0.23,-0.001,-0.01]),
-						model.getBodySet().get('calcn_r'), 'toe1_r'),
-			'S8': osim.ContactSphere(0.02, osim.Vec3([0.21,-0.001,0.03]),
-						model.getBodySet().get('calcn_r'), 'toe2_r'),
-			'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-osim.SimTK_PI/2]),
-							  model.getGround(), 'ground')}
+            'S1': osim.ContactSphere(0.03, osim.Vec3([0.02,0,0]),
+                        model.getBodySet().get('calcn_r'), 'heel_r'),
+            'S2': osim.ContactSphere(0.02, osim.Vec3([0.1,-0.001,-0.02]),
+                        model.getBodySet().get('calcn_r'), 'mid1_r'),
+            'S3': osim.ContactSphere(0.02, osim.Vec3([0.09,-0.001,0.02]),
+                        model.getBodySet().get('calcn_r'), 'mid2_r'),
+            'S4': osim.ContactSphere(0.02, osim.Vec3([0.18,-0.001,-0.03]),
+                        model.getBodySet().get('calcn_r'), 'fore1_r'),
+            'S5': osim.ContactSphere(0.02, osim.Vec3([0.16,-0.001,0]),
+                        model.getBodySet().get('calcn_r'), 'fore2_r'),
+            'S6': osim.ContactSphere(0.02, osim.Vec3([0.14,-0.001,0.03]),
+                        model.getBodySet().get('calcn_r'), 'fore3_r'),
+            'S7': osim.ContactSphere(0.02, osim.Vec3([0.23,-0.001,-0.01]),
+                        model.getBodySet().get('calcn_r'), 'toe1_r'),
+            'S8': osim.ContactSphere(0.02, osim.Vec3([0.21,-0.001,0.03]),
+                        model.getBodySet().get('calcn_r'), 'toe2_r'),
+            'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-osim.SimTK_PI/2]),
+                              model.getGround(), 'ground')}
 
 for i in contacts.keys():
-	model.addContactGeometry(contacts[i])
+    model.addContactGeometry(contacts[i])
 
 contactForces = {
-			'S1F': osim.SmoothSphereHalfSpaceForce('ground_heel_r',  contacts['S1'], contacts['floor']), 
-			'S2F': osim.SmoothSphereHalfSpaceForce('ground_mid1_r',  contacts['S2'], contacts['floor']), 
-			'S3F': osim.SmoothSphereHalfSpaceForce('ground_mid2_r',  contacts['S3'], contacts['floor']), 
-			'S4F': osim.SmoothSphereHalfSpaceForce('ground_fore1_r', contacts['S4'], contacts['floor']), 
-			'S5F': osim.SmoothSphereHalfSpaceForce('ground_fore2_r', contacts['S5'], contacts['floor']), 
-			'S6F': osim.SmoothSphereHalfSpaceForce('ground_fore3_r', contacts['S6'], contacts['floor']), 
-			'S7F': osim.SmoothSphereHalfSpaceForce('ground_toe1_r',  contacts['S7'], contacts['floor']), 
-			'S8F': osim.SmoothSphereHalfSpaceForce('ground_toe2_r',  contacts['S8'], contacts['floor'])}
+            'S1F': osim.SmoothSphereHalfSpaceForce('ground_heel_r',  contacts['S1'], contacts['floor']), 
+            'S2F': osim.SmoothSphereHalfSpaceForce('ground_mid1_r',  contacts['S2'], contacts['floor']), 
+            'S3F': osim.SmoothSphereHalfSpaceForce('ground_mid2_r',  contacts['S3'], contacts['floor']), 
+            'S4F': osim.SmoothSphereHalfSpaceForce('ground_fore1_r', contacts['S4'], contacts['floor']), 
+            'S5F': osim.SmoothSphereHalfSpaceForce('ground_fore2_r', contacts['S5'], contacts['floor']), 
+            'S6F': osim.SmoothSphereHalfSpaceForce('ground_fore3_r', contacts['S6'], contacts['floor']), 
+            'S7F': osim.SmoothSphereHalfSpaceForce('ground_toe1_r',  contacts['S7'], contacts['floor']), 
+            'S8F': osim.SmoothSphereHalfSpaceForce('ground_toe2_r',  contacts['S8'], contacts['floor'])}
 
 for i in contactForces.keys():
-	contactForces[i].set_stiffness(3067776)
-	contactForces[i].set_dissipation(2)
-	contactForces[i].set_static_friction(0.8)
-	contactForces[i].set_dynamic_friction(0.8)
-	contactForces[i].set_hertz_smoothing(300)
-	contactForces[i].set_hunt_crossley_smoothing(50)
-	contactForces[i].set_viscous_friction(0.5)
-	contactForces[i].set_transition_velocity(0.2)
-	contactForces[i].set_constant_contact_force(1e-5)
-	model.addForce(contactForces[i])
-	# model.addComponent(contactForces[i])
+    contactForces[i].set_stiffness(3067776)
+    contactForces[i].set_dissipation(2)
+    contactForces[i].set_static_friction(0.8)
+    contactForces[i].set_dynamic_friction(0.8)
+    contactForces[i].set_hertz_smoothing(300)
+    contactForces[i].set_hunt_crossley_smoothing(50)
+    contactForces[i].set_viscous_friction(0.5)
+    contactForces[i].set_transition_velocity(0.2)
+    contactForces[i].set_constant_contact_force(1e-5)
+    model.addForce(contactForces[i])
+    # model.addComponent(contactForces[i])
 
 # set static motion as default pose
 static = osim.TimeSeriesTable('input/out_static.mot')
 for i in model.getCoordinateSet():
-	i.set_default_value(static.getDependentColumn(i.getAbsolutePathString()+'/value').getElt(0,0))
+    i.set_default_value(static.getDependentColumn(i.getAbsolutePathString()+'/value').getElt(0,0))
 
 
 model.finalizeConnections()
 model.finalizeFromProperties()
-model.initSystem()	
+model.initSystem()  
 # model.printToXML('./output/scaled_upd.osim')
 
 
@@ -202,8 +202,8 @@ modelProc.append(osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
 
 locked = osim.StdVectorString()
 for coordinate in model.getCoordinateSet():
-	if coordinate.get_locked():
-		locked.append(coordinate.getJoint().getName())
+    if coordinate.get_locked():
+        locked.append(coordinate.getJoint().getName())
 modelProc.append(osim.ModOpReplaceJointsWithWelds(locked))
 
 # model2 = modelProc.process()
@@ -226,9 +226,9 @@ problem = study.updProblem()
 # set joint RoM as min and max bounds for each free coordinate
 # It is already set by moco, so it's not necessary
 for i in model.getCoordinateSet():
-	name = i.getAbsolutePathString()
-	if i.getMotionType()!=3 and i.get_locked()==False:
-		problem.setStateInfo(name+'/value', [i.getRangeMin(), i.getRangeMax()])
+    name = i.getAbsolutePathString()
+    if i.getMotionType()!=3 and i.get_locked()==False:
+        problem.setStateInfo(name+'/value', [i.getRangeMin(), i.getRangeMax()])
 
 problem.setStateInfoPattern('/jointset/.*/speed', [-20, 20])
 problem.setStateInfoPattern('/forceset/.*/activation', [0.01, 1])
@@ -236,10 +236,10 @@ problem.setStateInfoPattern('/forceset/.*/activation', [0.01, 1])
 
 # # set activation bounds only for muscles (not all forces)
 # for i in model.getMuscles():
-# 	name = i.getAbsolutePathString()
-# 	problem.setStateInfoPattern(name+'/activation', [0.01, 1])
-# 	problem.setStateInfoPattern(name+'/fiber_length', [0, 1])
-# 	problem.setStateInfoPattern(name+'/normalized_tendon_force', [0, 1])
+#   name = i.getAbsolutePathString()
+#   problem.setStateInfoPattern(name+'/activation', [0.01, 1])
+#   problem.setStateInfoPattern(name+'/fiber_length', [0, 1])
+#   problem.setStateInfoPattern(name+'/normalized_tendon_force', [0, 1])
 
 ########## Goals
 effort = osim.MocoControlGoal.safeDownCast(problem.updGoal('control_effort'))
@@ -253,15 +253,15 @@ for i in model.getForceSet():
 
 # contact tracking goal (weight = 1).
 def GRFTrackingGoal(name, weight=1, projectionVector=[0,0,0]):
-	contact = osim.MocoContactTrackingGoal(name, weight)
-	contact.setExternalLoadsFile('input/setup_extload.xml')
-	nameContacts = osim.StdVectorString()
-	for i in ['heel_r', 'mid1_r', 'mid2_r', 'fore1_r', 'fore2_r', 'fore3_r', 'toe1_r', 'toe2_r']:
-		nameContacts.append('/forceset/ground_'+i)
-	contact.addContactGroup(nameContacts, 'right')
-	contact.setProjection('vector')
-	contact.setProjectionVector(osim.Vec3(projectionVector))
-	return contact
+    contact = osim.MocoContactTrackingGoal(name, weight)
+    contact.setExternalLoadsFile('input/setup_extload.xml')
+    nameContacts = osim.StdVectorString()
+    for i in ['heel_r', 'mid1_r', 'mid2_r', 'fore1_r', 'fore2_r', 'fore3_r', 'toe1_r', 'toe2_r']:
+        nameContacts.append('/forceset/ground_'+i)
+    contact.addContactGroup(nameContacts, 'right')
+    contact.setProjection('vector')
+    contact.setProjectionVector(osim.Vec3(projectionVector))
+    return contact
 # one goal for every axis
 contactX = GRFTrackingGoal('contactX_r', weight=grfW, projectionVector=[1,0,0])
 contactY = GRFTrackingGoal('contactY_r', weight=grfW, projectionVector=[0,1,0])
@@ -290,14 +290,14 @@ initGuess = solver.createGuess('bounds')
 x = osim.Vector(stateTable.getIndependentColumn())
 nx = initGuess.getTime()
 for i in model.getCoordinateSet():
-	if i.get_locked()==False:
-		for j in ['/value', '/speed']:
-			name = i.getAbsolutePathString()+j
-			y = osim.Vector(stateTable.getDependentColumn(name).to_numpy())
-			vector = osim.interpolate(x,y,nx)
-			initGuess.setState(name, vector)
+    if i.get_locked()==False:
+        for j in ['/value', '/speed']:
+            name = i.getAbsolutePathString()+j
+            y = osim.Vector(stateTable.getDependentColumn(name).to_numpy())
+            vector = osim.interpolate(x,y,nx)
+            initGuess.setState(name, vector)
 
-initGuess.write('output/tracking_init_guess.sto')
+# initGuess.write('output/tracking_init_guess.sto')
 solver.setGuess(initGuess)
 
 study.set_write_solution(True)
