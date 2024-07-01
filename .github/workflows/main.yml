@@ -3,7 +3,6 @@ name: Main
 on: push
 
 jobs:
-  # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-of-jobsjob_idsteps
   build-and-run:
     name: Main
     runs-on: windows-latest
@@ -29,5 +28,5 @@ jobs:
       - name: Upload Moco solution file
         uses: actions/upload-artifact@v4
         with:
-          name: 'Moco Solution'
+          name: Moco-Solution-${{ steps.configure.outputs.version }}
           path: 'MocoStudy_solution.sto'
