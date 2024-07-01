@@ -196,7 +196,7 @@ modelProc.append(osim.ModOpIgnorePassiveFiberForcesDGF())
 modelProc.append(osim.ModOpScaleMaxIsometricForce(1.5))
 modelProc.append(osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
 # # modelProc.append(osim.ModOpUseImplicitTendonComplianceDynamicsDGF()) # tendon is already rigid
-# modelProc.append(osim.ModOpIgnoreActivationDynamics())
+modelProc.append(osim.ModOpIgnoreActivationDynamics())
 # # modelProc.append(osim.ModOpRemoveMuscles())
 # # modelProc.append(osim.ModOpAddReserves(1))
 
