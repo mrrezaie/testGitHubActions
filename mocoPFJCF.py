@@ -251,25 +251,7 @@ problem = study.updProblem()
 #     if 'pelvis' in forcePath:
 #         effort.setWeightForControl(forcePath, 10) # why???
 
-# # contact tracking goal (weight = 1).
-# def GRFTrackingGoal(name, weight=1, projectionVector=[0,0,0]):
-#     contact = osim.MocoContactTrackingGoal(name, weight)
-#     contact.setExternalLoadsFile('input/setup_extload.xml')
-#     nameContacts = osim.StdVectorString()
-#     for i in ['heel_r', 'mid1_r', 'mid2_r', 'fore1_r', 'fore2_r', 'fore3_r', 'toe1_r', 'toe2_r']:
-#         nameContacts.append('/forceset/ground_'+i)
-#     contact.addContactGroup(nameContacts, 'right')
-#     contact.setProjection('vector')
-#     contact.setProjectionVector(osim.Vec3(projectionVector))
-#     return contact
-# # one goal for every axis
-# contactX = GRFTrackingGoal('contactX_r', weight=GRFW, projectionVector=[1,0,0])
-# contactY = GRFTrackingGoal('contactY_r', weight=GRFW, projectionVector=[0,1,0])
-# contactZ = GRFTrackingGoal('contactZ_r', weight=GRFW, projectionVector=[0,0,1])
-# problem.addGoal(contactX)
-# problem.addGoal(contactY)
-# problem.addGoal(contactZ)
-
+# contact tracking goal (weight = 1).
 contact = osim.MocoContactTrackingGoal('contact', GRFW)
 contact.setExternalLoadsFile('input/setup_extload.xml')
 nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r', 
@@ -278,6 +260,8 @@ nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r',
                      '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
 ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', ['/bodyset/toes_r'])
 contact.addContactGroup(ContactGroup)
+contact.setNormalizeTrackingError(True)
+contact.setEnabled(True)
 problem.addGoal(contact)
 
 # # reaction goal
@@ -323,7 +307,7 @@ solver.setGuess(initGuess)
 study.set_write_solution(True)
 # study.printToXML('./output/MocoStudy.xml')
 
-# trackingSolution = study.solve()
+trackingSolution = study.solve()
 # trackingSolution.unseal()
 # trackingSolution.write('output/tracking_solution.sto')
 # study.visualize(trackingSolution)
