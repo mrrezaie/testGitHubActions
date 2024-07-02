@@ -128,9 +128,9 @@ import numpy as np
 import os
 
 # goal weights
-markerW  = 1
-GRFW     = 0.1
-PFJLW    = 0.1
+markerW  = 10
+GRFW     = 1
+PFJLW    = 1
 # controlW = 0.1 # use default
 
 # osim.ModelVisualizer.addDirToGeometrySearchPaths('output/Geometry')
@@ -216,7 +216,7 @@ track.set_minimize_control_effort(True)
 # track.set_control_effort_weight(controlW) # default weight
 track.set_initial_time(t0)
 track.set_final_time(t1)
-track.set_mesh_interval(0.015)
+track.set_mesh_interval(0.02)
 
 # track.printToXML('output/track.xml')
 study = track.initialize()
@@ -287,9 +287,9 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(False)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-3)
-solver.set_optim_convergence_tolerance(1e-3)
-solver.set_optim_max_iterations(10000)
+solver.set_optim_constraint_tolerance(1e-2)
+solver.set_optim_convergence_tolerance(1e-2)
+solver.set_optim_max_iterations(100000)
 # solver.set_multibody_dynamics_mode('explicit') # implicit for inverse; explicit for forward dynamics
 # solver.set_optim_finite_difference_scheme('central')
 # solver.set_parallel(0)
