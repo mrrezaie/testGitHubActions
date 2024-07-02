@@ -12,16 +12,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Miniconda
+      - name: Install and setup Miniconda
         uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: 'moco'
           python-version: '3.11'
 
-      - name: Install opensim-moco package
+      - name: Install opensim-moco package (conda)
         run: conda install -c opensim-org opensim-moco
 
-      - name: Run OpenSim Moco script
+      - name: Run Moco script
         run: python mocoPFJCF.py
 
       - name: List files in the repository
