@@ -252,25 +252,25 @@ problem = study.updProblem()
 #         effort.setWeightForControl(forcePath, 10) # why???
 
 # contact tracking goal (weight = 1).
-# contact = osim.MocoContactTrackingGoal('contact', GRFW)
-# contact.setExternalLoadsFile('input/setup_extload.xml')
-# nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r', 
-#                      '/forceset/ground_mid2_r',  '/forceset/ground_fore1_r', 
-#                      '/forceset/ground_fore2_r', '/forceset/ground_fore3_r', 
-#                      '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
-# ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', ['/bodyset/toes_r'])
-# contact.addContactGroup(ContactGroup)
-# contact.setNormalizeTrackingError(True)
-# contact.setEnabled(True)
-# problem.addGoal(contact)
+contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
+contact.setExternalLoadsFile('input/setup_extload.xml')
+nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r', 
+                     '/forceset/ground_mid2_r',  '/forceset/ground_fore1_r', 
+                     '/forceset/ground_fore2_r', '/forceset/ground_fore3_r', 
+                     '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
+ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', ['/bodyset/toes_r'])
+contact.addContactGroup(ContactGroup)
+contact.setNormalizeTrackingError(True)
+contact.setEnabled(True)
+problem.addGoal(contact)
 
-# reaction goal
-PFJLoadGoal = osim.MocoJointReactionGoal('patellofemoral_compressive_force', PFJLW)
-PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
-PFJLoadGoal.setLoadsFrame('child')
-PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
-PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
-problem.addGoal(PFJLoadGoal)
+# # reaction goal
+# PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
+# PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+# PFJLoadGoal.setLoadsFrame('child')
+# PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+# PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
+# problem.addGoal(PFJLoadGoal)
 
 ########## Solver
 # solver = study.initCasADiSolver()
