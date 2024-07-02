@@ -105,7 +105,7 @@ for i in model.getCoordinateSet():
 
 model.finalizeConnections()
 model.finalizeFromProperties()
-model.initSystem()  
+state = model.initSystem()  
 # model.printToXML('./output/scaled_upd.osim')
 
 
@@ -120,7 +120,7 @@ stateTable.trim(t0, t1)
 # osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
 
-# %% Tracking
+# Tracking
 ######################################################################
 
 import opensim as osim
@@ -129,8 +129,9 @@ import os
 
 # goal weights
 markerW  = 1
-grfW     = 0.1
-controlW = 0.1 
+GRFW     = 0.1
+PFJLW    = 0.1
+# controlW = 0.1 # use default
 
 # osim.ModelVisualizer.addDirToGeometrySearchPaths('output/Geometry')
 
@@ -192,11 +193,11 @@ modelProc = osim.ModelProcessor(model)
 # # modelProc.append(osim.ModOpAddExternalLoads('input/setup_extLoad.xml')) # already exist in contact tracking
 modelProc.append(osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
 modelProc.append(osim.ModOpIgnoreTendonCompliance())
+modelProc.append(osim.ModOpIgnoreActivationDynamics())
 modelProc.append(osim.ModOpIgnorePassiveFiberForcesDGF())
 modelProc.append(osim.ModOpScaleMaxIsometricForce(1.5))
 modelProc.append(osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
 # # modelProc.append(osim.ModOpUseImplicitTendonComplianceDynamicsDGF()) # tendon is already rigid
-modelProc.append(osim.ModOpIgnoreActivationDynamics())
 # # modelProc.append(osim.ModOpRemoveMuscles())
 # # modelProc.append(osim.ModOpAddReserves(1))
 
@@ -212,10 +213,10 @@ modelProc.append(osim.ModOpReplaceJointsWithWelds(locked))
 
 track.setModel(modelProc)
 track.set_minimize_control_effort(True)
-track.set_control_effort_weight(controlW) # default weight
+# track.set_control_effort_weight(controlW) # default weight
 track.set_initial_time(t0)
 track.set_final_time(t1)
-# track.set_mesh_interval(0.01) # ???
+track.set_mesh_interval(0.015)
 
 # track.printToXML('output/track.xml')
 study = track.initialize()
@@ -223,15 +224,16 @@ problem = study.updProblem()
 
 
 ########## Bounds
-# set joint RoM as min and max bounds for each free coordinate
-# It is already set by moco, so it's not necessary
-for i in model.getCoordinateSet():
-    name = i.getAbsolutePathString()
-    if i.getMotionType()!=3 and i.get_locked()==False:
-        problem.setStateInfo(name+'/value', [i.getRangeMin(), i.getRangeMax()])
+# already set by moco, so it's not necessary
 
-problem.setStateInfoPattern('/jointset/.*/speed', [-20, 20])
-problem.setStateInfoPattern('/forceset/.*/activation', [0.01, 1])
+# set joint RoM as min and max bounds for each free coordinate
+# for coordinate in model.getCoordinateSet():
+#     cName = coordinate.getAbsolutePathString()
+#     if not coordinate.isConstraint():
+#         problem.setStateInfo(cName+'/value', [coordinate.getRangeMin(), coordinate.getRangeMax()])
+
+# problem.setStateInfoPattern('/jointset/.*/speed', [-20, 20])
+# problem.setStateInfoPattern('/forceset/.*/activation', [0.01, 1])
 # problem.setStateInfoPattern('/forceset/.*/normalized_tendon_force', [0, 1.8], [], []);
 
 # # set activation bounds only for muscles (not all forces)
@@ -239,17 +241,15 @@ problem.setStateInfoPattern('/forceset/.*/activation', [0.01, 1])
 #   name = i.getAbsolutePathString()
 #   problem.setStateInfoPattern(name+'/activation', [0.01, 1])
 #   problem.setStateInfoPattern(name+'/fiber_length', [0, 1])
-#   problem.setStateInfoPattern(name+'/normalized_tendon_force', [0, 1])
+#   problem.setStateInfoPattern(name+'/normalized_tendon_force', [1, 1.8])
 
 ########## Goals
-effort = osim.MocoControlGoal.safeDownCast(problem.updGoal('control_effort'))
-# effort.setWeight(controlW) # the same for track.set_control_effort_weight
-
-# why???
-for i in model.getForceSet():
-    forcePath = i.getAbsolutePathString()
-    if 'pelvis' in forcePath:
-        effort.setWeightForControl(forcePath, 10)
+# effort = osim.MocoControlGoal.safeDownCast(problem.updGoal('control_effort'))
+# # effort.setWeight(controlW) # the same for track.set_control_effort_weight
+# for i in model.getForceSet():
+#     forcePath = i.getAbsolutePathString()
+#     if 'pelvis' in forcePath:
+#         effort.setWeightForControl(forcePath, 10) # why???
 
 # contact tracking goal (weight = 1).
 def GRFTrackingGoal(name, weight=1, projectionVector=[0,0,0]):
@@ -263,13 +263,20 @@ def GRFTrackingGoal(name, weight=1, projectionVector=[0,0,0]):
     contact.setProjectionVector(osim.Vec3(projectionVector))
     return contact
 # one goal for every axis
-contactX = GRFTrackingGoal('contactX_r', weight=grfW, projectionVector=[1,0,0])
-contactY = GRFTrackingGoal('contactY_r', weight=grfW, projectionVector=[0,1,0])
-contactZ = GRFTrackingGoal('contactZ_r', weight=grfW, projectionVector=[0,0,1])
+contactX = GRFTrackingGoal('contactX_r', weight=GRFW, projectionVector=[1,0,0])
+contactY = GRFTrackingGoal('contactY_r', weight=GRFW, projectionVector=[0,1,0])
+contactZ = GRFTrackingGoal('contactZ_r', weight=GRFW, projectionVector=[0,0,1])
 problem.addGoal(contactX)
 problem.addGoal(contactY)
 problem.addGoal(contactZ)
 
+# # reaction goal
+# PFJLoadGoal = osim.MocoJointReactionGoal('patellofemoral_compressive_force', PFJLW)
+# PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+# PFJLoadGoal.setLoadsFrame('child')
+# PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+# PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
+# problem.addGoal(PFJLoadGoal)
 
 ########## Solver
 # solver = study.initCasADiSolver()
@@ -278,10 +285,13 @@ solver.resetProblem(problem)
 # solver.set_verbosity(2)
 # solver.set_optim_solver("ipopt")
 # solver.set_parameters_require_initsystem(False)
-solver.set_num_mesh_intervals(80)
-solver.set_optim_constraint_tolerance(1e-2)
-solver.set_optim_convergence_tolerance(1e-2)
+# solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
+print('Total number of mesh intervals', solver.get_num_mesh_intervals())
+solver.set_optim_constraint_tolerance(1e-3)
+solver.set_optim_convergence_tolerance(1e-3)
 solver.set_optim_max_iterations(10000)
+# solver.set_multibody_dynamics_mode('explicit') # implicit for inverse; explicit for forward dynamics
+# solver.set_optim_finite_difference_scheme('central')
 # solver.set_parallel(0)
 
 # set coordinates value and speed as initial guesses
@@ -297,11 +307,11 @@ for i in model.getCoordinateSet():
             vector = osim.interpolate(x,y,nx)
             initGuess.setState(name, vector)
 
-# initGuess.write('output/tracking_init_guess.sto')
+# initGuess.write('./output/tracking_init_guess.sto')
 solver.setGuess(initGuess)
 
 study.set_write_solution(True)
-# study.printToXML('./tracking_simulation.xml')
+# study.printToXML('./output/MocoStudy.xml')
 
 trackingSolution = study.solve()
 # trackingSolution.unseal()
