@@ -130,7 +130,7 @@ import os
 # goal weights
 markerW  = 1
 grfW     = 0.1
-controlW = 0.001 
+controlW = 0.1 
 
 # osim.ModelVisualizer.addDirToGeometrySearchPaths('output/Geometry')
 
