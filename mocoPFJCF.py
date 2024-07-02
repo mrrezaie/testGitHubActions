@@ -216,7 +216,7 @@ track.set_minimize_control_effort(True)
 # track.set_control_effort_weight(controlW) # default weight
 track.set_initial_time(t0)
 track.set_final_time(t1)
-track.set_mesh_interval(0.01)
+track.set_mesh_interval(0.005)
 
 # track.printToXML('output/track.xml')
 study = track.initialize()
