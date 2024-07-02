@@ -216,7 +216,7 @@ track.set_minimize_control_effort(True)
 # track.set_control_effort_weight(controlW) # default weight
 track.set_initial_time(t0)
 track.set_final_time(t1)
-track.set_mesh_interval(0.005)
+track.set_mesh_interval(0.008)
 
 # track.printToXML('output/track.xml')
 study = track.initialize()
@@ -252,17 +252,17 @@ problem = study.updProblem()
 #         effort.setWeightForControl(forcePath, 10) # why???
 
 # contact tracking goal (weight = 1).
-contact = osim.MocoContactTrackingGoal('contact', GRFW)
-contact.setExternalLoadsFile('input/setup_extload.xml')
-nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r', 
-                     '/forceset/ground_mid2_r',  '/forceset/ground_fore1_r', 
-                     '/forceset/ground_fore2_r', '/forceset/ground_fore3_r', 
-                     '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
-ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', ['/bodyset/toes_r'])
-contact.addContactGroup(ContactGroup)
-contact.setNormalizeTrackingError(True)
-contact.setEnabled(True)
-problem.addGoal(contact)
+# contact = osim.MocoContactTrackingGoal('contact', GRFW)
+# contact.setExternalLoadsFile('input/setup_extload.xml')
+# nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r', 
+#                      '/forceset/ground_mid2_r',  '/forceset/ground_fore1_r', 
+#                      '/forceset/ground_fore2_r', '/forceset/ground_fore3_r', 
+#                      '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
+# ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', ['/bodyset/toes_r'])
+# contact.addContactGroup(ContactGroup)
+# contact.setNormalizeTrackingError(True)
+# contact.setEnabled(True)
+# problem.addGoal(contact)
 
 # # reaction goal
 # PFJLoadGoal = osim.MocoJointReactionGoal('patellofemoral_compressive_force', PFJLW)
@@ -279,11 +279,11 @@ solver.resetProblem(problem)
 # solver.set_verbosity(2)
 # solver.set_optim_solver("ipopt")
 # solver.set_parameters_require_initsystem(False)
-# solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
+# solver.set_num_mesh_intervals(40) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(1e-3)
 solver.set_optim_convergence_tolerance(1e-3)
-solver.set_optim_max_iterations(100000)
+solver.set_optim_max_iterations(1000)
 # solver.set_multibody_dynamics_mode('explicit') # implicit for inverse; explicit for forward dynamics
 # solver.set_optim_finite_difference_scheme('central')
 # solver.set_parallel(0)
