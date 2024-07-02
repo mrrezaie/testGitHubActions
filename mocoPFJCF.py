@@ -264,13 +264,13 @@ problem = study.updProblem()
 # contact.setEnabled(True)
 # problem.addGoal(contact)
 
-# # reaction goal
-# PFJLoadGoal = osim.MocoJointReactionGoal('patellofemoral_compressive_force', PFJLW)
-# PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
-# PFJLoadGoal.setLoadsFrame('child')
-# PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
-# PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
-# problem.addGoal(PFJLoadGoal)
+# reaction goal
+PFJLoadGoal = osim.MocoJointReactionGoal('patellofemoral_compressive_force', PFJLW)
+PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+PFJLoadGoal.setLoadsFrame('child')
+PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
+problem.addGoal(PFJLoadGoal)
 
 ########## Solver
 # solver = study.initCasADiSolver()
@@ -279,7 +279,7 @@ solver.resetProblem(problem)
 # solver.set_verbosity(2)
 # solver.set_optim_solver("ipopt")
 # solver.set_parameters_require_initsystem(False)
-# solver.set_num_mesh_intervals(40) # adjusted by track.set_mesh_interval()
+# solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(1e-3)
 solver.set_optim_convergence_tolerance(1e-3)
