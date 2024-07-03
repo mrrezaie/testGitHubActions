@@ -85,9 +85,9 @@ contacts = {
                         model.getBodySet().get('calcn_r'), 'fore2_r'),
             'S6': osim.ContactSphere(0.02, osim.Vec3([0.14,-0.001,0.03]),
                         model.getBodySet().get('calcn_r'), 'fore3_r'),
-            'S7': osim.ContactSphere(0.02, osim.Vec3([0.23,-0.001,-0.01]),
+            'S7': osim.ContactSphere(0.02, osim.Vec3([0.05,-0.001,-0.01]),
                         model.getBodySet().get('toes_r'), 'toe1_r'),
-            'S8': osim.ContactSphere(0.02, osim.Vec3([0.21,-0.001,0.03]),
+            'S8': osim.ContactSphere(0.02, osim.Vec3([0.01,-0.001,0.03]),
                         model.getBodySet().get('toes_r'), 'toe2_r'),
             'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-osim.SimTK_PI/2]),
                               model.getGround(), 'ground')}
@@ -150,7 +150,7 @@ import os
 # goal weights
 markerW  = 1
 GRFW     = 1
-PFJLW    = 1
+# PFJLW    = 1
 # controlW = 0.1 # use default
 
 # osim.ModelVisualizer.addDirToGeometrySearchPaths('./output/Geometry')
@@ -293,8 +293,8 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(False)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-3)
-solver.set_optim_convergence_tolerance(1e-3)
+solver.set_optim_constraint_tolerance(1e-4)
+solver.set_optim_convergence_tolerance(1e-5)
 solver.set_optim_max_iterations(10000)
 # solver.set_multibody_dynamics_mode('explicit') # implicit for inverse; explicit for forward dynamics
 # solver.set_optim_finite_difference_scheme('central')
@@ -306,7 +306,6 @@ initGuess = solver.createGuess('bounds')
 x = osim.Vector(stateTable.getIndependentColumn())
 nx = initGuess.getTime()
 for coordinate in model.getCoordinateSet():
-    print(coordinate.getAbsolutePathString())
     if coordinate.get_locked()==False:
         for j in ['/value', '/speed']:
             name = coordinate.getAbsolutePathString()+j
@@ -341,4 +340,3 @@ osim.STOFileAdapter().write(GRFTable, './output/tracking_grf_solution.sto')
 jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, trackingSolution, ['.*reaction_on_child'])
 suffix = ['_force_x','_force_y', '_force_z', '_moment_x','_moment_y', '_moment_z']
 osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), './output/tracking_joint_load_solution.sto')
-
