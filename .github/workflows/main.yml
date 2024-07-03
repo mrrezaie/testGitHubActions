@@ -6,7 +6,7 @@ jobs:
   build-and-run:
     name: Main
     runs-on: windows-latest
-    timeout-minutes: 1440 # 24 hours
+    timeout-minutes: 1440 # 24 hours, strictly limitted to 6 hours
 
     steps:
       - name: Checkout repository
@@ -18,17 +18,19 @@ jobs:
           activate-environment: 'moco'
           python-version: '3.11'
 
-      - name: Install opensim-moco package (conda)
+      - name: Install opensim-moco conda package
         run: conda install -c opensim-org opensim-moco
 
-      - name: Run Moco script
+      - name: Run Moco study script
         run: python mocoPFJCF.py
 
-      - name: List files in the repository
-        run: dir
+      # - name: List files in the repository
+      #   run: dir
 
-      - name: Upload Moco solution file
+      - name: Upload Moco solution
         uses: actions/upload-artifact@v4
         with:
           name: Moco-Solution-${{ github.run_number }}
-          path: 'MocoStudy_solution.sto'
+          path: |
+            MocoStudy_solution.sto
+            ./output
