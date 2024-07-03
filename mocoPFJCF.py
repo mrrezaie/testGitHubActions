@@ -295,7 +295,7 @@ solver.resetProblem(problem)
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(1e-3)
 solver.set_optim_convergence_tolerance(1e-3)
-solver.set_optim_max_iterations(1000)
+solver.set_optim_max_iterations(10000)
 # solver.set_multibody_dynamics_mode('explicit') # implicit for inverse; explicit for forward dynamics
 # solver.set_optim_finite_difference_scheme('central')
 # solver.set_parallel(0)
