@@ -7,6 +7,9 @@ markers_fileName =  './input/exp_markers.trc'
 IK_fileName =       './input/out_ik.mot'
 ExtLoads_fileName = './input/setup_extLoad.xml'
 GRF_fileName =      './input/exp_grf.mot'
+geometries =        './input/Geometry'
+
+osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
 
 # update the path to the GRF STO file in the external loads XML file
 ExtLoads = osim.ExternalLoads(ExtLoads_fileName, True)
@@ -24,54 +27,61 @@ if not os.path.exists('./output'):
 t0 = 0.245 # init time
 t1 = 0.535 # end time # stride = 1.025 
 
-# add extra things to the scaled model
+########## model processing
 model = osim.Model(model_fileName)
-model.initSystem()
-
 model.setName('moco_adjusted')
 
-# store right muscles
+# replace muscles with DeGrooteFregly2016
+osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
+
+# # useful functions
+# osim.ModelFactory().removeMuscles(model)
+# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
+# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
+# osim.ModelFactory().replaceMusclesWithPathActuators(model)
+
+# store the adjusted muscles of the right side
 muscles = dict()
 for muscle in model.getMuscles():
     if muscle.getName().endswith('_r'):
-        if muscle.getConcreteClassName() == 'Millard2012EquilibriumMuscle':
-            muscle = osim.Millard2012EquilibriumMuscle().safeDownCast(muscle)
-            muscle.setMinimumActivation(0)
-            muscle.setMinControl(0) # more physiological
-        # muscle.set_ignore_activation_dynamics(True)
-        # muscle.set_ignore_tendon_compliance(True)
+        muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
+        muscle.setMinControl(0) # more physiological
+        muscle.set_ignore_activation_dynamics(True)
+        muscle.set_ignore_tendon_compliance(True)
+        muscle.set_ignore_passive_fiber_force(True)
+        muscle.set_active_force_width_scale(1.5)
         muscle.set_max_contraction_velocity(15) # more physiological
         muscles[muscle.getName()] = muscle.clone()
 
 # remove all forces
-model.updForceSet().clearAndDestroy() # model.set_ForceSet(osim.ForceSet())
+model.updForceSet().clearAndDestroy()
 
-# include right muscles only and remove left muscles
+# include only right muscles
 for muscle in muscles.values():
     model.addForce(muscle)
 
-# add residual and reserve actuators
-for coordinate in model.getCoordinateSet():
-    cName = coordinate.getName()
-    if coordinate.getMotionType()!=3 and coordinate.get_locked()==False: # free
-        CA = osim.CoordinateActuator()
-        CA.setCoordinate(coordinate)
-        CA.setMinControl(float('-inf'))
-        CA.setMaxControl(float('+inf'))
+# add coordinate actuators
+osim.ModelFactory().createReserveActuators(model, 1, float('inf'))
+
+# adjust the optimal force of the actuators
+for force in model.getForceSet():
+    if force.getConcreteClassName() == 'CoordinateActuator':
+        CA = osim.CoordinateActuator().safeDownCast(force)
+        cName  = CA.get_coordinate()
+        # residuals
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
             if cName[-3:] in ['_tx','_ty','_tz']:
                 CA.setOptimalForce(10) # weak residual
             else:
                 CA.setOptimalForce(1) # weak residual
+        # reserve
         else: 
             CA.setName(cName+'_reserve')
             if ('lumbar' in cName) or (cName.endswith('_l')):
                 CA.setOptimalForce(250) # strong reserve
             else:
                 CA.setOptimalForce(1) # weak reserve
-        model.addForce(CA)
-        # model.addComponent(CA)
 
 
 # add contact geometries (only right foot)
@@ -124,11 +134,29 @@ for coordinate in model.getCoordinateSet():
     cName = coordinate.getAbsolutePathString()
     coordinate.set_default_value(static.getDependentColumn(cName+'/value').getElt(0,0))
 
+# finalize the model and write it
 model.finalizeConnections()
 model.finalizeFromProperties()
 state = model.initSystem()  
 
-# create state from kinematics
+model.printToXML('./output/scaled_upd.osim')
+
+# modelProc = osim.ModelProcessor(model)
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName))
+# modelProc.append( osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
+# modelProc.append( osim.ModOpIgnoreTendonCompliance())
+# modelProc.append( osim.ModOpIgnoreActivationDynamics())
+# modelProc.append( osim.ModOpIgnorePassiveFiberForcesDGF())
+# modelProc.append( osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName)) # contact tracking
+# modelProc.append( osim.ModOpScaleMaxIsometricForce(1.5))
+# modelProc.append( osim.ModOpUseImplicitTendonComplianceDynamicsDGF())
+# modelProc.append( osim.ModOpRemoveMuscles())
+# modelProc.append( osim.ModOpAddReserves(1))
+# modelProc.append( osim.ModOpReplaceJointsWithWelds(['mtp_r','mtp_l']))
+
+
+########## create state from kinematics
 stateTable = osim.TableProcessor(IK_fileName)
 stateTable.append(osim.TabOpLowPassFilter(15))
 stateTable.append(osim.TabOpConvertDegreesToRadians())
@@ -138,20 +166,21 @@ stateTable = stateTable.process(model)
 stateTable.trim(t0, t1)
 osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
-
-# Moco tracking simulation
-######################################################################
-
+########## Moco tracking simulation
 # goal weights
 markerW  = 1
 GRFW     = 1
 controlW = 0.001 # default in MocoTrack
 # PFJLW    = 1
 
-# osim.ModelVisualizer.addDirToGeometrySearchPaths('./output/Geometry')
-
 track = osim.MocoTrack()
 # track.setName('running_track')
+track.setModel( osim.ModelProcessor(model))
+track.set_minimize_control_effort(True)
+track.set_control_effort_weight(controlW)
+track.set_initial_time(t0)
+track.set_final_time(t1)
+track.set_mesh_interval(0.008) # 125 Hz
 
 ########## coordinate tracking
 # track.setStatesReference(osim.TableProcessor('./output/state.sto'))
@@ -159,6 +188,7 @@ track = osim.MocoTrack()
 # track.set_states_global_tracking_weight(10)
 # track.set_track_reference_position_derivatives(True)
 # track.set_apply_tracked_states_to_guess(True)
+
 
 ########## marker tracking
 # markerfile = osim.TimeSeriesTableVec3(markers_fileName).flatten()
@@ -202,32 +232,14 @@ markerWeights.cloneAndAppend( osim.MocoWeight('R.MT5',      6))
 markerWeights.cloneAndAppend( osim.MocoWeight('L.MT5',      6))
 track.set_markers_weight_set(markerWeights)
 
-modelProc = osim.ModelProcessor(model)
-modelProc.append( osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
-modelProc.append( osim.ModOpIgnoreTendonCompliance())
-modelProc.append( osim.ModOpIgnoreActivationDynamics())
-modelProc.append( osim.ModOpIgnorePassiveFiberForcesDGF())
-modelProc.append( osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
-# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName)) # contact tracking
-# modelProc.append( osim.ModOpScaleMaxIsometricForce(1.5))
-# modelProc.append( osim.ModOpUseImplicitTendonComplianceDynamicsDGF())
-# modelProc.append( osim.ModOpRemoveMuscles())
-# modelProc.append( osim.ModOpAddReserves(1))
-# modelProc.append( osim.ModOpReplaceJointsWithWelds(['mtp_r','mtp_l']))
-
-track.setModel(modelProc)
-track.set_minimize_control_effort(True)
-track.set_control_effort_weight(controlW)
-track.set_initial_time(t0)
-track.set_final_time(t1)
-track.set_mesh_interval(0.008) # 125 Hz
-
 study = track.initialize()
+study.set_write_solution(True)
 problem = study.updProblem()
 
 
 ########## Bounds
 # already set by moco, so it's not necessary
+
 
 ########## Goals
 # effort = osim.MocoControlGoal.safeDownCast(problem.updGoal('control_effort'))
@@ -277,6 +289,7 @@ solver.set_optim_max_iterations(10000)
 # solver.set_optim_finite_difference_scheme('central')
 # solver.set_parallel(0)
 
+
 ########## initial guesses
 initGuess = solver.createGuess('bounds')
 # stateTable = osim.TimeSeriesTable('./output/state.sto')
@@ -293,7 +306,6 @@ for coordinate in model.getCoordinateSet():
 # initGuess.write('./output/tracking_init_guess.sto')
 solver.setGuess(initGuess)
 
-study.set_write_solution(True)
 study.printToXML('./output/tracking_study.xml')
 
 trackingSolution = study.solve()
@@ -303,6 +315,7 @@ trackingSolution.write('./output/tracking_solution.sto')
 
 # trackingSolution = osim.MocoTrajectory('./output/tracking_solution.sto')
 
+
 ########## post-hoc analyses
 
 # get ground reaction forces
@@ -310,8 +323,7 @@ GRFTable = osim.createExternalLoadsTableForGait(model, trackingSolution, nameCon
 osim.STOFileAdapter().write(GRFTable, './output/tracking_grf_solution.sto')
 
 # add external loads for the joint reaction analysis
-modelProc.append(osim.ModOpAddExternalLoads(ExtLoads_fileName))
-model = modelProc.process()
+model.addComponent( osim.ExternalLoads(ExtLoads_fileName,True) )
 model.initSystem()
 
 # get joint contact forces
@@ -319,6 +331,5 @@ jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, trackingSolution, [
 suffix = ['_mx','_my','_mz', '_fx','_fy','_fz']
 osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), './output/tracking_joint_load_solution.sto')
 
-# remove external loads to avoid further issues related to path
-model.upd_ComponentSet().clearAndDestroy()
-model.printToXML('./output/scaled_upd.osim')
+# # remove external loads to avoid further issues related to path
+# model.upd_ComponentSet().clearAndDestroy()
