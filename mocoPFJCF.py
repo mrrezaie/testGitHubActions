@@ -40,10 +40,11 @@ osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
 # osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 # osim.ModelFactory().replaceMusclesWithPathActuators(model)
 
-# store the adjusted muscles of the right side
+# adjusted and store the right muscles only
 muscles = dict()
 for muscle in model.getMuscles():
-    if muscle.getName().endswith('_r'):
+    mName = muscle.getName()
+    if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
         muscle.setMinControl(0) # more physiological
         muscle.set_ignore_activation_dynamics(True)
@@ -51,12 +52,12 @@ for muscle in model.getMuscles():
         muscle.set_ignore_passive_fiber_force(True)
         muscle.set_active_force_width_scale(1.5)
         muscle.set_max_contraction_velocity(15) # more physiological
-        muscles[muscle.getName()] = muscle.clone()
+        muscles[mName] = muscle.clone()
 
 # remove all forces
 model.updForceSet().clearAndDestroy()
 
-# include only right muscles
+# include right muscles only
 for muscle in muscles.values():
     model.addForce(muscle)
 
@@ -83,8 +84,7 @@ for force in model.getForceSet():
             else:
                 CA.setOptimalForce(1) # weak reserve
 
-
-# add contact geometries (only right foot)
+# add contact geometries (right foot only)
 ground  = model.getGround()
 calcn_r = model.getBodySet().get('calcn_r')
 toes_r  = model.getBodySet().get('toes_r')
@@ -103,7 +103,7 @@ contacts = {
 for contact in contacts.keys():
     model.addContactGeometry(contacts[contact])
 
-# add contact forces (only right foot)
+# add contact forces (right foot only)
 contactForces = {
     'S1F': osim.SmoothSphereHalfSpaceForce('ground_heel_r',  contacts['S1'], contacts['floor']), 
     'S2F': osim.SmoothSphereHalfSpaceForce('ground_mid1_r',  contacts['S2'], contacts['floor']), 
@@ -167,7 +167,7 @@ stateTable.trim(t0, t1)
 osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
 ########## Moco tracking simulation
-# goal weights
+# goals weight
 markerW  = 1
 GRFW     = 1
 controlW = 0.001 # default in MocoTrack
@@ -181,6 +181,7 @@ track.set_control_effort_weight(controlW)
 track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.01) # 100 Hz
+
 
 ########## coordinate tracking
 # track.setStatesReference(osim.TableProcessor('./output/state.sto'))
@@ -258,6 +259,7 @@ nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r',
                      '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
 ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
                         ['/bodyset/toes_r']) # why 'toes' is typically used???
+# no need to use projection
 contact.addContactGroup(ContactGroup)
 contact.setNormalizeTrackingError(True)
 contact.setEnabled(True)
