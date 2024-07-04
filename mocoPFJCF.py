@@ -58,13 +58,16 @@ for coordinate in model.getCoordinateSet():
         CA.setCoordinate(coordinate)
         CA.setMinControl(float('-inf'))
         CA.setMaxControl(float('+inf'))
-        if 'pelvis' in cName: 
+        if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(1) # weak residual
+            if cName[-3:] in ['_tx','_ty','_tz']:
+                CA.setOptimalForce(10) # weak residual
+            else:
+                CA.setOptimalForce(1) # weak residual
         else: 
             CA.setName(cName+'_reserve')
             if ('lumbar' in cName) or (cName.endswith('_l')):
-                CA.setOptimalForce(500) # strong reserve
+                CA.setOptimalForce(250) # strong reserve
             else:
                 CA.setOptimalForce(1) # weak reserve
         model.addForce(CA)
