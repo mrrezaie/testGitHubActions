@@ -24,8 +24,8 @@ if not os.path.exists('./output'):
     os.mkdir('./output')
 
 # time frames (only one step)
-t0 = 0.245 # init time
-t1 = 0.535 # end time # stride = 1.025 
+t0 = 0.240 # init time
+t1 = 0.540 # end time # stride = 1.025 
 
 ########## model processing
 model = osim.Model(model_fileName)
@@ -180,7 +180,7 @@ track.set_minimize_control_effort(True)
 track.set_control_effort_weight(controlW)
 track.set_initial_time(t0)
 track.set_final_time(t1)
-track.set_mesh_interval(0.008) # 125 Hz
+track.set_mesh_interval(0.01) # 100 Hz
 
 ########## coordinate tracking
 # track.setStatesReference(osim.TableProcessor('./output/state.sto'))
