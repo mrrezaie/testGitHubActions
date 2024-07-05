@@ -40,6 +40,20 @@ osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
 # osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 # osim.ModelFactory().replaceMusclesWithPathActuators(model)
 
+# modelProc = osim.ModelProcessor(model)
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName))
+# modelProc.append( osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
+# modelProc.append( osim.ModOpIgnoreTendonCompliance())
+# modelProc.append( osim.ModOpIgnoreActivationDynamics())
+# modelProc.append( osim.ModOpIgnorePassiveFiberForcesDGF())
+# modelProc.append( osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName)) # contact tracking
+# modelProc.append( osim.ModOpScaleMaxIsometricForce(1.5))
+# modelProc.append( osim.ModOpUseImplicitTendonComplianceDynamicsDGF())
+# modelProc.append( osim.ModOpRemoveMuscles())
+# modelProc.append( osim.ModOpAddReserves(1))
+# modelProc.append( osim.ModOpReplaceJointsWithWelds(['mtp_r','mtp_l']))
+
 # fNames   = [force.getName() for force in model.getForceSet()]
 # fClasses = [force.getConcreteClassName() for force in model.getForceSet()]
 # for fName, fClass in zip(fNames,fClasses):
@@ -62,7 +76,8 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        # muscle.setMinControl(0.01) # less physiological but faster
+        muscle.setMinControl(0.01) # less physiological but faster
+        muscle.set_fiber_damping(0.01) # less physiological but faster
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_ignore_passive_fiber_force(True)
@@ -94,10 +109,7 @@ for force in model.getForceSet():
         # residuals
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            if cName[-3:] in ['_tx','_ty','_tz']:
-                CA.setOptimalForce(1000) # less physiological but faster
-            else:
-                CA.setOptimalForce(500) # strong residual
+            CA.setOptimalForce(1000) # less physiological but faster
         # reserve
         else: 
             CA.setName(cName+'_reserve')
@@ -112,29 +124,27 @@ calcn_r = model.getBodySet().get('calcn_r')
 toes_r  = model.getBodySet().get('toes_r')
 pi = osim.SimTK_PI
 contacts = {
-    'S1': osim.ContactSphere(0.030, osim.Vec3([0.02,0,0]),          calcn_r, 'heel_r'),
-    'S2': osim.ContactSphere(0.025, osim.Vec3([0.1,-0.001,-0.02]),  calcn_r, 'mid1_r'),
-    'S3': osim.ContactSphere(0.025, osim.Vec3([0.09,-0.001,0.02]),  calcn_r, 'mid2_r'),
-    'S4': osim.ContactSphere(0.025, osim.Vec3([0.18,-0.001,-0.03]), calcn_r, 'fore1_r'),
-    'S5': osim.ContactSphere(0.025, osim.Vec3([0.16,-0.001,0]),     calcn_r, 'fore2_r'),
-    'S6': osim.ContactSphere(0.025, osim.Vec3([0.14,-0.001,0.03]),  calcn_r, 'fore3_r'),
-    'S7': osim.ContactSphere(0.025, osim.Vec3([0.05,-0.001,-0.01]), toes_r,  'toe1_r'),
-    'S8': osim.ContactSphere(0.025, osim.Vec3([0.01,-0.001,0.03]),  toes_r,  'toe2_r'),
-    'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'ground')}
+    'S1': osim.ContactSphere(0.032, osim.Vec3([0.02, 0.000,-0.003]),  calcn_r, 'heel_r'),
+    'S2': osim.ContactSphere(0.022, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
+    'S3': osim.ContactSphere(0.022, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
+    'S4': osim.ContactSphere(0.021, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
+    'S5': osim.ContactSphere(0.021, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
+    'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
+    'floor': osim.ContactHalfSpace( osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')
+    }
 
 for contact in contacts.keys():
     model.addContactGeometry(contacts[contact])
 
 # add contact forces (right foot only)
 contactForces = {
-    'S1F': osim.SmoothSphereHalfSpaceForce('ground_heel_r',  contacts['S1'], contacts['floor']), 
-    'S2F': osim.SmoothSphereHalfSpaceForce('ground_mid1_r',  contacts['S2'], contacts['floor']), 
-    'S3F': osim.SmoothSphereHalfSpaceForce('ground_mid2_r',  contacts['S3'], contacts['floor']), 
-    'S4F': osim.SmoothSphereHalfSpaceForce('ground_fore1_r', contacts['S4'], contacts['floor']), 
-    'S5F': osim.SmoothSphereHalfSpaceForce('ground_fore2_r', contacts['S5'], contacts['floor']), 
-    'S6F': osim.SmoothSphereHalfSpaceForce('ground_fore3_r', contacts['S6'], contacts['floor']), 
-    'S7F': osim.SmoothSphereHalfSpaceForce('ground_toe1_r',  contacts['S7'], contacts['floor']), 
-    'S8F': osim.SmoothSphereHalfSpaceForce('ground_toe2_r',  contacts['S8'], contacts['floor'])}
+    'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
+    'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
+    'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
+    'S4': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
+    'S5': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
+    'S6': osim.SmoothSphereHalfSpaceForce('floor_toe_r',   contacts['S6'], contacts['floor']), 
+    }
 
 for contactForce in contactForces.keys():
     contactForces[contactForce].set_stiffness(3067776)
@@ -154,7 +164,8 @@ for contactForce in contactForces.keys():
 static = osim.TimeSeriesTable(static_fileName)
 for coordinate in model.getCoordinateSet():
     cName = coordinate.getAbsolutePathString()
-    coordinate.set_default_value(static.getDependentColumn(cName+'/value').getElt(0,0))
+    value = static.getDependentColumn(cName+'/value').getElt(0,0)
+    coordinate.set_default_value(value)
 
 # finalize the model and write it
 model.finalizeConnections()
@@ -163,21 +174,7 @@ state = model.initSystem()
 
 model.printToXML('./output/scaled_upd.osim')
 
-# modelProc = osim.ModelProcessor(model)
-# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName))
-# modelProc.append( osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
-# modelProc.append( osim.ModOpIgnoreTendonCompliance())
-# modelProc.append( osim.ModOpIgnoreActivationDynamics())
-# modelProc.append( osim.ModOpIgnorePassiveFiberForcesDGF())
-# modelProc.append( osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
-# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName)) # contact tracking
-# modelProc.append( osim.ModOpScaleMaxIsometricForce(1.5))
-# modelProc.append( osim.ModOpUseImplicitTendonComplianceDynamicsDGF())
-# modelProc.append( osim.ModOpRemoveMuscles())
-# modelProc.append( osim.ModOpAddReserves(1))
-# modelProc.append( osim.ModOpReplaceJointsWithWelds(['mtp_r','mtp_l']))
-
-
+# %%
 ########## create state from kinematics
 stateTable = osim.TableProcessor(IK_fileName)
 stateTable.append(osim.TabOpLowPassFilter(15))
@@ -188,12 +185,13 @@ stateTable = stateTable.process(model)
 stateTable.trim(t0, t1)
 osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
+
 ########## Moco tracking simulation
 # goals weight
-markerW  = 1
-GRFW     = 1
+markerW  = 10
+GRFW     = 10
 controlW = 0.001 # default in MocoTrack
-# PFJLW    = 1
+# PFJLW    = 10
 
 track = osim.MocoTrack()
 # track.setName('running_track')
@@ -226,33 +224,33 @@ markerWeights.cloneAndAppend( osim.MocoWeight('R.Shoulder', 1))
 markerWeights.cloneAndAppend( osim.MocoWeight('L.Shoulder', 1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.Clavicle', 1))
 markerWeights.cloneAndAppend( osim.MocoWeight('L.Clavicle', 1))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.ASIS',     8))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.ASIS',     8))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.PSIS',     8))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.PSIS',     8))
-markerWeights.cloneAndAppend( osim.MocoWeight('S2',         8))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.TH1',      1))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.TH2',      1))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.TH3',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.ASIS',     4))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.ASIS',     4))
+# markerWeights.cloneAndAppend( osim.MocoWeight('R.PSIS',     4))
+# markerWeights.cloneAndAppend( osim.MocoWeight('L.PSIS',     4))
+markerWeights.cloneAndAppend( osim.MocoWeight('S2',         4))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.TH1',      1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.TH2',      1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.TH3',      1))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.SH1',      1))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.SH2',      1))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.SH3',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.TH1',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.TH2',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.TH3',      1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.SH1',      1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.SH2',      1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.SH3',      1))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.Knee',     4))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.Knee',     4))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.Ankle',    4))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.Ankle',    4))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.Heel',     6))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.Heel',     6))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.Toe',      6))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.Toe',      6))
-markerWeights.cloneAndAppend( osim.MocoWeight('R.MT5',      6))
-markerWeights.cloneAndAppend( osim.MocoWeight('L.MT5',      6))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.SH1',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.SH2',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.SH3',      1))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.Knee',     2))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.Knee',     2))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.Ankle',    2))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.Ankle',    2))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.Heel',     3))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.Heel',     3))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.Toe',      3))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.Toe',      3))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.MT5',      3))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.MT5',      3))
 track.set_markers_weight_set(markerWeights)
 
 study = track.initialize()
@@ -275,10 +273,9 @@ problem = study.updProblem()
 # contact tracking goal
 contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
 contact.setExternalLoadsFile(ExtLoads_fileName)
-nameContactForces = ['/forceset/ground_heel_r',  '/forceset/ground_mid1_r', 
-                     '/forceset/ground_mid2_r',  '/forceset/ground_fore1_r', 
-                     '/forceset/ground_fore2_r', '/forceset/ground_fore3_r', 
-                     '/forceset/ground_toe1_r',  '/forceset/ground_toe2_r']
+nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
+                     '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
+                     '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
 ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
                         ['/bodyset/toes_r']) # why 'toes' is typically used???
 # no need to use projection
