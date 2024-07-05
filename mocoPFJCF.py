@@ -62,14 +62,14 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        # muscle.setMinControl(0) # more physiological (slower)
+        # muscle.setMinControl(0.01) # less physiological but faster
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_ignore_passive_fiber_force(True)
-        muscle.set_active_force_width_scale(1.5) # (slower)
+        muscle.set_active_force_width_scale(1.5) # less physiological but faster
         muscle.set_max_contraction_velocity(25) # more physiological
         MIF = muscle.get_max_isometric_force()
-        muscle.set_max_isometric_force(1.5 * MIF)
+        muscle.set_max_isometric_force(1.5 * MIF) # 1.5 times stronger
         muscles[mName] = muscle.clone()
 
 # remove all forces (and groups)
@@ -95,14 +95,14 @@ for force in model.getForceSet():
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
             if cName[-3:] in ['_tx','_ty','_tz']:
-                CA.setOptimalForce(100) # weak residual
+                CA.setOptimalForce(1000) # less physiological but faster
             else:
-                CA.setOptimalForce(10) # weak residual
+                CA.setOptimalForce(500) # strong residual
         # reserve
         else: 
             CA.setName(cName+'_reserve')
             if ('lumbar' in cName) or (cName.endswith('_l')):
-                CA.setOptimalForce(250) # strong reserve
+                CA.setOptimalForce(1000) # strong reserve
             else:
                 CA.setOptimalForce(1) # weak reserve
 
