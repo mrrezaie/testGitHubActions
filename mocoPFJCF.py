@@ -62,12 +62,12 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        # muscle.setMinControl(0) # more physiological
+        # muscle.setMinControl(0) # more physiological (slower)
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_ignore_passive_fiber_force(True)
-        muscle.set_active_force_width_scale(1.5)
-        muscle.set_max_contraction_velocity(15) # more physiological
+        muscle.set_active_force_width_scale(1.5) # (slower)
+        muscle.set_max_contraction_velocity(25) # more physiological
         muscles[mName] = muscle.clone()
 
 # remove all forces (and groups)
@@ -318,7 +318,7 @@ initGuess = solver.createGuess('bounds')
 x = osim.Vector(stateTable.getIndependentColumn())
 nx = initGuess.getTime()
 for coordinate in model.getCoordinateSet():
-    if coordinate.get_locked()==False:
+    if not coordinate.get_locked():
         for i in ['/value', '/speed']:
             name = coordinate.getAbsolutePathString()+i
             y = osim.Vector(stateTable.getDependentColumn(name).to_numpy())
