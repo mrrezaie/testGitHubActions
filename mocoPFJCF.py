@@ -40,6 +40,22 @@ osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
 # osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 # osim.ModelFactory().replaceMusclesWithPathActuators(model)
 
+# fNames   = [force.getName() for force in model.getForceSet()]
+# fClasses = [force.getConcreteClassName() for force in model.getForceSet()]
+# for fName, fClass in zip(fNames,fClasses):
+#     if ('Muscle' in fClass) and fName.endswith('_r'):
+#         muscle = model.getMuscles().get(fName)
+#         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
+#         muscle.setMinControl(0) # more physiological
+#         muscle.set_ignore_activation_dynamics(True)
+#         muscle.set_ignore_tendon_compliance(True)
+#         muscle.set_ignore_passive_fiber_force(True)
+#         muscle.set_active_force_width_scale(1.5)
+#         muscle.set_max_contraction_velocity(15) # more physiological
+#     else:
+#         fIndex = model.getForceSet().getIndex(fName)
+#         model.getForceSet().remove(fIndex)
+
 # adjusted and store the right muscles only
 muscles = dict()
 for muscle in model.getMuscles():
@@ -54,7 +70,7 @@ for muscle in model.getMuscles():
         muscle.set_max_contraction_velocity(15) # more physiological
         muscles[mName] = muscle.clone()
 
-# remove all forces
+# remove all forces (and groups)
 model.updForceSet().clearAndDestroy()
 
 # include right muscles only
