@@ -206,14 +206,14 @@ osim.STOFileAdapter.write(stateTable, './output/state.sto')
 # goals weight
 markerW  = 1
 GRFW     = 1
-controlW = 0.001 # default in MocoTrack
+controlW = 1 # default in MocoTrack
 # PFJLW    = 1
 
 track = osim.MocoTrack()
 # track.setName('running_track')
 track.setModel( osim.ModelProcessor(model))
-track.set_minimize_control_effort(False)
-# track.set_control_effort_weight(controlW)
+track.set_minimize_control_effort(True)
+track.set_control_effort_weight(controlW)
 # track.set_track_reference_position_derivatives(True)
 track.set_initial_time(t0)
 track.set_final_time(t1)
