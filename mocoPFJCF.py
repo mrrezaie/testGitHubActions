@@ -214,7 +214,7 @@ track = osim.MocoTrack()
 track.setModel( osim.ModelProcessor(model))
 track.set_minimize_control_effort(True)
 track.set_control_effort_weight(controlW)
-# track.set_track_reference_position_derivatives(True)
+track.set_track_reference_position_derivatives(True)
 track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.01) # 100 Hz
