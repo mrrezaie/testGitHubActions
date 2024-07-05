@@ -62,7 +62,7 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        muscle.setMinControl(0) # more physiological
+        # muscle.setMinControl(0) # more physiological
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_ignore_passive_fiber_force(True)
@@ -76,6 +76,10 @@ model.updForceSet().clearAndDestroy()
 # include right muscles only
 for muscle in muscles.values():
     model.addForce(muscle)
+
+# # or use this way
+# indx = model.getForceSet().getIndex(name)
+# model.getForceSet().remove(indx)
 
 # add coordinate actuators
 osim.ModelFactory().createReserveActuators(model, 1, float('inf'))
