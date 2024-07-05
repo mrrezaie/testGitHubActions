@@ -68,6 +68,8 @@ for muscle in model.getMuscles():
         muscle.set_ignore_passive_fiber_force(True)
         muscle.set_active_force_width_scale(1.5) # (slower)
         muscle.set_max_contraction_velocity(25) # more physiological
+        MIF = muscle.get_max_isometric_force()
+        muscle.set_max_isometric_force(1.5 * MIF)
         muscles[mName] = muscle.clone()
 
 # remove all forces (and groups)
