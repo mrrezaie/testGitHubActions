@@ -124,44 +124,44 @@ calcn_r = model.getBodySet().get('calcn_r')
 toes_r  = model.getBodySet().get('toes_r')
 pi = osim.SimTK_PI
 contacts = {
-    'S1': osim.ContactSphere(0.030, osim.Vec3([0.02,0,0]),          calcn_r, 'heel_r'),
-    'S2': osim.ContactSphere(0.025, osim.Vec3([0.1 ,-0.001,-0.02]), calcn_r, 'mid1_r'),
-    'S3': osim.ContactSphere(0.025, osim.Vec3([0.08,-0.001,0.02]),  calcn_r, 'mid2_r'),
-    'S4': osim.ContactSphere(0.025, osim.Vec3([0.18,-0.001,-0.03]), calcn_r, 'fore1_r'),
-    'S5': osim.ContactSphere(0.025, osim.Vec3([0.16,-0.001,0]),     calcn_r, 'fore2_r'),
-    'S6': osim.ContactSphere(0.025, osim.Vec3([0.14,-0.001,0.03]),  calcn_r, 'fore3_r'),
-    'S7': osim.ContactSphere(0.025, osim.Vec3([0.05,-0.001,-0.01]), toes_r,  'toe1_r'),
-    'S8': osim.ContactSphere(0.025, osim.Vec3([0.01,-0.001,0.03]),  toes_r,  'toe2_r'),
-    'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
+    # 'S1': osim.ContactSphere(0.030, osim.Vec3([0.02,0,0]),          calcn_r, 'heel_r'),
+    # 'S2': osim.ContactSphere(0.025, osim.Vec3([0.1 ,-0.001,-0.02]), calcn_r, 'mid1_r'),
+    # 'S3': osim.ContactSphere(0.025, osim.Vec3([0.08,-0.001,0.02]),  calcn_r, 'mid2_r'),
+    # 'S4': osim.ContactSphere(0.025, osim.Vec3([0.18,-0.001,-0.03]), calcn_r, 'fore1_r'),
+    # 'S5': osim.ContactSphere(0.025, osim.Vec3([0.16,-0.001,0]),     calcn_r, 'fore2_r'),
+    # 'S6': osim.ContactSphere(0.025, osim.Vec3([0.14,-0.001,0.03]),  calcn_r, 'fore3_r'),
+    # 'S7': osim.ContactSphere(0.025, osim.Vec3([0.05,-0.001,-0.01]), toes_r,  'toe1_r'),
+    # 'S8': osim.ContactSphere(0.025, osim.Vec3([0.01,-0.001,0.03]),  toes_r,  'toe2_r'),
+    # 'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
-    # 'S1': osim.ContactSphere(0.032, osim.Vec3([0.02, 0.000,-0.003]),  calcn_r, 'heel_r'),
-    # 'S2': osim.ContactSphere(0.022, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
-    # 'S3': osim.ContactSphere(0.022, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
-    # 'S4': osim.ContactSphere(0.021, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
-    # 'S5': osim.ContactSphere(0.021, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
-    # 'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
-    # 'floor': osim.ContactHalfSpace( osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
+    'S1': osim.ContactSphere(0.030, osim.Vec3([0.02, 0.000,-0.003]),  calcn_r, 'heel_r'),
+    'S2': osim.ContactSphere(0.022, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
+    'S3': osim.ContactSphere(0.022, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
+    'S4': osim.ContactSphere(0.021, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
+    'S5': osim.ContactSphere(0.021, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
+    'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
+    'floor': osim.ContactHalfSpace( osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
 for contact in contacts.keys():
     model.addContactGeometry(contacts[contact])
 
 # add contact forces (right foot only)
 contactForces = {
-    'S1F': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
-    'S2F': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
-    'S3F': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
-    'S4F': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
-    'S5F': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
-    'S6F': osim.SmoothSphereHalfSpaceForce('floor_fore3_r', contacts['S6'], contacts['floor']), 
-    'S7F': osim.SmoothSphereHalfSpaceForce('floor_toe1_r',  contacts['S7'], contacts['floor']), 
-    'S8F': osim.SmoothSphereHalfSpaceForce('floor_toe2_r',  contacts['S8'], contacts['floor'])}
+    # 'S1F': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
+    # 'S2F': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
+    # 'S3F': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
+    # 'S4F': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
+    # 'S5F': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
+    # 'S6F': osim.SmoothSphereHalfSpaceForce('floor_fore3_r', contacts['S6'], contacts['floor']), 
+    # 'S7F': osim.SmoothSphereHalfSpaceForce('floor_toe1_r',  contacts['S7'], contacts['floor']), 
+    # 'S8F': osim.SmoothSphereHalfSpaceForce('floor_toe2_r',  contacts['S8'], contacts['floor'])}
 
-    # 'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
-    # 'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
-    # 'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
-    # 'S4': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
-    # 'S5': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
-    # 'S6': osim.SmoothSphereHalfSpaceForce('floor_toe_r',   contacts['S6'], contacts['floor'])}
+    'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
+    'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
+    'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
+    'S4': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
+    'S5': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
+    'S6': osim.SmoothSphereHalfSpaceForce('floor_toe_r',   contacts['S6'], contacts['floor'])}
 
 for contactForce in contactForces.keys():
     contactForces[contactForce].set_stiffness(3067776)
@@ -290,13 +290,13 @@ problem = study.updProblem()
 # contact tracking goal
 contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
 contact.setExternalLoadsFile(ExtLoads_fileName)
-# nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
-#                      '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
-#                      '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
 nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
                      '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
-                     '/forceset/floor_fore2_r', '/forceset/floor_fore3_r', 
-                     '/forceset/floor_toe1_r',  '/forceset/floor_toe2_r']
+                     '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
+# nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
+#                      '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
+#                      '/forceset/floor_fore2_r', '/forceset/floor_fore3_r', 
+#                      '/forceset/floor_toe1_r',  '/forceset/floor_toe2_r']
 ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
                         ['/bodyset/toes_r']) # why 'toes' is typically used???
 # no need to use projection
