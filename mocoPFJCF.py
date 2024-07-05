@@ -93,9 +93,9 @@ for force in model.getForceSet():
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
             if cName[-3:] in ['_tx','_ty','_tz']:
-                CA.setOptimalForce(10) # weak residual
+                CA.setOptimalForce(100) # weak residual
             else:
-                CA.setOptimalForce(1) # weak residual
+                CA.setOptimalForce(10) # weak residual
         # reserve
         else: 
             CA.setName(cName+'_reserve')
