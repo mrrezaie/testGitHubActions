@@ -106,16 +106,16 @@ for force in model.getForceSet():
     if force.getConcreteClassName() == 'CoordinateActuator':
         CA = osim.CoordinateActuator().safeDownCast(force)
         cName  = CA.get_coordinate()
-        # residuals
+        # residuals (should be low to allow dynamic consistancy)
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(1000) # less physiological but faster
+            CA.setOptimalForce(10) # less physiological but faster
         # reserve
         else: 
             CA.setName(cName+'_reserve')
             if ('lumbar' in cName) or (cName.endswith('_l')):
                 CA.setOptimalForce(1000) # strong reserve
-            else:
+            else: # coordinates with muscles
                 CA.setOptimalForce(1) # weak reserve
 
 # add contact geometries (right foot only)
@@ -134,12 +134,12 @@ contacts = {
     # 'S8': osim.ContactSphere(0.025, osim.Vec3([0.01,-0.001,0.03]),  toes_r,  'toe2_r'),
     # 'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
-    'S1': osim.ContactSphere(0.030, osim.Vec3([0.02, 0.000,-0.003]),  calcn_r, 'heel_r'),
-    'S2': osim.ContactSphere(0.022, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
-    'S3': osim.ContactSphere(0.022, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
-    'S4': osim.ContactSphere(0.021, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
-    'S5': osim.ContactSphere(0.021, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
-    'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
+    'S1': osim.ContactSphere(0.025, osim.Vec3([0.02, 0.000,-0.003]),  calcn_r, 'heel_r'),
+    'S2': osim.ContactSphere(0.020, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
+    'S3': osim.ContactSphere(0.020, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
+    'S4': osim.ContactSphere(0.020, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
+    'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
+    'S6': osim.ContactSphere(0.015, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
     'floor': osim.ContactHalfSpace( osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
 for contact in contacts.keys():
@@ -204,10 +204,10 @@ osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
 ########## Moco tracking simulation
 # goals weight
-markerW  = 1
-GRFW     = 1
+markerW  = 10
+GRFW     = 10
 controlW = 1 # (default=0.001 in MocoTrack)
-# PFJLW    = 1
+# PFJLW    = 10
 
 track = osim.MocoTrack()
 # track.setName('running_track')
