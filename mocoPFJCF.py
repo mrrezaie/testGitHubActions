@@ -76,7 +76,7 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        muscle.setMinControl(0.01) # less physiological but faster
+        muscle.setMinControl(0) # more physiological but slower
         muscle.set_fiber_damping(0.01) # less physiological but faster
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
