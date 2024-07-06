@@ -76,7 +76,7 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        muscle.setMinControl(0) # more physiological but slower
+        muscle.setMinControl(0.01) # less physiological but faster
         muscle.set_fiber_damping(0.01) # less physiological but faster
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
@@ -109,7 +109,7 @@ for force in model.getForceSet():
         # residuals (should be low to allow dynamic consistancy)
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(10) # less physiological but faster
+            CA.setOptimalForce(1) # less physiological but faster
         # reserve
         else: 
             CA.setName(cName+'_reserve')
