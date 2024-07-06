@@ -109,7 +109,7 @@ for force in model.getForceSet():
         # residuals (should be low to allow dynamic consistancy)
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(1) # less physiological but faster
+            CA.setOptimalForce(10) # less physiological but faster
         # reserve
         else: 
             CA.setName(cName+'_reserve')
@@ -204,10 +204,10 @@ osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
 ########## Moco tracking simulation
 # goals weight
-markerW  = 10
-GRFW     = 10
-controlW = 1 # (default=0.001 in MocoTrack)
-# PFJLW    = 10
+markerW  = 1
+GRFW     = 1
+controlW = 0.001 # (default=0.001 in MocoTrack)
+# PFJLW    = 1
 
 track = osim.MocoTrack()
 # track.setName('running_track')
