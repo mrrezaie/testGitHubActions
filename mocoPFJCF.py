@@ -329,6 +329,7 @@ solver.set_optim_max_iterations(10000)
 # # implicit for inverse; explicit for forward dynamics
 # solver.set_multibody_dynamics_mode('explicit') 
 # solver.set_optim_finite_difference_scheme('central')
+solver.set_optim_hessian_approximation('exact')
 # solver.set_parallel(0)
 
 
