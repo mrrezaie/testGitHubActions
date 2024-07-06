@@ -76,12 +76,12 @@ for muscle in model.getMuscles():
     mName = muscle.getName()
     if mName.endswith('_r'):
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        muscle.setMinControl(0.01) # less physiological but faster
-        muscle.set_fiber_damping(0.01) # less physiological but faster
+        muscle.setMinControl(0.01) # less physiological but helps convergence
+        muscle.set_fiber_damping(0.01) # less physiological but helps convergence
         muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_ignore_passive_fiber_force(True)
-        muscle.set_active_force_width_scale(1.5) # less physiological but faster
+        muscle.set_active_force_width_scale(1.5) # less physiological but helps convergence
         muscle.set_max_contraction_velocity(25) # more physiological
         MIF = muscle.get_max_isometric_force()
         muscle.set_max_isometric_force(1.5 * MIF) # 1.5 times stronger
@@ -109,8 +109,8 @@ for force in model.getForceSet():
         # residuals (should be low to allow dynamic consistancy)
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(10) # less physiological but faster
-        # reserve
+            CA.setOptimalForce(1)
+        # reserve (should be low for coordinates with muscle(s))
         else: 
             CA.setName(cName+'_reserve')
             if ('lumbar' in cName) or (cName.endswith('_l')):
@@ -164,7 +164,7 @@ contactForces = {
     'S6': osim.SmoothSphereHalfSpaceForce('floor_toe_r',   contacts['S6'], contacts['floor'])}
 
 for contactForce in contactForces.keys():
-    contactForces[contactForce].set_stiffness(3067776)
+    contactForces[contactForce].set_stiffness(1000000)
     contactForces[contactForce].set_dissipation(2)
     contactForces[contactForce].set_static_friction(0.8)
     contactForces[contactForce].set_dynamic_friction(0.8)
@@ -242,8 +242,8 @@ markerWeights.cloneAndAppend( osim.MocoWeight('R.Clavicle', 1))
 markerWeights.cloneAndAppend( osim.MocoWeight('L.Clavicle', 1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.ASIS',     4))
 markerWeights.cloneAndAppend( osim.MocoWeight('L.ASIS',     4))
-# markerWeights.cloneAndAppend( osim.MocoWeight('R.PSIS',     4))
-# markerWeights.cloneAndAppend( osim.MocoWeight('L.PSIS',     4))
+markerWeights.cloneAndAppend( osim.MocoWeight('R.PSIS',     4))
+markerWeights.cloneAndAppend( osim.MocoWeight('L.PSIS',     4))
 markerWeights.cloneAndAppend( osim.MocoWeight('S2',         4))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.TH1',      1))
 markerWeights.cloneAndAppend( osim.MocoWeight('R.TH2',      1))
@@ -323,15 +323,15 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(True)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-4) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-4)
+solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
+solver.set_optim_convergence_tolerance(1e-5)
 solver.set_optim_max_iterations(10000)
 # # implicit for inverse; explicit for forward dynamics
 # solver.set_multibody_dynamics_mode('explicit') 
 # solver.set_optim_finite_difference_scheme('central')
 # solver.set_optim_hessian_approximation('exact')
 # solver.set_optim_nlp_scaling_method('gradient-based')
-solver.set_optim_mu_strategy('adaptive')
+# solver.set_optim_mu_strategy('adaptive') # AttributeError: 'MocoCasADiSolver' object has no attribute 'set_optim_mu_strategy'.
 # solver.set_parallel(0)
 
 
