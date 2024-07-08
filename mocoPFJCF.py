@@ -247,9 +247,9 @@ problem = study.updProblem()
 
 ########## Goals
 # adjust control goal
-effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+# effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
 # if caring about dynamic consistency, this minimizes residual actuators more than others
-effort.setWeightForControlPattern('.*residual', 10)
+# effort.setWeightForControlPattern('.*residual', 10)
 
 # contact tracking goal
 contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
