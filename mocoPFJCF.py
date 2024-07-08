@@ -172,7 +172,7 @@ osim.STOFileAdapter.write(stateTable, './output/state.sto')
 # goals weight
 markerW  = 1
 GRFW     = 1
-controlW = 0.01 # (default==0.001 in MocoTrack)
+controlW = 1 # (default==0.001 in MocoTrack)
 # PFJLW    = 1
 
 track = osim.MocoTrack()
@@ -287,7 +287,7 @@ solver.resetProblem(problem)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-4)
+solver.set_optim_convergence_tolerance(1e-3)
 solver.set_optim_max_iterations(10000)
 # # implicit for inverse; explicit for forward dynamics
 # solver.set_multibody_dynamics_mode('explicit') 
