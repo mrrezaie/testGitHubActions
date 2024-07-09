@@ -248,7 +248,8 @@ problem = study.updProblem()
 ########## Goals
 # adjust control goal
 # effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# if caring about dynamic consistency, this minimizes residual actuators more than others
+# # if caring about dynamic consistency, this minimizes residual actuators more than others
+# # since I'm tracking both markers and GRF, perhaps this is not applicable
 # effort.setWeightForControlPattern('.*residual', 10)
 
 # contact tracking goal
@@ -301,7 +302,7 @@ study.printToXML('./output/tracking_study.xml')
 
 
 ########## initial guesses
-initGuess = solver.createGuess('random') # 'bounds'
+initGuess = solver.createGuess('bounds') # 'random'
 n = initGuess.getNumTimes()
 initGuess.setStatesTrajectory(stateTable, True, True)
 # initGuess.write('./output/tracking_init_guess.sto')
