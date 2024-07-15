@@ -174,7 +174,7 @@ osim.STOFileAdapter.write(stateTable, './output/state.sto')
 markerW  = 1
 GRFW     = 1
 controlW = 0.001 # (default==0.001 in MocoTrack)
-# PFJLW    = 1
+PFJLW    = 1
 
 track = osim.MocoTrack()
 # track.setName('')
@@ -248,10 +248,10 @@ problem = study.updProblem()
 
 ########## Goals
 # adjust control goal
-effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# if caring about dynamic consistency, this minimizes residual actuators more than others
-# since I'm tracking both markers and GRF, perhaps this is not applicable
-effort.setWeightForControlPattern('.*residual', 10)
+# effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+# # if caring about dynamic consistency, this minimizes residual actuators more than others
+# # since I'm tracking both markers and GRF, perhaps this is not applicable
+# effort.setWeightForControlPattern('.*residual', 10)
 
 # contact tracking goal
 contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
@@ -270,13 +270,13 @@ contact.addContactGroup(ContactGroup)
 contact.setNormalizeTrackingError(True)
 problem.addGoal(contact)
 
-# # reaction goal
-# PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
-# PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
-# PFJLoadGoal.setLoadsFrame('child')
-# PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
-# PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
-# problem.addGoal(PFJLoadGoal)
+# reaction goal
+PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
+PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+PFJLoadGoal.setLoadsFrame('child')
+PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
+problem.addGoal(PFJLoadGoal)
 
 
 ########## Solver
