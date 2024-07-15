@@ -100,12 +100,12 @@ contacts = {
     # 'S8': osim.ContactSphere(0.025, osim.Vec3([0.01,-0.001,0.03]),  toes_r,  'toe2_r'),
     # 'floor': osim.ContactHalfSpace(osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
-    'S1': osim.ContactSphere(0.025, osim.Vec3([0.01, 0.000,-0.003]),  calcn_r, 'heel_r'),
-    'S2': osim.ContactSphere(0.020, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
-    'S3': osim.ContactSphere(0.020, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
-    'S4': osim.ContactSphere(0.020, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
-    'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
-    'S6': osim.ContactSphere(0.015, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
+    'S1': osim.ContactSphere(0.030, osim.Vec3([0.01, 0.000,-0.003]),  calcn_r, 'heel_r'),
+    'S2': osim.ContactSphere(0.025, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
+    'S3': osim.ContactSphere(0.025, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
+    'S4': osim.ContactSphere(0.025, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
+    'S5': osim.ContactSphere(0.025, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
+    'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
     'floor': osim.ContactHalfSpace( osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
 for contact in contacts.keys():
@@ -168,6 +168,7 @@ stateTable.trim(t0, t1)
 osim.STOFileAdapter.write(stateTable, './output/state.sto')
 
 
+# %%
 ########## Moco tracking simulation
 # goals weight
 markerW  = 1
