@@ -174,7 +174,7 @@ osim.STOFileAdapter.write(stateTable, './output/state.sto')
 markerW  = 1
 GRFW     = 1
 controlW = 0.001 # (default==0.001 in MocoTrack)
-PFJLW    = 0.1
+PFJLW    = 10
 
 track = osim.MocoTrack()
 # track.setName('')
