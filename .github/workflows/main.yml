@@ -19,7 +19,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install opensim-moco conda package
-        run: conda install opensim-org::opensim-moco
+        run: conda install opensim-org::opensim==4.5.1
 
       - name: Run Moco study script
         run: python mocoPFJCF.py
