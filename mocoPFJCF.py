@@ -2,34 +2,35 @@ import opensim as osim
 import numpy as np
 import os
 
-model_fileName =    './input/out_scaled.osim'
-static_fileName =   './input/out_static.mot'
-markers_fileName =  './input/exp_markers.trc'
-IK_fileName =       './input/out_ik.mot'
-ExtLoads_fileName = './input/setup_extLoad.xml'
-GRF_fileName =      './input/exp_grf.mot'
-geometries =        './input/Geometry'
+cwd = os.getcwd() # current working directory where the script is located
+model_path    = os.path.join(cwd,'input','out_scaled.osim')
+static_path   = os.path.join(cwd,'input','out_static.mot')
+markers_path  = os.path.join(cwd,'input','exp_markers.trc')
+IK_path       = os.path.join(cwd,'input','out_ik.mot')
+ExtLoads_path = os.path.join(cwd,'input','setup_extLoad.xml')
+GRF_path      = os.path.join(cwd,'input','exp_grf.mot')
+geometries    = os.path.join(cwd,'input','Geometry')
 
 osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
 
 # update the path to the GRF STO file in the external loads XML file
-ExtLoads = osim.ExternalLoads(ExtLoads_fileName, True)
-ExtLoads.setDataFileName(os.path.abspath(GRF_fileName))
-ExtLoads.printToXML(ExtLoads_fileName)
+ExtLoads = osim.ExternalLoads(ExtLoads_path, True)
+ExtLoads.setDataFileName(os.path.abspath(GRF_path))
+ExtLoads.printToXML(ExtLoads_path)
 
-# print(os.getcwd())
+# print(cwd)
 # print(os.listdir())
 
 # create output directory if it does'nt exist
-if not os.path.exists('./output'):
-    os.mkdir('./output')
+if not os.path.exists( os.path.join(cwd,'output') ):
+    os.mkdir( os.path.join(cwd,'output') )
 
 # time frames (right stance only)
 t0 = 0.245 # init time
 t1 = 0.530 # end time # stride = 1.025 
 
 ########## model processing
-model = osim.Model(model_fileName)
+model = osim.Model(model_path)
 model.setName('moco_adjusted')
 
 # replace muscles with DeGrooteFregly2016
@@ -143,7 +144,7 @@ for contactForce in contactForces.keys():
     # model.addComponent(contactForces[contactForce])
 
 # set static pose as default
-static = osim.TimeSeriesTable(static_fileName)
+static = osim.TimeSeriesTable(static_path)
 for coordinate in model.getCoordinateSet():
     cName = coordinate.getAbsolutePathString()
     value = static.getDependentColumn(cName+'/value').getElt(0,0)
@@ -153,11 +154,11 @@ for coordinate in model.getCoordinateSet():
 model.finalizeConnections()
 model.finalizeFromProperties()
 state = model.initSystem()  
-model.printToXML('./output/scaled_upd.osim')
+model.printToXML( os.path.join(cwd,'output','scaled_upd.osim') )
 
 
 ########## create state from kinematics
-stateTable = osim.TableProcessor(IK_fileName)
+stateTable = osim.TableProcessor(IK_path)
 stateTable.append(osim.TabOpLowPassFilter(15))
 stateTable.append(osim.TabOpConvertDegreesToRadians())
 stateTable.append(osim.TabOpUseAbsoluteStateNames())
@@ -165,7 +166,7 @@ stateTable.append(osim.TabOpUseAbsoluteStateNames())
 stateTable.append(osim.TabOpAppendCoordinateValueDerivativesAsSpeeds())
 stateTable = stateTable.process(model)
 stateTable.trim(t0, t1)
-osim.STOFileAdapter.write(stateTable, './output/state.sto')
+osim.STOFileAdapter.write(stateTable, os.path.join(cwd,'output','state.sto') )
 
 
 # %%
@@ -187,7 +188,7 @@ track.set_control_effort_weight(controlW)
 
 
 ########## coordinate tracking
-# track.setStatesReference(osim.TableProcessor('./output/state.sto'))
+# track.setStatesReference(osim.TableProcessor( os.path.join(cwd,'output','state.sto') ))
 # track.set_allow_unused_references(True)
 # track.set_states_global_tracking_weight(10)
 # track.set_track_reference_position_derivatives(True)
@@ -195,11 +196,11 @@ track.set_control_effort_weight(controlW)
 
 
 ########## marker tracking
-# markerfile = osim.TimeSeriesTableVec3(markers_fileName).flatten()
+# markerfile = osim.TimeSeriesTableVec3(markers_path).flatten()
 # tableProc = osim.TableProcessor(markerfile)
 # tableProc.append(osim.TabOpLowPassFilter(15))
 # track.setMarkersReference(tableProc)
-track.setMarkersReferenceFromTRC(markers_fileName)
+track.setMarkersReferenceFromTRC(markers_path)
 track.set_allow_unused_references(True)
 track.set_markers_global_tracking_weight(markerW) # weight of MocoMarkerTrackingGoal
 markerWeights = osim.MocoWeightSet()
@@ -255,7 +256,7 @@ problem = study.updProblem()
 
 # contact tracking goal
 contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
-contact.setExternalLoadsFile(ExtLoads_fileName)
+contact.setExternalLoadsFile(ExtLoads_path)
 nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
                      '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
                      '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
@@ -299,39 +300,39 @@ solver.set_optim_max_iterations(10000)
 # solver.set_optim_mu_strategy('adaptive') # AttributeError: 'MocoCasADiSolver' object has no attribute 'set_optim_mu_strategy'.
 # solver.set_parallel(0)
 
-study.printToXML('./output/tracking_study.xml')
+study.printToXML( os.path.join(cwd,'output','tracking_study.xml') )
 
 
 ########## initial guesses
 initGuess = solver.createGuess('bounds') # 'random'
 n = initGuess.getNumTimes()
 initGuess.setStatesTrajectory(stateTable, True, True)
-# initGuess.write('./output/tracking_init_guess.sto')
+# initGuess.write( os.path.join(cwd,'output','tracking_init_guess.sto') )
 solver.setGuess(initGuess)
 
 
 ########## solve
 solution = study.solve()
-solution.write('./output/tracking_solution.sto')
+solution.write( os.path.join(cwd,'output','tracking_solution.sto') )
 # solution.unseal()
 # study.visualize(solution)
 
 
 ########## post-hoc analyses
-# solution = osim.MocoTrajectory('./output/tracking_solution.sto')
+# solution = osim.MocoTrajectory( os.path.join(cwd,'output','tracking_solution.sto') )
 
 # get ground reaction forces
 GRFTable = osim.createExternalLoadsTableForGait(model, solution, nameContactForces, [])
-osim.STOFileAdapter().write(GRFTable, './output/tracking_grf_solution.sto')
+osim.STOFileAdapter().write(GRFTable, os.path.join(cwd,'output','tracking_grf_solution.sto') )
 
 # add external loads for the joint reaction analysis
-model.addComponent( osim.ExternalLoads(ExtLoads_fileName,True) )
+model.addComponent( osim.ExternalLoads(ExtLoads_path,True) )
 model.initSystem()
 
 # get joint contact forces
 jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, solution, ['.*reaction_on_child'])
 suffix = ['_mx','_my','_mz', '_fx','_fy','_fz']
-osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), './output/tracking_joint_load_solution.sto')
+osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), os.path.join(cwd,'output','tracking_joint_load_solution.sto') )
 
 
 # %% 
@@ -347,13 +348,13 @@ osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), './output/tracking_j
 # osim.ModelFactory().replaceMusclesWithPathActuators(model)
 
 # modelProc = osim.ModelProcessor(model)
-# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName))
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_path))
 # modelProc.append( osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
 # modelProc.append( osim.ModOpIgnoreTendonCompliance())
 # modelProc.append( osim.ModOpIgnoreActivationDynamics())
 # modelProc.append( osim.ModOpIgnorePassiveFiberForcesDGF())
 # modelProc.append( osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
-# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_fileName)) # contact tracking
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_path)) # contact tracking
 # modelProc.append( osim.ModOpScaleMaxIsometricForce(1.5))
 # modelProc.append( osim.ModOpUseImplicitTendonComplianceDynamicsDGF())
 # modelProc.append( osim.ModOpRemoveMuscles())
