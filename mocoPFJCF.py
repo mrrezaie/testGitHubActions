@@ -7,7 +7,7 @@ model_path    = os.path.join(cwd,'input','out_scaled.osim')
 static_path   = os.path.join(cwd,'input','out_static.mot')
 markers_path  = os.path.join(cwd,'input','exp_markers.trc')
 IK_path       = os.path.join(cwd,'input','out_ik.mot')
-ExtLoads_path = os.path.join(cwd,'input','setup_extLoad.xml')
+ExtLoads_path = os.path.join(cwd,'input','setup_extload.xml')
 GRF_path      = os.path.join(cwd,'input','exp_grf.mot')
 geometries    = os.path.join(cwd,'input','Geometry')
 
