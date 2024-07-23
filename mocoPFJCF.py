@@ -44,7 +44,7 @@ for muscle in model.getMuscles():
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
         muscle.setMinControl(0.01) # less physiological but helps convergence
         muscle.set_fiber_damping(0.01) # less physiological but helps convergence
-        muscle.set_ignore_activation_dynamics(True)
+        muscle.set_ignore_activation_dynamics(False)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_ignore_passive_fiber_force(True)
         muscle.set_active_force_width_scale(1.5) # less physiological but helps convergence
