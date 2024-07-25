@@ -44,7 +44,7 @@ for muscle in model.getMuscles():
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
         muscle.setMinControl(0.01) # less physiological but helps convergence
         muscle.set_fiber_damping(0.01) # less physiological but helps convergence
-        muscle.set_ignore_activation_dynamics(False)
+        muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_tendon_compliance_dynamics_mode('implicit')
         muscle.set_ignore_passive_fiber_force(True)
@@ -154,9 +154,9 @@ osim.STOFileAdapter.write(stateTable, os.path.join(cwd,'output','state.sto') )
 # %%
 ########## Moco tracking simulation
 # goals weight
-markerW  = 1
-GRFW     = 1
-controlW = 0.001 # (default==0.001 in MocoTrack)
+markerW  = 100
+GRFW     = 100
+controlW = 0.1 # (default==0.001 in MocoTrack)
 # PFJLW    = 1
 
 track = osim.MocoTrack()
