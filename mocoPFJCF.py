@@ -44,7 +44,7 @@ for muscle in model.getMuscles():
         muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
         muscle.setMinControl(0.01) # less physiological but helps convergence
         muscle.set_fiber_damping(0.01) # less physiological but helps convergence
-        muscle.set_ignore_activation_dynamics(False)
+        muscle.set_ignore_activation_dynamics(True)
         muscle.set_ignore_tendon_compliance(True)
         muscle.set_tendon_compliance_dynamics_mode('implicit')
         muscle.set_ignore_passive_fiber_force(True)
@@ -268,7 +268,7 @@ solver.resetProblem(problem)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-5)
+solver.set_optim_convergence_tolerance(1e-3)
 solver.set_optim_max_iterations(10000)
 # # implicit for inverse; explicit for forward dynamics
 # solver.set_multibody_dynamics_mode('explicit') 
