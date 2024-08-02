@@ -165,7 +165,7 @@ track.setModel( osim.ModelProcessor(model))
 track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.015) # Hermite-Simpson
-track.set_minimize_control_effort(False)
+track.set_minimize_control_effort(True)
 track.set_control_effort_weight(controlW)
 
 
