@@ -1,5 +1,5 @@
 '''
-This is a tracking simulation
+This is a Moco tracking simulation
 
 Options:
 
