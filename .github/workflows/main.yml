@@ -16,13 +16,13 @@ jobs:
         uses: conda-incubator/setup-miniconda@v3
         with:
           activate-environment: 'moco'
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install opensim-moco conda package
         run: conda install opensim-org::opensim
 
       - name: Run Moco study script
-        run: python track_markers_grf.py
+        run: python track_markers.py
 
       # - name: List files in the repository
       #   run: dir
