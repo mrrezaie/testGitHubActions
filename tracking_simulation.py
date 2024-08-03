@@ -1,5 +1,22 @@
+'''
+This is a tracking simulation
+
+Options:
+
+    torque driven or muscle driven
+    with and without contact tracking goal
+
+'''
+# type of simulation
+torque_driven    = True
+contact_tracking = True
+
+# goals weight
+markerW  = 1
+GRFW     = 1
+# controlW = 0.001 # (default==0.001 in MocoTrack)
+
 import opensim as osim
-import numpy as np
 import os
 
 cwd = os.getcwd() # current working directory where the script is located
@@ -11,7 +28,10 @@ ExtLoads_path = os.path.join(cwd,'input','setup_extload.xml')
 GRF_path      = os.path.join(cwd,'input','exp_grf.mot')
 geometries    = os.path.join(cwd,'input','Geometry')
 
-torqueDriven = True
+# time frames (right stance only)
+t0 = 0.245 # init time
+t1 = 0.530 # end time # stride = 1.025 
+
 osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
 
 # update the path to the GRF STO file in the external loads XML file
@@ -26,20 +46,19 @@ ExtLoads.printToXML(ExtLoads_path)
 if not os.path.exists( os.path.join(cwd,'output') ):
     os.mkdir( os.path.join(cwd,'output') )
 
-# time frames (right stance only)
-t0 = 0.245 # init time
-t1 = 0.530 # end time # stride = 1.025 
 
 ########## model processing
 model = osim.Model(model_path)
 model.setName('moco_adjusted')
 
-if torqueDriven: # torque driven simulation
+if torque_driven: # torque driven simulation
+    print('A torque driven model')
+
     # remove all forces (and groups)
     model.updForceSet().clearAndDestroy()
 
     # add strong coordinate actuators
-    osim.ModelFactory().createReserveActuators(model, 2000, float('inf')) # 
+    osim.ModelFactory().createReserveActuators(model, 2000, float('inf'))
     for force in model.getForceSet():
         if force.getConcreteClassName() == 'CoordinateActuator':
             CA = osim.CoordinateActuator().safeDownCast(force)
@@ -50,6 +69,8 @@ if torqueDriven: # torque driven simulation
                 CA.setName(cName+'_reserve')
 
 else: # Muscle driven simulation
+    print('A muscle driven model')
+
     # replace muscles with DeGrooteFregly2016
     osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
 
@@ -103,6 +124,48 @@ else: # Muscle driven simulation
                 else: # coordinates with muscles
                     CA.setOptimalForce(1) # weak reserve
 
+
+if contact_tracking:
+
+    # add contact geometries (right foot only)
+    ground  = model.getGround()
+    calcn_r = model.getBodySet().get('calcn_r')
+    toes_r  = model.getBodySet().get('toes_r')
+    pi = osim.SimTK_PI
+    contacts = {
+        'S1': osim.ContactSphere(0.030, osim.Vec3([0.01, 0.000,-0.003]),  calcn_r, 'heel_r'),
+        'S2': osim.ContactSphere(0.025, osim.Vec3([0.10,-0.002,-0.021]),  calcn_r, 'mid1_r'),
+        'S3': osim.ContactSphere(0.025, osim.Vec3([0.08,-0.002,+0.021]),  calcn_r, 'mid2_r'),
+        'S4': osim.ContactSphere(0.025, osim.Vec3([0.17,-0.002,-0.022]),  calcn_r, 'fore1_r'),
+        'S5': osim.ContactSphere(0.025, osim.Vec3([0.13,-0.002,+0.032]),  calcn_r, 'fore2_r'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,-0.002, 0.000]),  toes_r,  'toe_r'),
+        'floor': osim.ContactHalfSpace( osim.Vec3([0.5,0,-0.25]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
+
+    for contact in contacts.keys():
+        model.addContactGeometry(contacts[contact])
+
+    # add contact forces (right foot only)
+    contactForces = {
+        'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
+        'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
+        'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
+        'S4': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
+        'S5': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
+        'S6': osim.SmoothSphereHalfSpaceForce('floor_toe_r',   contacts['S6'], contacts['floor'])}
+
+    for contactForce in contactForces.keys():
+        contactForces[contactForce].set_stiffness(1e+6)
+        contactForces[contactForce].set_dissipation(2)
+        contactForces[contactForce].set_static_friction(0.8)
+        contactForces[contactForce].set_dynamic_friction(0.8)
+        contactForces[contactForce].set_viscous_friction(0.5)
+        contactForces[contactForce].set_transition_velocity(0.2)
+        contactForces[contactForce].set_constant_contact_force(1e-5)
+        contactForces[contactForce].set_hertz_smoothing(300)
+        contactForces[contactForce].set_hunt_crossley_smoothing(50)
+        model.addForce(contactForces[contactForce])
+        # model.addComponent(contactForces[contactForce])
+
 # set static pose as default
 static = osim.TimeSeriesTable(static_path)
 for coordinate in model.getCoordinateSet():
@@ -116,9 +179,11 @@ model.finalizeFromProperties()
 state = model.initSystem()  
 model.printToXML( os.path.join(cwd,'output','scaled_upd.osim') )
 
-# add external loads for the joint reaction analysis
-model.addComponent( osim.ExternalLoads(ExtLoads_path,True) )
-model.initSystem()
+if not contact_tracking:
+    # add external loads
+    model.addComponent( osim.ExternalLoads(ExtLoads_path,True) )
+    model.initSystem()
+
 
 ########## create state from kinematics
 stateTable = osim.TableProcessor(IK_path)
@@ -136,10 +201,6 @@ osim.STOFileAdapter.write(stateTable, os.path.join(cwd,'output','state.sto') )
 
 # %%
 ########## Moco tracking simulation
-# goals weight
-markerW  = 1
-# controlW = 0.001 # (default==0.001 in MocoTrack)
-
 track = osim.MocoTrack()
 # track.setName('')
 track.setModel( osim.ModelProcessor(model))
@@ -199,10 +260,35 @@ problem = study.updProblem()
 
 
 ########## Goals
-# adjust control goal
-effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# if caring about dynamic consistency, this minimizes residual actuators more than others
-effort.setWeightForControlPattern('.*residual', 10)
+
+if contact_tracking:
+    # contact tracking goal
+    contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
+    contact.setExternalLoadsFile(ExtLoads_path)
+    nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
+                         '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
+                         '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
+    ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
+                            ['/bodyset/toes_r']) # why 'toes' is typically used???
+    # no need to use projection
+    contact.addContactGroup(ContactGroup)
+    contact.setNormalizeTrackingError(True)
+    problem.addGoal(contact)
+
+else: # reduce residuals if there is no contact tracking goal
+    # adjust control goal
+    effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+    # if caring about dynamic consistency, this minimizes residual actuators more than others
+    effort.setWeightForControlPattern('.*residual', 10)    
+
+
+# # reaction goal
+# PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
+# PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+# PFJLoadGoal.setLoadsFrame('child')
+# PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+# PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
+# problem.addGoal(PFJLoadGoal)
 
 
 ########## Solver
@@ -225,29 +311,60 @@ solver.set_optim_max_iterations(10000)
 # solver.set_optim_mu_strategy('adaptive') # AttributeError: 'MocoCasADiSolver' object has no attribute 'set_optim_mu_strategy'.
 # solver.set_parallel(0)
 
-study.printToXML( os.path.join(cwd,'output','tracking_markers_study.xml') )
+study.printToXML( os.path.join(cwd,'output','tracking_study.xml') )
 
 
 ########## initial guesses
 initGuess = solver.createGuess('bounds') # 'random'
 n = initGuess.getNumTimes()
 initGuess.setStatesTrajectory(stateTable, True, True)
-# initGuess.write( os.path.join(cwd,'output','tracking_markers_init_guess.sto') )
+# initGuess.write( os.path.join(cwd,'output','tracking_init_guess.sto') )
 solver.setGuess(initGuess)
 
 
 ########## solve
 solution = study.solve()
-solution.write( os.path.join(cwd,'output','tracking_markers_solution.sto') )
+solution.write( os.path.join(cwd,'output','tracking_solution.sto') )
 # solution.unseal()
 # study.visualize(solution)
 
 
 ########## post-hoc analyses
-# solution = osim.MocoTrajectory( os.path.join(cwd,'output','tracking_markers_solution.sto') )
+# solution = osim.MocoTrajectory( os.path.join(cwd,'output','tracking_solution.sto') )
 
+if contact_tracking:
+    # get ground reaction forces
+    GRFTable = osim.createExternalLoadsTableForGait(model, solution, nameContactForces, [])
+    osim.STOFileAdapter().write(GRFTable, os.path.join(cwd,'output','tracking_grf_solution.sto') )
 
 # get joint contact forces
 jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, solution, ['.*reaction_on_child'])
 suffix = ['_mx','_my','_mz', '_fx','_fy','_fz']
-osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), os.path.join(cwd,'output','tracking_markers_joint_load_solution.sto') )
+osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), os.path.join(cwd,'output','tracking_joint_load_solution.sto') )
+
+
+# %% 
+########## useful but unused 
+
+# # remove external loads to avoid further issues related to path
+# model.upd_ComponentSet().clearAndDestroy()
+
+# # useful functions
+# osim.ModelFactory().removeMuscles(model)
+# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
+# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
+# osim.ModelFactory().replaceMusclesWithPathActuators(model)
+
+# modelProc = osim.ModelProcessor(model)
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_path))
+# modelProc.append( osim.ModOpReplaceMusclesWithDeGrooteFregly2016())
+# modelProc.append( osim.ModOpIgnoreTendonCompliance())
+# modelProc.append( osim.ModOpIgnoreActivationDynamics())
+# modelProc.append( osim.ModOpIgnorePassiveFiberForcesDGF())
+# modelProc.append( osim.ModOpScaleActiveFiberForceCurveWidthDGF(1.5))
+# modelProc.append( osim.ModOpAddExternalLoads(ExtLoads_path)) # contact tracking
+# modelProc.append( osim.ModOpScaleMaxIsometricForce(1.5))
+# modelProc.append( osim.ModOpUseImplicitTendonComplianceDynamicsDGF())
+# modelProc.append( osim.ModOpRemoveMuscles())
+# modelProc.append( osim.ModOpAddReserves(1))
+# modelProc.append( osim.ModOpReplaceJointsWithWelds(['mtp_r','mtp_l']))
