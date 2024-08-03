@@ -8,7 +8,7 @@ Options:
 
 '''
 # type of simulation
-torque_driven    = False
+torque_driven    = True
 contact_tracking = True
 
 # goals weight
@@ -58,7 +58,8 @@ if torque_driven: # torque driven simulation
     model.updForceSet().clearAndDestroy()
 
     # add strong coordinate actuators
-    osim.ModelFactory().createReserveActuators(model, 2000, float('inf'))
+    osim.ModelFactory().createReserveActuators(model, 2000, 1) # float('inf')
+    # rename the actuators
     for force in model.getForceSet():
         if force.getConcreteClassName() == 'CoordinateActuator':
             CA = osim.CoordinateActuator().safeDownCast(force)
@@ -104,7 +105,7 @@ else: # Muscle driven simulation
     # model.getForceSet().remove(indx)
 
     # add coordinate actuators
-    osim.ModelFactory().createReserveActuators(model, 1, float('inf')) # 
+    osim.ModelFactory().createReserveActuators(model, 1, 1) # float('inf')
 
     # adjust the optimal force of the actuators
     for force in model.getForceSet():
@@ -275,11 +276,11 @@ if contact_tracking:
     contact.setNormalizeTrackingError(True)
     problem.addGoal(contact)
 
-else: # reduce residuals if there is no contact tracking goal
-    # adjust control goal
-    effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-    # if caring about dynamic consistency, this minimizes residual actuators more than others
-    effort.setWeightForControlPattern('.*residual', 10)    
+# reduce residuals if there is no contact tracking goal
+# adjust control goal
+effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+# if caring about dynamic consistency, this minimizes residual actuators more than others
+effort.setWeightForControlPattern('.*residual', 100)
 
 
 # # reaction goal
