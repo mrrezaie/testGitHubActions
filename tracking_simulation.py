@@ -9,7 +9,7 @@ Options:
 '''
 # type of simulation
 torque_driven    = True
-contact_tracking = False
+contact_tracking = True
 
 # goals weight
 markerW  = 1
@@ -264,13 +264,13 @@ problem = study.updProblem()
 
 if contact_tracking:
     # contact tracking goal
-    contact = osim.MocoContactTrackingGoal('GRF_tracking', GRFW)
+    contact = osim.MocoContactTrackingGoal('grf_tracking', GRFW)
     contact.setExternalLoadsFile(ExtLoads_path)
     nameContactForces = ['/forceset/floor_heel_r',  '/forceset/floor_mid1_r', 
                          '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
                          '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
     ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
-                            ['/bodyset/toes_r']) # why 'toes' is typically used???
+                            ['/bodyset/calcn_r']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
     contact.setNormalizeTrackingError(True)
