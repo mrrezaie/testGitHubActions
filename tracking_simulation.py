@@ -8,7 +8,7 @@ Options:
 
 '''
 # type of simulation
-torque_driven    = True
+torque_driven    = False
 contact_tracking = True
 
 # goals weight
