@@ -22,7 +22,7 @@ jobs:
         run: conda install opensim-org::opensim
 
       - name: Run Moco study script
-        run: python mocoPFJCF.py
+        run: python track_markers_grf.py
 
       # - name: List files in the repository
       #   run: dir
