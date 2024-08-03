@@ -11,6 +11,7 @@ ExtLoads_path = os.path.join(cwd,'input','setup_extload.xml')
 GRF_path      = os.path.join(cwd,'input','exp_grf.mot')
 geometries    = os.path.join(cwd,'input','Geometry')
 
+torqueDriven = True
 osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
 
 # update the path to the GRF STO file in the external loads XML file
@@ -33,58 +34,74 @@ t1 = 0.530 # end time # stride = 1.025
 model = osim.Model(model_path)
 model.setName('moco_adjusted')
 
-# replace muscles with DeGrooteFregly2016
-osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
+if torqueDriven: # torque driven simulation
+    # remove all forces (and groups)
+    model.updForceSet().clearAndDestroy()
 
-# adjusted and store the right muscles only
-muscles = dict()
-for muscle in model.getMuscles():
-    mName = muscle.getName()
-    if mName.endswith('_r'):
-        muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
-        muscle.setMinControl(0.01) # less physiological but helps convergence
-        muscle.set_fiber_damping(0.01) # less physiological but helps convergence
-        muscle.set_ignore_activation_dynamics(True)
-        muscle.set_ignore_tendon_compliance(True)
-        # muscle.set_tendon_compliance_dynamics_mode('implicit')
-        muscle.set_ignore_passive_fiber_force(True)
-        muscle.set_active_force_width_scale(1.5) # less physiological but helps convergence
-        muscle.set_max_contraction_velocity(25)
-        MIF = muscle.get_max_isometric_force()
-        muscle.set_max_isometric_force(1.5 * MIF) # 1.5 times stronger
-        muscles[mName] = muscle.clone()
+    # add strong coordinate actuators
+    osim.ModelFactory().createReserveActuators(model, 2000, float('inf')) # 
+    for force in model.getForceSet():
+        if force.getConcreteClassName() == 'CoordinateActuator':
+            CA = osim.CoordinateActuator().safeDownCast(force)
+            cName  = CA.get_coordinate()
+            if cName.startswith('pelvis'): 
+                CA.setName(cName+'_residual')
+            else: 
+                CA.setName(cName+'_reserve')
 
-# remove all forces (and groups)
-model.updForceSet().clearAndDestroy()
+else: # Muscle driven simulation
+    # replace muscles with DeGrooteFregly2016
+    osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
 
-# include right muscles only
-for muscle in muscles.values():
-    model.addForce(muscle)
+    # adjust and store the right muscles only
+    muscles = dict()
+    for muscle in model.getMuscles():
+        mName = muscle.getName()
+        if mName.endswith('_r'):
+            muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
+            muscle.setMinControl(0.01) # less physiological but helps convergence
+            muscle.set_fiber_damping(0.01) # less physiological but helps convergence
+            muscle.set_ignore_activation_dynamics(True)
+            muscle.set_ignore_tendon_compliance(True)
+            # muscle.set_tendon_compliance_dynamics_mode('implicit')
+            muscle.set_ignore_passive_fiber_force(True)
+            muscle.set_active_force_width_scale(1.5) # less physiological but helps convergence
+            muscle.set_max_contraction_velocity(25)
+            MIF = muscle.get_max_isometric_force()
+            muscle.set_max_isometric_force(1.5 * MIF) # 1.5 times stronger
+            muscles[mName] = muscle.clone()
 
-# # or remove unwanted forces from ForceSet
-# indx = model.getForceSet().getIndex(name)
-# model.getForceSet().remove(indx)
+    # remove all forces (and groups)
+    model.updForceSet().clearAndDestroy()
 
-# add coordinate actuators
-osim.ModelFactory().createReserveActuators(model, 1, float('inf')) # 
+    # include right muscles only
+    for muscle in muscles.values():
+        model.addForce(muscle)
 
-# adjust the optimal force of the actuators
-for force in model.getForceSet():
-    if force.getConcreteClassName() == 'CoordinateActuator':
-        CA = osim.CoordinateActuator().safeDownCast(force)
-        cName  = CA.get_coordinate()
-        # residuals (should be low to allow dynamic consistancy)
-        # will be minimized through Moco control goal
-        if cName.startswith('pelvis'): 
-            CA.setName(cName+'_residual')
-            CA.setOptimalForce(2000)
-        # reserve (should be low for coordinates with muscle(s))
-        else: 
-            CA.setName(cName+'_reserve')
-            if ('lumbar' in cName) or (cName.endswith('_l')):
-                CA.setOptimalForce(1000) # strong reserve
-            else: # coordinates with muscles
-                CA.setOptimalForce(1) # weak reserve
+    # # or remove unwanted forces from ForceSet
+    # indx = model.getForceSet().getIndex(name)
+    # model.getForceSet().remove(indx)
+
+    # add coordinate actuators
+    osim.ModelFactory().createReserveActuators(model, 1, float('inf')) # 
+
+    # adjust the optimal force of the actuators
+    for force in model.getForceSet():
+        if force.getConcreteClassName() == 'CoordinateActuator':
+            CA = osim.CoordinateActuator().safeDownCast(force)
+            cName  = CA.get_coordinate()
+            # residuals (should be low to allow dynamic consistancy)
+            # will be minimized through Moco control goal
+            if cName.startswith('pelvis'): 
+                CA.setName(cName+'_residual')
+                CA.setOptimalForce(2000)
+            # reserve (should be low for coordinates with muscle(s))
+            else: 
+                CA.setName(cName+'_reserve')
+                if ('lumbar' in cName) or (cName.endswith('_l')):
+                    CA.setOptimalForce(1000) # strong reserve
+                else: # coordinates with muscles
+                    CA.setOptimalForce(1) # weak reserve
 
 # set static pose as default
 static = osim.TimeSeriesTable(static_path)
