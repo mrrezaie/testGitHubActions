@@ -9,7 +9,7 @@ Options:
 '''
 # type of simulation
 torque_driven    = True
-contact_tracking = True
+contact_tracking = False
 
 # goals weight
 markerW  = 1
