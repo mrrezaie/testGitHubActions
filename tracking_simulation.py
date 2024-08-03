@@ -270,7 +270,7 @@ if contact_tracking:
                          '/forceset/floor_mid2_r',  '/forceset/floor_fore1_r', 
                          '/forceset/floor_fore2_r', '/forceset/floor_toe_r']
     ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
-                            ['/bodyset/calcn_r']) # why 'toes' is typically used???
+                            ['/bodyset/toes_r']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
     contact.setNormalizeTrackingError(True)
@@ -301,7 +301,7 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(True)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
+solver.set_optim_constraint_tolerance(1e-4) # IPOPT default
 solver.set_optim_convergence_tolerance(1e-5)
 solver.set_optim_max_iterations(10000)
 # # implicit for inverse; explicit for forward dynamics
