@@ -8,13 +8,15 @@ Options:
 
 '''
 # type of simulation
-torque_driven    = True
-contact_tracking = True
+torque_driven       = True
+contact_tracking    = True
+joint_reaction_goal = True
 
 # goals weight
 markerW  = 1
 GRFW     = 1
 controlW = 1 # (default==0.001 in MocoTrack)
+PFJLW    = 0.01
 
 import opensim as osim
 import os
@@ -283,13 +285,14 @@ effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
 effort.setWeightForControlPattern('.*residual', 100)
 
 
-# # reaction goal
-# PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
-# PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
-# PFJLoadGoal.setLoadsFrame('child')
-# PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
-# PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
-# problem.addGoal(PFJLoadGoal)
+if joint_reaction_goal:
+    # reaction goal
+    PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
+    PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+    PFJLoadGoal.setLoadsFrame('child')
+    PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+    PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
+    problem.addGoal(PFJLoadGoal)
 
 
 ########## Solver
