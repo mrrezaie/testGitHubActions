@@ -1,0 +1,4 @@
+The output of actuators are not the their actuation force/moment; they are control (e.g. [-1,+1])
+
+To reduce the residual forces/moments, the weight of the corresponding actuators must be increased.
+
