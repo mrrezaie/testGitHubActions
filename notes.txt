@@ -2,4 +2,4 @@ The output of actuators are not the their actuation force/moment; they are contr
 
 To reduce the residual forces/moments, the weight of the corresponding actuators must be increased.
 
-Slack variables only appear if there are kinematic constraints in the model.
+Slack variables (gamma_cid) only appear if there are kinematic constraints in the model.

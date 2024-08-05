@@ -308,8 +308,8 @@ solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
 solver.set_optim_convergence_tolerance(1e-5)
 solver.set_optim_max_iterations(10000)
 solver.set_minimize_implicit_multibody_accelerations(True)
-solver.set_implicit_multibody_accelerations_weight(1e-2)
-# solver.set_minimize_implicit_auxiliary_derivatives(True)
+# solver.set_implicit_multibody_accelerations_weight(1)
+solver.set_minimize_implicit_auxiliary_derivatives(True)
 # solver.set_implicit_auxiliary_derivatives_weight(1e-3)
 # # implicit for inverse; explicit for forward dynamics
 # solver.set_multibody_dynamics_mode('explicit') 
