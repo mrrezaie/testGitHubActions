@@ -309,11 +309,13 @@ solver.set_optim_convergence_tolerance(1e-5)
 solver.set_optim_max_iterations(10000)
 solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
-solver.set_minimize_implicit_auxiliary_derivatives(True)
+# solver.set_minimize_implicit_auxiliary_derivatives(True)
 # solver.set_implicit_auxiliary_derivatives_weight(1e-3)
 # # implicit for inverse; explicit for forward dynamics
 # solver.set_multibody_dynamics_mode('explicit') 
-# solver.set_optim_finite_difference_scheme('central')
+solver.set_transcription_scheme('hermite-simpson')
+solver.set_interpolate_control_midpoints(True)
+solver.set_optim_finite_difference_scheme('backward') # central forward backward
 # solver.set_optim_hessian_approximation('exact')
 # solver.set_optim_nlp_scaling_method('gradient-based')
 # solver.set_optim_mu_strategy('adaptive') # AttributeError: 'MocoCasADiSolver' object has no attribute 'set_optim_mu_strategy'.
