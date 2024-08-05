@@ -317,7 +317,7 @@ solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
 solver.set_enforce_constraint_derivatives(True)
 solver.set_optim_finite_difference_scheme('central') # central forward backward
-solver.set_optim_sparsity_detection() # none random initial_guess
+# solver.set_optim_sparsity_detection() # none random initial_guess
 # solver.set_optim_hessian_approximation('exact')
 # solver.set_optim_nlp_scaling_method('gradient-based')
 # solver.set_optim_mu_strategy('adaptive') # AttributeError: 'MocoCasADiSolver' object has no attribute 'set_optim_mu_strategy'.
