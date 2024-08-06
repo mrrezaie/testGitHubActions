@@ -15,7 +15,7 @@ joint_reaction_goal = False
 # goals weight
 markerW  = 1
 GRFW     = 1
-controlW = 0.001 # (default==0.001 in MocoTrack)
+controlW = 1 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
 import opensim as osim
@@ -210,7 +210,7 @@ track.setModel( osim.ModelProcessor(model))
 track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.01) # Hermite-Simpson
-track.set_minimize_control_effort(True)
+track.set_minimize_control_effort(False)
 track.set_control_effort_weight(controlW) # (default==0.001 in MocoTrack)
 # track.set_track_reference_position_derivatives(True)
 
