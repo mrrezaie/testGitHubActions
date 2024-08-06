@@ -211,7 +211,7 @@ track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.01) # Hermite-Simpson
 track.set_minimize_control_effort(False)
-track.set_control_effort_weight(controlW) # (default==0.001 in MocoTrack)
+# track.set_control_effort_weight(controlW) # (default==0.001 in MocoTrack)
 # track.set_track_reference_position_derivatives(True)
 
 ########## marker tracking
@@ -279,10 +279,10 @@ if contact_tracking:
     problem.addGoal(contact)
 
 # reduce residuals if there is no contact tracking goal
-# adjust control goal
-effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# if caring about dynamic consistency, this minimizes residual actuators more than others
-effort.setWeightForControlPattern('.*residual', 100)
+# # adjust control goal
+# effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+# # if caring about dynamic consistency, this minimizes residual actuators more than others
+# effort.setWeightForControlPattern('.*residual', 100)
 
 
 if joint_reaction_goal:
