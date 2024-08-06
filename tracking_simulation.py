@@ -313,14 +313,14 @@ solver.set_optim_max_iterations(10000)
 # solver.set_implicit_multibody_accelerations_weight(1)
 # solver.set_minimize_implicit_auxiliary_derivatives(True)
 # solver.set_implicit_auxiliary_derivatives_weight(1e-3)
-solver.set_multibody_dynamics_mode('explicit') # explicit
+# solver.set_multibody_dynamics_mode('implicit') # explicit
 # solver.set_transcription_scheme('hermite-simpson') # trapezoidal
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
 # solver.set_enforce_constraint_derivatives(True)
 solver.set_optim_finite_difference_scheme('backward') # central forward backward
 # solver.set_optim_sparsity_detection() # none random initial-guess
-# solver.set_optim_hessian_approximation('exact')
+solver.set_optim_hessian_approximation('limited-memory') # exact limited-memory
 # # solver.set_optim_nlp_scaling_method('gradient-based')
 # # solver.set_optim_mu_strategy('adaptive')
 # solver.set_parallel(0)
