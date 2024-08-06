@@ -15,7 +15,7 @@ joint_reaction_goal = False
 # goals weight
 markerW  = 1
 GRFW     = 1
-controlW = 1 # (default==0.001 in MocoTrack)
+controlW = 0.001 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
 import opensim as osim
