@@ -262,7 +262,7 @@ problem = study.updProblem()
 # already set by moco, so it's not necessary
 # reduce these bounds close to the real data
 problem.setStateInfoPattern('/jointset/.*/speed', [-20, 20])
-problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
+# problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
 
 ########## Goals
 
@@ -318,7 +318,7 @@ solver.set_optim_max_iterations(10000)
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
 # solver.set_enforce_constraint_derivatives(True)
-solver.set_optim_finite_difference_scheme('forward') # central forward backward
+# solver.set_optim_finite_difference_scheme('backward') # central forward backward
 # solver.set_optim_sparsity_detection() # none random initial-guess
 # solver.set_optim_hessian_approximation('exact') # exact limited-memory
 # # solver.set_optim_nlp_scaling_method('gradient-based')
@@ -332,7 +332,7 @@ study.printToXML( os.path.join(cwd,'output','tracking_study.xml') )
 initGuess = solver.createGuess('bounds') # 'random'
 n = initGuess.getNumTimes()
 initGuess.setStatesTrajectory(stateTable, True, True)
-# initGuess.write( os.path.join(cwd,'output','tracking_init_guess.sto') )
+initGuess.write( os.path.join(cwd,'output','tracking_init_guess.sto') )
 solver.setGuess(initGuess)
 
 
