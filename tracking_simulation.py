@@ -210,8 +210,8 @@ track.setModel( osim.ModelProcessor(model))
 track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.01) # Hermite-Simpson
-track.set_minimize_control_effort(False)
-# track.set_control_effort_weight(controlW) # (default==0.001 in MocoTrack)
+track.set_minimize_control_effort(True)
+track.set_control_effort_weight(controlW) # (default==0.001 in MocoTrack)
 # track.set_track_reference_position_derivatives(True)
 
 ########## marker tracking
@@ -260,7 +260,8 @@ problem = study.updProblem()
 
 ########## Bounds
 # already set by moco, so it's not necessary
-
+problem.setStateInfoPattern('.*speed', [-20, 20])
+# problem.setStateInfoPattern('/jointset/patellofemoral_r/knee_angle_.*_beta/value', [-2, 2])
 
 ########## Goals
 
@@ -279,10 +280,10 @@ if contact_tracking:
     problem.addGoal(contact)
 
 # reduce residuals if there is no contact tracking goal
-# # adjust control goal
-# effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# # if caring about dynamic consistency, this minimizes residual actuators more than others
-# effort.setWeightForControlPattern('.*residual', 100)
+# adjust control goal
+effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+# if caring about dynamic consistency, this minimizes residual actuators more than others
+effort.setWeightForControlPattern('.*residual', 100)
 
 
 if joint_reaction_goal:
@@ -304,8 +305,8 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(True)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-5) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-6)
+solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
+solver.set_optim_convergence_tolerance(1e-5)
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
