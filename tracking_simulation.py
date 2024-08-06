@@ -9,7 +9,7 @@ Options:
 '''
 # type of simulation
 torque_driven       = True
-contact_tracking    = True
+contact_tracking    = False
 joint_reaction_goal = False
 
 # goals weight
@@ -304,23 +304,23 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(True)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-5)
+solver.set_optim_constraint_tolerance(1e-5) # IPOPT default
+solver.set_optim_convergence_tolerance(1e-6)
 solver.set_optim_max_iterations(10000)
-solver.set_minimize_implicit_multibody_accelerations(True)
+# solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
 # solver.set_minimize_implicit_auxiliary_derivatives(True)
 # solver.set_implicit_auxiliary_derivatives_weight(1e-3)
-solver.set_multibody_dynamics_mode('implicit') # explicit
-solver.set_transcription_scheme('hermite-simpson') # trapezoidal
-solver.set_interpolate_control_midpoints(True)
+# solver.set_multibody_dynamics_mode('implicit') # explicit
+# solver.set_transcription_scheme('hermite-simpson') # trapezoidal
+# solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
-solver.set_enforce_constraint_derivatives(True)
-solver.set_optim_finite_difference_scheme('central') # central forward backward
-# solver.set_optim_sparsity_detection() # none random initial_guess
+# solver.set_enforce_constraint_derivatives(True)
+solver.set_optim_finite_difference_scheme('backward') # central forward backward
+# solver.set_optim_sparsity_detection() # none random initial-guess
 # solver.set_optim_hessian_approximation('exact')
 # solver.set_optim_nlp_scaling_method('gradient-based')
-# solver.set_optim_mu_strategy('adaptive') # AttributeError: 'MocoCasADiSolver' object has no attribute 'set_optim_mu_strategy'.
+# solver.set_optim_mu_strategy('adaptive')
 # solver.set_parallel(0)
 
 study.printToXML( os.path.join(cwd,'output','tracking_study.xml') )
