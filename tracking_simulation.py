@@ -8,8 +8,8 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = True
-contact_tracking    = False
+torque_driven       = False
+contact_tracking    = True
 joint_reaction_goal = False
 
 # goals weight
@@ -261,8 +261,8 @@ problem = study.updProblem()
 ########## Bounds
 # Moco already adjust the bounds, so it's not mandatory
 # significant improvement in convergence time by reducing these bounds close to the real data
-problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
-problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
+# problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
+# problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
 
 ########## Goals
 if contact_tracking:
