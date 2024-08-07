@@ -318,7 +318,7 @@ solver.set_optim_max_iterations(10000)
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
 # solver.set_enforce_constraint_derivatives(True)
-# solver.set_optim_finite_difference_scheme('backward') # central forward backward
+solver.set_optim_finite_difference_scheme('backward') # central forward backward
 # solver.set_optim_sparsity_detection() # none random initial-guess
 # solver.set_optim_hessian_approximation('exact') # exact limited-memory
 # # solver.set_optim_nlp_scaling_method('gradient-based')
