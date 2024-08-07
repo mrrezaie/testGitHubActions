@@ -259,13 +259,12 @@ problem = study.updProblem()
 
 
 ########## Bounds
-# already set by moco, so it's not necessary
-# reduce these bounds close to the real data
-problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15]) # not significat
+# Moco already adjust the bounds, so it's not mandatory
+# significant improvement in convergence time by reducing these bounds close to the real data
+problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
 problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
 
 ########## Goals
-
 if contact_tracking:
     # contact tracking goal
     contact = osim.MocoContactTrackingGoal('grf_tracking', GRFW)
@@ -280,10 +279,9 @@ if contact_tracking:
     contact.setNormalizeTrackingError(True)
     problem.addGoal(contact)
 
-# reduce residuals if there is no contact tracking goal
 # adjust control goal
 effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# if caring about dynamic consistency, this minimizes residual actuators more than others
+# if caring about dynamic consistency, this minimizes the residual actuation more than others
 effort.setWeightForControlPattern('.*residual', 100)
 
 
@@ -318,7 +316,7 @@ solver.set_optim_max_iterations(10000)
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
 # solver.set_enforce_constraint_derivatives(True)
-solver.set_optim_finite_difference_scheme('backward') # central forward backward
+# solver.set_optim_finite_difference_scheme('backward') # central forward backward
 # solver.set_optim_sparsity_detection() # none random initial-guess
 # solver.set_optim_hessian_approximation('exact') # exact limited-memory
 # # solver.set_optim_nlp_scaling_method('gradient-based')
