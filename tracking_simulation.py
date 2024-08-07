@@ -262,7 +262,7 @@ problem = study.updProblem()
 # already set by moco, so it's not necessary
 # reduce these bounds close to the real data
 # problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
-# problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
+problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
 
 ########## Goals
 
