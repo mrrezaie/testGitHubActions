@@ -14,8 +14,8 @@ joint_reaction_goal = False
 
 # goals weight
 markerW  = 1
-GRFW     = 1
-controlW = 0.1 # (default==0.001 in MocoTrack)
+GRFW     = 2
+controlW = 0.01 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
 import opensim as osim
@@ -261,7 +261,7 @@ problem = study.updProblem()
 ########## Bounds
 # Moco already adjust the bounds, so it's not mandatory
 # significant improvement in convergence time by reducing these bounds close to the real data
-problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
+# problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
 problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
 
 ########## Goals
@@ -282,7 +282,7 @@ if contact_tracking:
 # adjust control goal
 effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
 # if caring about dynamic consistency, this minimizes the residual actuation more than others
-effort.setWeightForControlPattern('.*residual', 100)
+effort.setWeightForControlPattern('.*residual', 1000)
 
 
 if joint_reaction_goal:
