@@ -305,7 +305,7 @@ solver.resetProblem(problem)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-5)
+solver.set_optim_convergence_tolerance(1e-6)
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
