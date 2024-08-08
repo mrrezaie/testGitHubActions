@@ -34,7 +34,10 @@ geometries    = os.path.join(cwd,'input','Geometry')
 t0 = 0.245 # init time
 t1 = 0.530 # end time # stride = 1.025 
 
+osim.Logger.removeFileSink()
 osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
+# osim.Logger.setLevel(6) # [6 5 4 3 2 1 0]
+# osim.Logger.setLevelString('Info') # Off Critical Error Warn Info Debug Trace 
 
 # update the path to the GRF STO file in the external loads XML file
 ExtLoads = osim.ExternalLoads(ExtLoads_path, True)
@@ -261,7 +264,7 @@ problem = study.updProblem()
 ########## Bounds
 # Moco already adjust the bounds, so it's not mandatory
 # significant improvement in convergence time by reducing these bounds close to the real data
-# problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15])
+# problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15]) # not much significant
 problem.setStateInfoPattern('/jointset/patellofemoral_.*/knee_angle_.*_beta/value', [0, 2.0944])
 
 ########## Goals
