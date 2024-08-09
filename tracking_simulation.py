@@ -8,14 +8,14 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = True
+torque_driven       = False
 contact_tracking    = True
 joint_reaction_goal = False
 
 # goals weight
 markerW  = 1
 GRFW     = 10
-controlW = 1 # (default==0.001 in MocoTrack)
+controlW = 0.001 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
 import opensim as osim
