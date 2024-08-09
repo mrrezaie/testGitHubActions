@@ -8,14 +8,14 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = False
+torque_driven       = True
 contact_tracking    = True
 joint_reaction_goal = False
 
 # goals weight
 markerW  = 1
 GRFW     = 10
-controlW = 0.001 # (default==0.001 in MocoTrack)
+controlW = 1 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
 import opensim as osim
@@ -71,6 +71,7 @@ if torque_driven: # torque driven simulation
             cName  = CA.get_coordinate()
             if cName.startswith('pelvis'): 
                 CA.setName(cName+'_residual')
+                CA.setOptimalForce(1) # weak residuals
             else: 
                 CA.setName(cName+'_reserve')
 
@@ -283,9 +284,9 @@ if contact_tracking:
     problem.addGoal(contact)
 
 # adjust control goal
-effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# if caring about dynamic consistency, this minimizes the residual actuation more than others
-effort.setWeightForControlPattern('.*residual', 10000)
+# effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+# # if caring about dynamic consistency, this minimizes the residual actuation more than others
+# effort.setWeightForControlPattern('.*residual', 10000)
 
 
 if joint_reaction_goal:
