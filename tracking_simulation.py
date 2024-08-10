@@ -292,7 +292,7 @@ if contact_tracking:
     nameContactForces = ['/forceset/floor_heel_r',  
                         '/forceset/floor_mid1_r',  '/forceset/floor_mid2_r',  
                         '/forceset/floor_fore1_r', '/forceset/floor_fore2_r', 
-                        '/forceset/floor_toe1_r',  '/forceset/floor_toe1_r']
+                        '/forceset/floor_toe1_r',  '/forceset/floor_toe2_r']
     ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
                             ['/bodyset/toes_r']) # why 'toes' is typically used???
     # no need to use projection
