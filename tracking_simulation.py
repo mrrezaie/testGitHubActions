@@ -115,7 +115,7 @@ for force in model.getForceSet():
             if torque_driven:
                 CA.setOptimalForce(200) # ID < 150Nm
             else:
-                if ('lumbar' in cName) or (not cName.endswith(f'_{s}')):
+                if ('lumbar' in cName) or (not cName.endswith(f'_{s}')): # lumbar and the opposite sites
                     CA.setOptimalForce(200) # strong reserve; ID < 150Nm
                 else: # coordinates with muscles
                     CA.setOptimalForce(1) # weak reserve
@@ -123,8 +123,8 @@ for force in model.getForceSet():
 if contact_tracking:
     # add contact geometries (right foot only)
     ground  = model.getGround()
-    calcn = model.getBodySet().get('calcn_{s}')
-    toes  = model.getBodySet().get('toes_{s}')
+    calcn = model.getBodySet().get(f'calcn_{s}')
+    toes  = model.getBodySet().get(f'toes_{s}')
     contacts = {
         'S1': osim.ContactSphere(0.020, osim.Vec3([0.01,0,-0.005]), calcn, f'heel_{s}'),
         'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn, f'mid1_{s}'),
@@ -386,7 +386,7 @@ plt.savefig(os.path.join(cwd,'output','graph_residuals.png'))
 
 # plot joints angle
 # stateTable = osim.TimeSeriesTable(os.path.join(cwd,'output','state.sto'))
-cNames = [f'hip_flexion_{s}', f'hip_adduction_{s}', f'hip_{s}otation_{s}',
+cNames = [f'hip_flexion_{s}', f'hip_adduction_{s}', f'hip_rotation_{s}',
           f'knee_angle_{s}',  f'ankle_angle_{s}',   f'subtalar_angle_{s}']
 timesState = stateTable.getIndependentColumn()
 plt.figure(figsize=(10,6), tight_layout=True)
