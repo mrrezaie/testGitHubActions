@@ -8,7 +8,7 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = False
+torque_driven       = True
 contact_tracking    = True
 joint_reaction_goal = False
 
@@ -63,7 +63,7 @@ if torque_driven: # torque driven simulation
     model.updForceSet().clearAndDestroy()
 
     # add strong coordinate actuators
-    osim.ModelFactory().createReserveActuators(model, 2000, 1) # float('inf')
+    osim.ModelFactory().createReserveActuators(model, 1, 1) # float('inf')
     # rename the actuators
     for force in model.getForceSet():
         if force.getConcreteClassName() == 'CoordinateActuator':
@@ -71,9 +71,10 @@ if torque_driven: # torque driven simulation
             cName  = CA.get_coordinate()
             if cName.startswith('pelvis'): 
                 CA.setName(cName+'_residual')
-                CA.setOptimalForce(1) # weak residuals
+                CA.setOptimalForce(1) # N(m) weak residuals for dynamics consistancy
             else: 
                 CA.setName(cName+'_reserve')
+                CA.setOptimalForce(1000)
 
 else: # Muscle driven simulation
     print('A muscle driven model')
