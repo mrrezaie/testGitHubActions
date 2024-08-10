@@ -142,8 +142,8 @@ if contact_tracking:
     pi = osim.SimTK_PI
     contacts = {
         'S1': osim.ContactSphere(0.025, osim.Vec3([0.01,0,-0.005]), calcn_r, 'heel_r'),
-        'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn_r, 'mid1_r'),
-        'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn_r, 'mid2_r'),
+        # 'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn_r, 'mid1_r'),
+        # 'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn_r, 'mid2_r'),
         'S4': osim.ContactSphere(0.020, osim.Vec3([0.16,0,-0.021]), calcn_r, 'fore1_r'),
         'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,0,+0.030]), calcn_r, 'fore2_r'),
         'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,0,-0.010]), toes_r,  'toe1_r'),
@@ -156,8 +156,8 @@ if contact_tracking:
     # add contact forces (right foot only)
     contactForces = {
         'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
-        'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
-        'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
+        # 'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
+        # 'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
         'S4': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
         'S5': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
         'S6': osim.SmoothSphereHalfSpaceForce('floor_toe1_r',  contacts['S6'], contacts['floor']),
@@ -290,7 +290,7 @@ if contact_tracking:
     contact = osim.MocoContactTrackingGoal('grf_tracking', GRFW)
     contact.setExternalLoadsFile(ExtLoads_path)
     nameContactForces = ['/forceset/floor_heel_r',  
-                        '/forceset/floor_mid1_r',  '/forceset/floor_mid2_r',  
+                        # '/forceset/floor_mid1_r',  '/forceset/floor_mid2_r',  
                         '/forceset/floor_fore1_r', '/forceset/floor_fore2_r', 
                         '/forceset/floor_toe1_r',  '/forceset/floor_toe2_r']
     ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
