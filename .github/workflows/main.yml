@@ -21,8 +21,8 @@ jobs:
       # - name: Install matplotlib and numpy PyPI packages
       #   run: pip install numpy==1.25 matplotlib
 
-      - name: Install opensim-moco conda package
-        run: conda install conda-forge::matplotlib nomkl opensim-org::opensim 
+      - name: Install matplotlib and opensim-moco conda packages
+        run: conda install conda-forge::matplotlib opensim-org::opensim 
 
       - name: Run Moco study script
         run: python tracking_simulation.py
