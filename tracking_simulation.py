@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 markerW  = 1
-GRFW     = 1
+GRFW     = 0.1
 controlW = 0.001 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
@@ -71,7 +71,7 @@ if torque_driven: # torque driven simulation
             cName  = CA.get_coordinate()
             if cName.startswith('pelvis'): 
                 CA.setName(cName+'_residual')
-                CA.setOptimalForce(1) # N(m) weak residuals for dynamics consistancy
+                CA.setOptimalForce(1) # N(m) so weak residuals for dynamics consistancy
             else: 
                 CA.setName(cName+'_reserve')
                 CA.setOptimalForce(1000)
@@ -281,7 +281,7 @@ if contact_tracking:
                             ['/bodyset/toes_r']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
-    contact.setNormalizeTrackingError(False) 
+    contact.setNormalizeTrackingError(False) # other terms are unnormalized
     problem.addGoal(contact)
 
 # adjust control goal
