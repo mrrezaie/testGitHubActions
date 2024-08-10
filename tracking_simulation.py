@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 markerW  = 1
-GRFW     = 0.1
+GRFW     = 0.01
 controlW = 0.001 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
