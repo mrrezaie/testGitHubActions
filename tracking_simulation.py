@@ -141,14 +141,14 @@ if contact_tracking:
     toes_r  = model.getBodySet().get('toes_r')
     pi = osim.SimTK_PI
     contacts = {
-        'S1': osim.ContactSphere(0.02, osim.Vec3([0.01,-0.003,-0.003]),  calcn_r, 'heel_r'),
-        'S2': osim.ContactSphere(0.02, osim.Vec3([0.10,-0.003,-0.021]),  calcn_r, 'mid1_r'),
-        'S3': osim.ContactSphere(0.02, osim.Vec3([0.08,-0.003,+0.021]),  calcn_r, 'mid2_r'),
-        'S4': osim.ContactSphere(0.02, osim.Vec3([0.17,-0.003,-0.022]),  calcn_r, 'fore1_r'),
-        'S5': osim.ContactSphere(0.02, osim.Vec3([0.13,-0.003,+0.032]),  calcn_r, 'fore2_r'),
-        'S6': osim.ContactSphere(0.02, osim.Vec3([0.05,-0.003,-0.010]),  toes_r,  'toe1_r'),
-        'S7': osim.ContactSphere(0.02, osim.Vec3([0.01,-0.003, 0.030]),  toes_r,  'toe2_r'),
-        'floor': osim.ContactHalfSpace(osim.Vec3([0.50,0     ,-0.250]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
+        'S1': osim.ContactSphere(0.025, osim.Vec3([0.01,0,-0.005]), calcn_r, 'heel_r'),
+        'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn_r, 'mid1_r'),
+        'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn_r, 'mid2_r'),
+        'S4': osim.ContactSphere(0.020, osim.Vec3([0.16,0,-0.021]), calcn_r, 'fore1_r'),
+        'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,0,+0.030]), calcn_r, 'fore2_r'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,0,-0.010]), toes_r,  'toe1_r'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.01,0,+0.030]), toes_r,  'toe2_r'),
+        'floor': osim.ContactHalfSpace( osim.Vec3([0.50,0,-0.250]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
 
     for contact in contacts.keys():
         model.addContactGeometry(contacts[contact])
@@ -187,7 +187,7 @@ for cName in ['mtp_angle_r', 'mtp_angle_l']:
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate = model.getCoordinateSet().get(cName)
     coordinate.set_range(0, 0) # adjust the min range
-    coordinate.set_range(1, 2.0944) # adjust the min range
+    coordinate.set_range(1, 2.0944) # adjust the max range
 
 # # set static pose as default
 # static = osim.TimeSeriesTable(static_path)
