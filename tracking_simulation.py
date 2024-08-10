@@ -15,17 +15,19 @@ joint_reaction_goal = False
 # goals weight
 markerW  = 1
 GRFW     = 0.001
-controlW = 0.001 # (default==0.001 in MocoTrack)
-PFJLW    = 0.1
+controlW = 0.01 # (default==0.001 in MocoTrack)
+# PFJLW    = 0.1
 
 import opensim as osim
 import os
+import matplotlib.pyplot as plt
 
 cwd = os.getcwd() # current working directory where the script is located
 model_path    = os.path.join(cwd,'input','out_scaled.osim')
 static_path   = os.path.join(cwd,'input','out_static.mot')
 markers_path  = os.path.join(cwd,'input','exp_markers.trc')
 IK_path       = os.path.join(cwd,'input','out_ik.mot')
+ID_path       = os.path.join(cwd,'input','out_id.sto')
 ExtLoads_path = os.path.join(cwd,'input','setup_extload.xml')
 GRF_path      = os.path.join(cwd,'input','exp_grf.mot')
 geometries    = os.path.join(cwd,'input','Geometry')
@@ -54,34 +56,17 @@ if not os.path.exists( os.path.join(cwd,'output') ):
 
 ########## model processing
 model = osim.Model(model_path)
-model.setName('moco_adjusted')
 
-if torque_driven: # torque driven simulation
-    print('A torque driven model')
-
+# adjust coordinate actuators and muscles
+if torque_driven:
+    model.setName('moco_torque_driven')
     # remove all forces (and groups)
-    model.updForceSet().clearAndDestroy()
+    model.updForceSet().clearAndDestroy() 
 
-    # add strong coordinate actuators
-    osim.ModelFactory().createReserveActuators(model, 1, 1) # float('inf')
-    # rename the actuators
-    for force in model.getForceSet():
-        if force.getConcreteClassName() == 'CoordinateActuator':
-            CA = osim.CoordinateActuator().safeDownCast(force)
-            cName  = CA.get_coordinate()
-            if cName.startswith('pelvis'): 
-                CA.setName(cName+'_residual')
-                CA.setOptimalForce(1) # N(m) so weak residuals for dynamics consistancy
-            else: 
-                CA.setName(cName+'_reserve')
-                CA.setOptimalForce(200) # ID < 150Nm
-
-else: # Muscle driven simulation
-    print('A muscle driven model')
-
+else:
+    model.setName('moco_muscle_driven')
     # replace muscles with DeGrooteFregly2016
     osim.DeGrooteFregly2016Muscle().replaceMuscles(model)
-
     # adjust and store the right muscles only
     muscles = dict()
     for muscle in model.getMuscles():
@@ -99,47 +84,46 @@ else: # Muscle driven simulation
             MIF = muscle.get_max_isometric_force()
             muscle.set_max_isometric_force(1.5 * MIF) # 1.5 times stronger
             muscles[mName] = muscle.clone()
-
+    
     # remove all forces (and groups)
     model.updForceSet().clearAndDestroy()
-
+    
     # include right muscles only
     for muscle in muscles.values():
         model.addForce(muscle)
-
+    
     # # or remove unwanted forces from ForceSet
     # indx = model.getForceSet().getIndex(name)
     # model.getForceSet().remove(indx)
 
-    # add coordinate actuators
-    osim.ModelFactory().createReserveActuators(model, 1, 1) # float('inf')
+# add the residual and reseve actuators
+osim.ModelFactory().createReserveActuators(model, 1, 1) # float('inf')
 
-    # adjust the optimal force of the actuators
-    for force in model.getForceSet():
-        if force.getConcreteClassName() == 'CoordinateActuator':
-            CA = osim.CoordinateActuator().safeDownCast(force)
-            cName  = CA.get_coordinate()
-            # residuals (should be low to allow dynamic consistancy)
-            # will be minimized through Moco control goal
-            if cName.startswith('pelvis'): 
-                CA.setName(cName+'_residual')
-                CA.setOptimalForce(2000)
-            # reserve (should be low for coordinates with muscle(s))
-            else: 
-                CA.setName(cName+'_reserve')
+# adjust the optimal force of the actuators
+for force in model.getForceSet():
+    if force.getConcreteClassName() == 'CoordinateActuator':
+        CA = osim.CoordinateActuator().safeDownCast(force)
+        cName  = CA.get_coordinate()
+        # residuals (should be low to allow dynamic consistancy) (can also be minimized through Moco control goal)
+        if cName.startswith('pelvis'): 
+            CA.setName(cName+'_residual')
+            CA.setOptimalForce(1) # N(m) so weak residuals for dynamics consistancy
+        # reserve (should be low for coordinates with muscle(s) and high enough for others)
+        else: 
+            CA.setName(cName+'_reserve')
+            if torque_driven:
+                CA.setOptimalForce(200) # ID < 150Nm
+            else:
                 if ('lumbar' in cName) or (cName.endswith('_l')):
                     CA.setOptimalForce(200) # strong reserve; ID < 150Nm
                 else: # coordinates with muscles
                     CA.setOptimalForce(1) # weak reserve
 
-
 if contact_tracking:
-
     # add contact geometries (right foot only)
     ground  = model.getGround()
     calcn_r = model.getBodySet().get('calcn_r')
     toes_r  = model.getBodySet().get('toes_r')
-    pi = osim.SimTK_PI
     contacts = {
         'S1': osim.ContactSphere(0.020, osim.Vec3([0.01,0,-0.005]), calcn_r, 'heel_r'),
         'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn_r, 'mid1_r'),
@@ -148,12 +132,13 @@ if contact_tracking:
         'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,0,+0.030]), calcn_r, 'fore2_r'),
         'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,0,-0.010]), toes_r,  'toe1_r'),
         'S7': osim.ContactSphere(0.020, osim.Vec3([0.01,0,+0.030]), toes_r,  'toe2_r'),
-        'floor': osim.ContactHalfSpace( osim.Vec3([0.50,0,-0.250]), osim.Vec3([0,0,-pi/2]), ground, 'floor')}
+        'floor': osim.ContactHalfSpace( osim.Vec3([0.50,0,-0.250]), 
+                                        osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
     for contact in contacts.keys():
         model.addContactGeometry(contacts[contact])
 
-    # add contact forces (right foot only)
+    # add contact forces between ContactHalfSpace (floor) and the ContactSphere(s)
     contactForces = {
         'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
         'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
@@ -164,8 +149,9 @@ if contact_tracking:
         'S7': osim.SmoothSphereHalfSpaceForce('floor_toe2_r',  contacts['S7'], contacts['floor']),
         }
 
+    # adjust the SmoothSphereHalfSpaceForce parameters
     for contactForce in contactForces.keys():
-        contactForces[contactForce].set_stiffness(1e+9)
+        contactForces[contactForce].set_stiffness(1e+6)
         contactForces[contactForce].set_dissipation(2)
         contactForces[contactForce].set_static_friction(0.8)
         contactForces[contactForce].set_dynamic_friction(0.8)
@@ -176,7 +162,6 @@ if contact_tracking:
         contactForces[contactForce].set_hunt_crossley_smoothing(50)
         model.addForce(contactForces[contactForce])
         # model.addComponent(contactForces[contactForce])
-
 
 # adjust mtp joint range of motion
 for cName in ['mtp_angle_r', 'mtp_angle_l']:
@@ -189,12 +174,12 @@ for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate.set_range(0, 0) # adjust the min range
     coordinate.set_range(1, 2.0944) # adjust the max range
 
-# # set static pose as default
-# static = osim.TimeSeriesTable(static_path)
-# for coordinate in model.getCoordinateSet():
-#     cName = coordinate.getAbsolutePathString()
-#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
-#     coordinate.set_default_value(value)
+# set static pose as default
+static = osim.TimeSeriesTable(static_path)
+for coordinate in model.getCoordinateSet():
+    cName = coordinate.getAbsolutePathString()
+    value = static.getDependentColumn(cName+'/value').getElt(0,0)
+    coordinate.set_default_value(value)
 
 # finalize the model and write it
 model.finalizeConnections()
@@ -325,8 +310,10 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(True)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-3) # IPOPT default
-solver.set_optim_convergence_tolerance(1e-5)
+print('default constraint  tol:', solver.get_optim_constraint_tolerance()) # IPOPT default
+print('default convergence tol:', solver.get_optim_convergence_tolerance())
+solver.set_optim_constraint_tolerance(1e-3) # 0.01 MocoTrack default
+solver.set_optim_convergence_tolerance(1e-5) # 0.01 MocoTrack default
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
@@ -337,7 +324,7 @@ solver.set_optim_max_iterations(10000)
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
 # solver.set_enforce_constraint_derivatives(True)
-solver.set_optim_finite_difference_scheme('forward') # central forward backward
+solver.set_optim_finite_difference_scheme('backward') # central forward backward
 # solver.set_optim_sparsity_detection() # none random initial-guess
 # solver.set_optim_hessian_approximation('exact') # exact limited-memory
 # # solver.set_optim_nlp_scaling_method('gradient-based')
@@ -376,6 +363,92 @@ if contact_tracking:
 jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, solution, ['.*reaction_on_child'])
 suffix = ['_mx','_my','_mz', '_fx','_fy','_fz']
 osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), os.path.join(cwd,'output','tracking_joint_load_solution.sto') )
+
+
+# %% 
+########## plots
+# plot residuals
+times = solution.getTime().to_numpy()
+maxAbs = 0
+plt.figure(tight_layout=True)
+for fName in solution.getControlNames():
+    if fName.endswith('_residual'):
+        values = solution.getControl(fName).to_numpy()*1
+        plt.plot(times, values, label=fName.split('/')[-1][:-9])
+        if max(abs(values)) > maxAbs:
+            maxAbs = max(abs(values))
+plt.title(f'Residual Actuators\nMaxAbs = {round(maxAbs,5)} Nm')
+plt.xlabel('Times (s)')
+plt.ylabel('Controls [-1, 1]')
+plt.legend()
+plt.savefig(os.path.join(cwd,'output','graph_residuals.png'))
+
+# plot joints angle
+# stateTable = osim.TimeSeriesTable(os.path.join(cwd,'output','state.sto'))
+cNames = ['hip_flexion_r', 'hip_adduction_r', 'hip_rotation_r',
+          'knee_angle_r',  'ankle_angle_r',   'subtalar_angle_r']
+timesState = stateTable.getIndependentColumn()
+plt.figure(figsize=(10,6), tight_layout=True)
+plt.suptitle('Joints Angle')
+for i,cName in enumerate(cNames):
+    if cName.startswith('hip'): jName = 'hip_r'
+    if cName.startswith('knee'): jName = 'walker_knee_r'
+    if cName.startswith('ankle'): jName = 'ankle_r'
+    if cName.startswith('subtalar'): jName = 'subtalar_r'
+    plt.subplot(2,3,i+1)
+    valuesState = stateTable.getDependentColumn(f'/jointset/{jName}/{cName}/value').to_numpy()
+    plt.plot(timesState, valuesState, lw=2.5, label='ID')
+    values = solution.getState(f'/jointset/{jName}/{cName}/value').to_numpy()
+    plt.plot(times, values, lw=2.5, label='sim', ls='--')
+    plt.title(cName)
+    plt.xlabel('Times (s)')
+    plt.ylabel('Angle (Radians)')
+    plt.legend()
+plt.savefig(os.path.join(cwd,'output','graph_joint_angle.png'))
+
+# plot joints moment
+if torque_driven:
+    IDExp  = osim.TimeSeriesTable(ID_path)
+    idx_t0 = IDExp.getNearestRowIndexForTime(t0)
+    idx_t1 = IDExp.getNearestRowIndexForTime(t1)
+    IDExp.trimToIndices(idx_t0, idx_t1) # more robust to rounding error
+    timesID = IDExp.getIndependentColumn()
+    plt.figure(figsize=(10,6), tight_layout=True)
+    plt.suptitle('Joints Moment')
+    for i,cName in enumerate(cNames):
+        plt.subplot(2,3,i+1)
+        valuesID = IDExp.getDependentColumn(f'{cName}_moment').to_numpy()
+        plt.plot(timesID, valuesID, lw=2.5, label='ID')
+        values = solution.getControl(f'/forceset/{cName}_reserve').to_numpy()*200
+        plt.plot(times, values, lw=2.5, label='sim', ls='--')
+        plt.title(cName)
+        plt.xlabel('Times (s)')
+        plt.ylabel('Moment (Nm)')
+        plt.legend()
+    plt.savefig(os.path.join(cwd,'output','graph_joint_moment.png'))
+
+# plot GRF
+if contact_tracking:
+    # GRFTable = osim.TimeSeriesTable(os.path.join(cwd,'output','tracking_grf_solution.sto'))
+    times  = GRFTable.getIndependentColumn()
+    GRFExp = osim.TimeSeriesTable(GRF_path)
+    idx_t0 = GRFExp.getNearestRowIndexForTime(t0)
+    idx_t1 = GRFExp.getNearestRowIndexForTime(t1)
+    GRFExp.trimToIndices(idx_t0, idx_t1) # more robust to rounding error
+    timesExp = GRFExp.getIndependentColumn()
+    plt.figure(figsize=(10,3.5), tight_layout=True)
+    plt.suptitle('Ground Reaction Forces')
+    for i,xyz in enumerate(['x','y','z']):
+        plt.subplot(1,3,i+1)
+        valuesExp = GRFExp.getDependentColumn(f'ground_force_r_v{xyz}').to_numpy()
+        plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
+        values = GRFTable.getDependentColumn(f'ground_force_r_v{xyz}').to_numpy()
+        plt.plot(times, values, lw=2.5, label='track', ls='--')
+        plt.title(f'F{xyz.upper()}')
+        plt.xlabel('Times (s)')
+        plt.ylabel('Force (N)')
+        plt.legend()
+    plt.savefig(os.path.join(cwd,'output','graph_grf.png'))
 
 
 # %% 
