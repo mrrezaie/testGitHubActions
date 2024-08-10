@@ -178,7 +178,7 @@ if contact_tracking:
 # adjust mtp joint range of motion
 for cName in ['mtp_angle_r', 'mtp_angle_l']:
     coordinate = model.getCoordinateSet().get(cName)
-    coordinate.set_range(0, -70) # adjust the min range
+    coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
 
 # set static pose as default
 static = osim.TimeSeriesTable(static_path)
