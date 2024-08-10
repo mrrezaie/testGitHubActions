@@ -11,6 +11,7 @@ Options:
 torque_driven       = True
 contact_tracking    = True
 joint_reaction_goal = False
+s = 'r' # side
 
 # goals weight
 markerW  = 1
@@ -114,7 +115,7 @@ for force in model.getForceSet():
             if torque_driven:
                 CA.setOptimalForce(200) # ID < 150Nm
             else:
-                if ('lumbar' in cName) or (cName.endswith('_l')):
+                if ('lumbar' in cName) or (not cName.endswith(f'_{s}')):
                     CA.setOptimalForce(200) # strong reserve; ID < 150Nm
                 else: # coordinates with muscles
                     CA.setOptimalForce(1) # weak reserve
@@ -122,16 +123,16 @@ for force in model.getForceSet():
 if contact_tracking:
     # add contact geometries (right foot only)
     ground  = model.getGround()
-    calcn_r = model.getBodySet().get('calcn_r')
-    toes_r  = model.getBodySet().get('toes_r')
+    calcn = model.getBodySet().get('calcn_{s}')
+    toes  = model.getBodySet().get('toes_{s}')
     contacts = {
-        'S1': osim.ContactSphere(0.020, osim.Vec3([0.01,0,-0.005]), calcn_r, 'heel_r'),
-        'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn_r, 'mid1_r'),
-        'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn_r, 'mid2_r'),
-        'S4': osim.ContactSphere(0.020, osim.Vec3([0.16,0,-0.021]), calcn_r, 'fore1_r'),
-        'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,0,+0.030]), calcn_r, 'fore2_r'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,0,-0.010]), toes_r,  'toe1_r'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.01,0,+0.030]), toes_r,  'toe2_r'),
+        'S1': osim.ContactSphere(0.020, osim.Vec3([0.01,0,-0.005]), calcn, f'heel_{s}'),
+        'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn, f'mid1_{s}'),
+        'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn, f'mid2_{s}'),
+        'S4': osim.ContactSphere(0.020, osim.Vec3([0.16,0,-0.021]), calcn, f'fore1_{s}'),
+        'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,0,+0.030]), calcn, f'fore2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,0,-0.010]), toes,  f'toe1_{s}'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.01,0,+0.030]), toes,  f'toe2_{s}'),
         'floor': osim.ContactHalfSpace( osim.Vec3([0.50,0,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
@@ -140,13 +141,13 @@ if contact_tracking:
 
     # add contact forces between ContactHalfSpace (floor) and the ContactSphere(s)
     contactForces = {
-        'S1': osim.SmoothSphereHalfSpaceForce('floor_heel_r',  contacts['S1'], contacts['floor']), 
-        'S2': osim.SmoothSphereHalfSpaceForce('floor_mid1_r',  contacts['S2'], contacts['floor']), 
-        'S3': osim.SmoothSphereHalfSpaceForce('floor_mid2_r',  contacts['S3'], contacts['floor']), 
-        'S4': osim.SmoothSphereHalfSpaceForce('floor_fore1_r', contacts['S4'], contacts['floor']), 
-        'S5': osim.SmoothSphereHalfSpaceForce('floor_fore2_r', contacts['S5'], contacts['floor']), 
-        'S6': osim.SmoothSphereHalfSpaceForce('floor_toe1_r',  contacts['S6'], contacts['floor']),
-        'S7': osim.SmoothSphereHalfSpaceForce('floor_toe2_r',  contacts['S7'], contacts['floor']),
+        'S1': osim.SmoothSphereHalfSpaceForce(f'floor_heel_{s}',  contacts['S1'], contacts['floor']), 
+        'S2': osim.SmoothSphereHalfSpaceForce(f'floor_mid1_{s}',  contacts['S2'], contacts['floor']), 
+        'S3': osim.SmoothSphereHalfSpaceForce(f'floor_mid2_{s}',  contacts['S3'], contacts['floor']), 
+        'S4': osim.SmoothSphereHalfSpaceForce(f'floor_fore1_{s}', contacts['S4'], contacts['floor']), 
+        'S5': osim.SmoothSphereHalfSpaceForce(f'floor_fore2_{s}', contacts['S5'], contacts['floor']), 
+        'S6': osim.SmoothSphereHalfSpaceForce(f'floor_toe1_{s}',  contacts['S6'], contacts['floor']),
+        'S7': osim.SmoothSphereHalfSpaceForce(f'floor_toe2_{s}',  contacts['S7'], contacts['floor']),
         }
 
     # adjust the SmoothSphereHalfSpaceForce parameters
@@ -274,12 +275,12 @@ if contact_tracking:
     # contact tracking goal
     contact = osim.MocoContactTrackingGoal('grf_tracking', GRFW)
     contact.setExternalLoadsFile(ExtLoads_path)
-    nameContactForces = ['/forceset/floor_heel_r',  
-                        '/forceset/floor_mid1_r',  '/forceset/floor_mid2_r',  
-                        '/forceset/floor_fore1_r', '/forceset/floor_fore2_r', 
-                        '/forceset/floor_toe1_r',  '/forceset/floor_toe2_r']
+    nameContactForces = [f'/forceset/floor_heel_{s}',  
+                         f'/forceset/floor_mid1_{s}',  f'/forceset/floor_mid2_{s}',  
+                         f'/forceset/floor_fore1_{s}', f'/forceset/floor_fore2_{s}', 
+                         f'/forceset/floor_toe1_{s}',  f'/forceset/floor_toe2_{s}']
     ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
-                            ['/bodyset/toes_r']) # why 'toes' is typically used???
+                            [f'/bodyset/toes_{s}']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
     contact.setNormalizeTrackingError(False) # other terms are unnormalized
@@ -294,9 +295,9 @@ if contact_tracking:
 if joint_reaction_goal:
     # reaction goal
     PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
-    PFJLoadGoal.setJointPath('/jointset/patellofemoral_r')
+    PFJLoadGoal.setJointPath(f'/jointset/patellofemoral_{s}')
     PFJLoadGoal.setLoadsFrame('child')
-    PFJLoadGoal.setExpressedInFramePath('/bodyset/patella_r') # child frame
+    PFJLoadGoal.setExpressedInFramePath(f'/bodyset/patella_{s}') # child frame
     PFJLoadGoal.setReactionMeasures(['force-x']) # or All?
     problem.addGoal(PFJLoadGoal)
 
@@ -312,8 +313,8 @@ solver.resetProblem(problem)
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 print('default constraint  tol:', solver.get_optim_constraint_tolerance()) # IPOPT default
 print('default convergence tol:', solver.get_optim_convergence_tolerance())
-solver.set_optim_constraint_tolerance(1e-3) # 0.01 MocoTrack default
-solver.set_optim_convergence_tolerance(1e-5) # 0.01 MocoTrack default
+solver.set_optim_constraint_tolerance(1e-4) # 0.01 MocoTrack default
+solver.set_optim_convergence_tolerance(1e-4) # 0.01 MocoTrack default
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
@@ -385,16 +386,16 @@ plt.savefig(os.path.join(cwd,'output','graph_residuals.png'))
 
 # plot joints angle
 # stateTable = osim.TimeSeriesTable(os.path.join(cwd,'output','state.sto'))
-cNames = ['hip_flexion_r', 'hip_adduction_r', 'hip_rotation_r',
-          'knee_angle_r',  'ankle_angle_r',   'subtalar_angle_r']
+cNames = [f'hip_flexion_{s}', f'hip_adduction_{s}', f'hip_{s}otation_{s}',
+          f'knee_angle_{s}',  f'ankle_angle_{s}',   f'subtalar_angle_{s}']
 timesState = stateTable.getIndependentColumn()
 plt.figure(figsize=(10,6), tight_layout=True)
 plt.suptitle('Joints Angle')
 for i,cName in enumerate(cNames):
-    if cName.startswith('hip'): jName = 'hip_r'
-    if cName.startswith('knee'): jName = 'walker_knee_r'
-    if cName.startswith('ankle'): jName = 'ankle_r'
-    if cName.startswith('subtalar'): jName = 'subtalar_r'
+    if cName.startswith('hip'): jName = f'hip_{s}'
+    if cName.startswith('knee'): jName = f'walker_knee_{s}'
+    if cName.startswith('ankle'): jName = f'ankle_{s}'
+    if cName.startswith('subtalar'): jName = f'subtalar_{s}'
     plt.subplot(2,3,i+1)
     valuesState = stateTable.getDependentColumn(f'/jointset/{jName}/{cName}/value').to_numpy()
     plt.plot(timesState, valuesState, lw=2.5, label='ID')
@@ -440,9 +441,9 @@ if contact_tracking:
     plt.suptitle('Ground Reaction Forces')
     for i,xyz in enumerate(['x','y','z']):
         plt.subplot(1,3,i+1)
-        valuesExp = GRFExp.getDependentColumn(f'ground_force_r_v{xyz}').to_numpy()
+        valuesExp = GRFExp.getDependentColumn(f'ground_force_{s}_v{xyz}').to_numpy()
         plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
-        values = GRFTable.getDependentColumn(f'ground_force_r_v{xyz}').to_numpy()
+        values = GRFTable.getDependentColumn(f'ground_force_{s}_v{xyz}').to_numpy()
         plt.plot(times, values, lw=2.5, label='track', ls='--')
         plt.title(f'F{xyz.upper()}')
         plt.xlabel('Times (s)')
