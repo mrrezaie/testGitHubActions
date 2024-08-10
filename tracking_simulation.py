@@ -13,8 +13,8 @@ contact_tracking    = True
 joint_reaction_goal = False
 
 # goals weight
-markerW  = 0.1
-GRFW     = 10
+markerW  = 1
+GRFW     = 1
 controlW = 0.001 # (default==0.001 in MocoTrack)
 PFJLW    = 0.1
 
@@ -280,7 +280,7 @@ if contact_tracking:
                             ['/bodyset/toes_r']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
-    contact.setNormalizeTrackingError(True)
+    contact.setNormalizeTrackingError(False) 
     problem.addGoal(contact)
 
 # adjust control goal
