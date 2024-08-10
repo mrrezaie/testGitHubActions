@@ -74,7 +74,7 @@ if torque_driven: # torque driven simulation
                 CA.setOptimalForce(1) # N(m) so weak residuals for dynamics consistancy
             else: 
                 CA.setName(cName+'_reserve')
-                CA.setOptimalForce(1000)
+                CA.setOptimalForce(200) # ID < 150Nm
 
 else: # Muscle driven simulation
     print('A muscle driven model')
@@ -128,7 +128,7 @@ else: # Muscle driven simulation
             else: 
                 CA.setName(cName+'_reserve')
                 if ('lumbar' in cName) or (cName.endswith('_l')):
-                    CA.setOptimalForce(1000) # strong reserve
+                    CA.setOptimalForce(200) # strong reserve; ID < 150Nm
                 else: # coordinates with muscles
                     CA.setOptimalForce(1) # weak reserve
 
@@ -173,6 +173,12 @@ if contact_tracking:
         contactForces[contactForce].set_hunt_crossley_smoothing(50)
         model.addForce(contactForces[contactForce])
         # model.addComponent(contactForces[contactForce])
+
+
+# adjust mtp joint range of motion
+for cName in ['mtp_angle_r', 'mtp_angle_l']:
+    coordinate = model.getCoordinateSet().get(cName)
+    coordinate.set_range(0, -70) # adjust the min range
 
 # set static pose as default
 static = osim.TimeSeriesTable(static_path)
