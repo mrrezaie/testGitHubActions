@@ -165,7 +165,7 @@ if contact_tracking:
         }
 
     for contactForce in contactForces.keys():
-        contactForces[contactForce].set_stiffness(1e+6)
+        contactForces[contactForce].set_stiffness(1e+9)
         contactForces[contactForce].set_dissipation(2)
         contactForces[contactForce].set_static_friction(0.8)
         contactForces[contactForce].set_dynamic_friction(0.8)
