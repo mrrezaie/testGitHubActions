@@ -141,7 +141,7 @@ if contact_tracking:
     toes_r  = model.getBodySet().get('toes_r')
     pi = osim.SimTK_PI
     contacts = {
-        'S1': osim.ContactSphere(0.025, osim.Vec3([0.01,0,-0.005]), calcn_r, 'heel_r'),
+        'S1': osim.ContactSphere(0.020, osim.Vec3([0.01,0,-0.005]), calcn_r, 'heel_r'),
         # 'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn_r, 'mid1_r'),
         # 'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn_r, 'mid2_r'),
         'S4': osim.ContactSphere(0.020, osim.Vec3([0.16,0,-0.021]), calcn_r, 'fore1_r'),
