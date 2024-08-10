@@ -18,11 +18,8 @@ jobs:
           activate-environment: 'moco'
           python-version: '3.11'
 
-      - name: Install matplotlib package
-        run: conda install conda-forge::matplotlib
-
-      - name: Install opensim-moco conda package
-        run: conda install opensim-org::opensim
+      - name: Install matplotlib and opensim-moco packages
+        run: conda install conda-forge::matplotlib opensim-org::opensim
 
       - name: Run Moco study script
         run: python tracking_simulation.py
