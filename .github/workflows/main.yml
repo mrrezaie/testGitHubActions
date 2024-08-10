@@ -22,7 +22,7 @@ jobs:
       #   run: pip install numpy==1.25 matplotlib
 
       - name: Install opensim-moco conda package
-        run: conda install opensim-org::opensim conda-forge::matplotlib nomkl
+        run: conda install conda-forge::matplotlib nomkl opensim-org::opensim 
 
       - name: Run Moco study script
         run: python tracking_simulation.py
