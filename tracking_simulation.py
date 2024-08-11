@@ -13,8 +13,8 @@ contact_tracking    = True
 joint_reaction_goal = False
 
 # goals weight
-markerW  = 1
-GRFW     = 0.01
+markerW  = 10
+GRFW     = 1
 controlW = 0.001 # (default==0.001 in MocoTrack)
 # PFJLW    = 0.1
 
@@ -22,6 +22,15 @@ controlW = 0.001 # (default==0.001 in MocoTrack)
 reserve_weak   = 1
 reserve_strong = 200 # ID<150Nm
 residual       = 1
+
+# solver tolerances
+constraint_tol  = 1e-3
+convergence_tol = 1e-3
+
+# time frames (right stance only)
+t0 = 0.245 # init time
+t1 = 0.530 # end time # stride = 1.025 
+s = 'r' # side
 
 import opensim as osim
 import os
@@ -36,11 +45,6 @@ ID_path       = os.path.join(cwd,'input','out_id.sto')
 ExtLoads_path = os.path.join(cwd,'input','setup_extload.xml')
 GRF_path      = os.path.join(cwd,'input','exp_grf.mot')
 geometries    = os.path.join(cwd,'input','Geometry')
-
-# time frames (right stance only)
-t0 = 0.245 # init time
-t1 = 0.530 # end time # stride = 1.025 
-s = 'r' # side
 
 osim.Logger.removeFileSink()
 osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
@@ -316,8 +320,8 @@ solver.resetProblem(problem)
 # solver.set_parameters_require_initsystem(True)
 # solver.set_num_mesh_intervals(30) # adjusted by track.set_mesh_interval()
 print('Total number of mesh intervals', solver.get_num_mesh_intervals())
-solver.set_optim_constraint_tolerance(1e-4) # 0.01 MocoTrack default
-solver.set_optim_convergence_tolerance(1e-4) # 0.01 MocoTrack default
+solver.set_optim_constraint_tolerance(constraint_tol) # 0.01 MocoTrack default
+solver.set_optim_convergence_tolerance(convergence_tol) # 0.01 MocoTrack default
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
