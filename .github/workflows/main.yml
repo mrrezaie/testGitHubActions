@@ -24,7 +24,7 @@ jobs:
       - name: Install matplotlib and opensim-moco conda packages
         run: conda install conda-forge::matplotlib opensim-org::opensim 
 
-      - name: Run Moco study script
+      - name: Run Moco script
         run: python tracking_simulation.py
 
       # - name: List files in the repository
@@ -34,6 +34,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Moco-Solution-${{ github.run_number }}
-          path: |
-            MocoStudy_solution.sto
-            ./output
+          path: ./output
