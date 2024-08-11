@@ -1,5 +1,7 @@
-The output of actuators are not the their actuation force/moment; they are control (e.g. [-1,+1])
+The solution (MocoTrajectory) does not contain actuation force/moment; they are control (e.g. [-1,+1])
 
-To reduce the residual forces/moments, the weight of the corresponding actuators must be increased.
+To reduce the residual forces/moments, must either increase the weight of the corresponding actuators (with high optimal force), or use very weak residual actuators (e.g. 1Nm with 1 controls)
 
-Slack variables (gamma_cid) only appear if there are kinematic constraints in the model.
+Slack variables (gamma) only appear if there are kinematic constraints in the model.
+
+The weight of the controls must be low, otherwise, it changes the motion significantly.

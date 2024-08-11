@@ -8,10 +8,9 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = True
+torque_driven       = False
 contact_tracking    = True
 joint_reaction_goal = False
-s = 'r' # side
 
 # goals weight
 markerW  = 1
@@ -41,6 +40,7 @@ geometries    = os.path.join(cwd,'input','Geometry')
 # time frames (right stance only)
 t0 = 0.245 # init time
 t1 = 0.530 # end time # stride = 1.025 
+s = 'r' # side
 
 osim.Logger.removeFileSink()
 osim.ModelVisualizer.addDirToGeometrySearchPaths(geometries)
@@ -423,7 +423,7 @@ if torque_driven:
         plt.subplot(2,3,i+1)
         valuesID = IDExp.getDependentColumn(f'{cName}_moment').to_numpy()
         plt.plot(timesID, valuesID, lw=2.5, label='ID')
-        values = solution.getControl(f'/forceset/{cName}_reserve').to_numpy()*200
+        values = solution.getControl(f'/forceset/{cName}_reserve').to_numpy()*reserve_strong
         plt.plot(times, values, lw=2.5, label='sim', ls='--')
         plt.title(cName)
         plt.xlabel('Times (s)')
