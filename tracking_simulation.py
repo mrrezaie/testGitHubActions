@@ -14,14 +14,20 @@ joint_reaction_goal = False
 
 # goals weight
 markerW  = 1
-GRFW     = 1
+GRFW     = 0.01
 controlW = 0.001 # (default==0.001 in MocoTrack)
 # PFJLW    = 0.1
 
 # actuators strength
 reserve_weak   = 1
 reserve_strong = 200 # ID<150Nm
-residual       = 1
+residual       = 200
+
+if residual==1:
+    reduce_residuals = False
+else:
+    reduce_residuals = True
+    residuals_weight = 10
 
 # solver tolerances
 constraint_tol  = 1e-3
@@ -292,13 +298,14 @@ if contact_tracking:
                             [f'/bodyset/toes_{s}']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
-    contact.setNormalizeTrackingError(True) # other terms are unnormalized
+    contact.setNormalizeTrackingError(False) # other terms are unnormalized
     problem.addGoal(contact)
 
-# adjust control goal
-# effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# # if caring about dynamic consistency, this minimizes the residual actuation more than others
-# effort.setWeightForControlPattern('.*residual', 10000)
+if reduce_residuals:
+    # adjust control goal
+    effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
+    # if caring about dynamic consistency, this minimizes the residual actuation more than others
+    effort.setWeightForControlPattern('.*residual', residuals_weight)
 
 
 if joint_reaction_goal:
