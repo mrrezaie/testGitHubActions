@@ -141,14 +141,14 @@ if contact_tracking:
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
     contacts = {
-        'S1': osim.ContactSphere(0.020, osim.Vec3([0.01,0,-0.005]), calcn, f'heel_{s}'),
-        'S2': osim.ContactSphere(0.020, osim.Vec3([0.09,0,-0.020]), calcn, f'mid1_{s}'),
-        'S3': osim.ContactSphere(0.020, osim.Vec3([0.07,0,+0.020]), calcn, f'mid2_{s}'),
-        'S4': osim.ContactSphere(0.020, osim.Vec3([0.16,0,-0.021]), calcn, f'fore1_{s}'),
-        'S5': osim.ContactSphere(0.020, osim.Vec3([0.13,0,+0.030]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.05,0,-0.010]), toes,  f'toe1_{s}'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.01,0,+0.030]), toes,  f'toe2_{s}'),
-        'floor': osim.ContactHalfSpace( osim.Vec3([0.50,0,-0.250]), 
+        'S1': osim.ContactSphere(0.025, osim.Vec3([0.010,+0.000,-0.005]), calcn, f'heel_{s}'),
+        'S2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.005,-0.025]), calcn, f'mid1_{s}'),
+        'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.005,+0.022]), calcn, f'mid2_{s}'),
+        'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.005,-0.027]), calcn, f'fore1_{s}'),
+        'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.005,+0.035]), calcn, f'fore2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.040,+0.000,-0.020]), toes,  f'toe1_{s}'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,+0.000,+0.045]), toes,  f'toe2_{s}'),
+        'floor': osim.ContactHalfSpace( osim.Vec3([0.500,+0.000,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
     for contact in contacts.keys():
@@ -190,12 +190,12 @@ for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate.set_range(0, 0) # adjust the min range
     coordinate.set_range(1, 2.0944) # adjust the max range
 
-# set static pose as default
-static = osim.TimeSeriesTable(static_path)
-for coordinate in model.getCoordinateSet():
-    cName = coordinate.getAbsolutePathString()
-    value = static.getDependentColumn(cName+'/value').getElt(0,0)
-    coordinate.set_default_value(value)
+# # set static pose as default
+# static = osim.TimeSeriesTable(static_path)
+# for coordinate in model.getCoordinateSet():
+#     cName = coordinate.getAbsolutePathString()
+#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
+#     coordinate.set_default_value(value)
 
 # finalize the model and write it
 model.finalizeConnections()
@@ -378,7 +378,11 @@ if contact_tracking:
 # get joint contact forces
 jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, solution, ['.*reaction_on_child'])
 suffix = ['_mx','_my','_mz', '_fx','_fy','_fz']
-osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), os.path.join(cwd,'output','tracking_joint_load_solution.sto') )
+osim.STOFileAdapter().write(jointLoadTable.flatten(suffix), os.path.join(cwd,'output','analyze_joint_load.sto') )
+
+# get actuation
+actuation = osim.analyzeMocoTrajectory(model, solution, ['.*actuation'])
+osim.STOFileAdapter().write(actuation, os.path.join(cwd,'output','analyze_actuation.sto'))
 
 
 # %% 
