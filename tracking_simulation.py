@@ -13,21 +13,21 @@ contact_tracking    = True
 joint_reaction_goal = False
 
 # goals weight
-markerW  = 1
-GRFW     = 0.01
-controlW = 0.001 # (default==0.001 in MocoTrack)
-# PFJLW    = 0.1
+marker_weight  = 1
+grf_weight     = 0.01
+control_weight = 0.001 # (default==0.001 in MocoTrack)
+# PFJL_weight    = 0.1
 
 # actuators strength
 reserve_weak   = 1
 reserve_strong = 200 # ID<150Nm
-residual       = 200
+residual       = 1
 
-if residual==1:
+if residual <= 1:
     reduce_residuals = False
 else:
     reduce_residuals = True
-    residuals_weight = 10
+    residuals_weight = 10 # increase the weight of the residuals in control-effort goal
 
 # solver tolerances
 constraint_tol  = 1e-3
@@ -232,13 +232,13 @@ track.set_initial_time(t0)
 track.set_final_time(t1)
 track.set_mesh_interval(0.01) # Hermite-Simpson
 track.set_minimize_control_effort(True)
-track.set_control_effort_weight(controlW) # (default==0.001 in MocoTrack)
+track.set_control_effort_weight(control_weight) # (default==0.001 in MocoTrack)
 # track.set_track_reference_position_derivatives(True)
 
 ########## marker tracking
 track.setMarkersReferenceFromTRC(markers_path)
 track.set_allow_unused_references(True)
-track.set_markers_global_tracking_weight(markerW) # weight of MocoMarkerTrackingGoal
+track.set_markers_global_tracking_weight(marker_weight) # weight of MocoMarkerTrackingGoal
 markerWeights = osim.MocoWeightSet()
 markerWeights.cloneAndAppend( osim.MocoWeight('R.Shoulder', 1))
 markerWeights.cloneAndAppend( osim.MocoWeight('L.Shoulder', 1))
@@ -288,7 +288,7 @@ problem = study.updProblem()
 ########## Goals
 if contact_tracking:
     # contact tracking goal
-    contact = osim.MocoContactTrackingGoal('grf_tracking', GRFW)
+    contact = osim.MocoContactTrackingGoal('grf_tracking', grf_weight)
     contact.setExternalLoadsFile(ExtLoads_path)
     nameContactForces = [f'/forceset/floor_heel_{s}',  
                          f'/forceset/floor_mid1_{s}',  f'/forceset/floor_mid2_{s}',  
@@ -310,7 +310,7 @@ if reduce_residuals:
 
 if joint_reaction_goal:
     # reaction goal
-    PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJLW)
+    PFJLoadGoal = osim.MocoJointReactionGoal('PFPJ_compressive_force', PFJL_weight)
     PFJLoadGoal.setJointPath(f'/jointset/patellofemoral_{s}')
     PFJLoadGoal.setLoadsFrame('child')
     PFJLoadGoal.setExpressedInFramePath(f'/bodyset/patella_{s}') # child frame
