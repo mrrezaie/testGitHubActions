@@ -16,8 +16,13 @@ s = 'r' # side
 # goals weight
 markerW  = 1
 GRFW     = 0.001
-controlW = 1 # (default==0.001 in MocoTrack)
+controlW = 0.1 # (default==0.001 in MocoTrack)
 # PFJLW    = 0.1
+
+# actuators strength
+reserve_weak   = 1
+reserve_strong = 200 # ID<150Nm
+residual       = 1
 
 import opensim as osim
 import os
