@@ -332,9 +332,9 @@ solver.set_optim_convergence_tolerance(convergence_tol) # 0.01 MocoTrack default
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
-solver.set_minimize_implicit_auxiliary_derivatives(True)
-solver.set_implicit_auxiliary_derivatives_weight(1)
-# solver.set_multibody_dynamics_mode('implicit') # explicit
+# solver.set_minimize_implicit_auxiliary_derivatives(True)
+# solver.set_implicit_auxiliary_derivatives_weight(1)
+solver.set_multibody_dynamics_mode('explicit') # explicit
 # solver.set_transcription_scheme('hermite-simpson') # trapezoidal
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
