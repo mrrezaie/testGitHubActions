@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.01
+grf_weight     = 1
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -298,7 +298,7 @@ if contact_tracking:
                             [f'/bodyset/toes_{s}']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
-    contact.setNormalizeTrackingError(False) # other terms are unnormalized
+    contact.setNormalizeTrackingError(True)
     problem.addGoal(contact)
 
 if reduce_residuals:
@@ -367,6 +367,7 @@ solution.write( os.path.join(cwd,'output','tracking_solution.sto') )
 # study.visualize(solution)
 
 
+# %%
 ########## post-hoc analyses
 # solution = osim.MocoTrajectory( os.path.join(cwd,'output','tracking_solution.sto') )
 
