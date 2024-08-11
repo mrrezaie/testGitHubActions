@@ -16,7 +16,7 @@ s = 'r' # side
 # goals weight
 markerW  = 1
 GRFW     = 0.001
-controlW = 0.1 # (default==0.001 in MocoTrack)
+controlW = 0.001 # (default==0.001 in MocoTrack)
 # PFJLW    = 0.1
 
 # actuators strength
@@ -113,17 +113,17 @@ for force in model.getForceSet():
         # residuals (should be low to allow dynamic consistancy) (can also be minimized through Moco control goal)
         if cName.startswith('pelvis'): 
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(1) # N(m) so weak residuals for dynamics consistancy
+            CA.setOptimalForce(residual) # N(m) so weak residuals for dynamics consistancy
         # reserve (should be low for coordinates with muscle(s) and high enough for others)
         else: 
             CA.setName(cName+'_reserve')
             if torque_driven:
-                CA.setOptimalForce(200) # ID < 150Nm
+                CA.setOptimalForce(reserve_strong) # ID < 150Nm
             else:
                 if ('lumbar' in cName) or (not cName.endswith(f'_{s}')): # lumbar and the opposite sites
-                    CA.setOptimalForce(200) # strong reserve; ID < 150Nm
+                    CA.setOptimalForce(reserve_strong) # strong reserve; ID < 150Nm
                 else: # coordinates with muscles
-                    CA.setOptimalForce(1) # weak reserve
+                    CA.setOptimalForce(reserve_weak) # weak reserve
 
 if contact_tracking:
     # add contact geometries (right foot only)
