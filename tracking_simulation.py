@@ -30,7 +30,7 @@ else:
     residuals_weight = 10 # increase the weight of the residuals in control-effort goal
 
 # solver tolerances
-constraint_tol  = 1e-3
+constraint_tol  = 1e-5
 convergence_tol = 1e-3
 
 # time frames (right stance only)
