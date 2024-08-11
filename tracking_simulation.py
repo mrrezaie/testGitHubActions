@@ -260,7 +260,7 @@ track.set_markers_weight_set(markerWeights)
 
 # get the solver
 study = track.initialize()
-study.set_write_solution(True)
+# study.set_write_solution(True)
 problem = study.updProblem()
 
 
