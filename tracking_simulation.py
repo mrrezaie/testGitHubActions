@@ -181,8 +181,8 @@ if contact_tracking:
         'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f'mid2_{s}'),
         'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f'fore1_{s}'),
         'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.030,-0.003,+0.010]), toes,  f'toe1_{s}'),
-        # 'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.003,+0.045]), toes,  f'toe2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.040,-0.003,+0.015]), toes,  f'toe1_{s}'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.003,+0.045]), toes,  f'toe2_{s}'),
         'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.003,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
@@ -197,7 +197,7 @@ if contact_tracking:
         'S4': osim.SmoothSphereHalfSpaceForce(f'floor_fore1_{s}', contacts['S4'], contacts['floor']), 
         'S5': osim.SmoothSphereHalfSpaceForce(f'floor_fore2_{s}', contacts['S5'], contacts['floor']), 
         'S6': osim.SmoothSphereHalfSpaceForce(f'floor_toe1_{s}',  contacts['S6'], contacts['floor']),
-        # 'S7': osim.SmoothSphereHalfSpaceForce(f'floor_toe2_{s}',  contacts['S7'], contacts['floor']),
+        'S7': osim.SmoothSphereHalfSpaceForce(f'floor_toe2_{s}',  contacts['S7'], contacts['floor']),
         }
 
     # adjust the SmoothSphereHalfSpaceForce parameters
@@ -214,7 +214,7 @@ if contact_tracking:
         model.addForce(contactForces[contactForce])
         # model.addComponent(contactForces[contactForce])
 
-    #  create a list of contact forces' name for later use
+    # create a list of contact forces' name for later use
     nameContactForces = list()
     for force in model.getForceSet():
         # print(force.getConcreteClassName(), force.getAbsolutePathString())
