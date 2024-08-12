@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.01
+grf_weight     = 0.001
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -30,7 +30,7 @@ else:
     residuals_weight = 100 # increase the their weights in control-effort goal
 
 # solver tolerances
-constraint_tol  = 1e-4
+constraint_tol  = 1e-6
 convergence_tol = 1e-4
 
 # time frames (right stance only)
