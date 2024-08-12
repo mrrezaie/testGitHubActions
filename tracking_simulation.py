@@ -73,6 +73,26 @@ if not os.path.exists( os.path.join(cwd,'output') ):
 ########## model processing
 model = osim.Model(model_path)
 
+# adjust mtp joint range of motion
+# for cName in ['mtp_angle_r', 'mtp_angle_l']:
+#     coordinate = model.getCoordinateSet().get(cName)
+#     coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
+osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
+osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
+
+# adjust patellofemoral joint range of motion
+for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
+    coordinate = model.getCoordinateSet().get(cName)
+    coordinate.set_range(0, 0) # adjust the min range
+    coordinate.set_range(1, 2.0944) # adjust the max range
+
+# # set static pose as default
+# static = osim.TimeSeriesTable(static_path)
+# for coordinate in model.getCoordinateSet():
+#     cName = coordinate.getAbsolutePathString()
+#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
+#     coordinate.set_default_value(value)
+
 # adjust coordinate actuators and muscles
 if torque_driven:
     model.setName('moco_torque_driven')
@@ -141,14 +161,14 @@ if contact_tracking:
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
     contacts = {
-        'S1': osim.ContactSphere(0.025, osim.Vec3([0.010,0,-0.005]), calcn, f'heel_{s}'),
-        'S2': osim.ContactSphere(0.020, osim.Vec3([0.090,0,-0.025]), calcn, f'mid1_{s}'),
-        'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,0,+0.022]), calcn, f'mid2_{s}'),
-        'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,0,-0.027]), calcn, f'fore1_{s}'),
-        'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,0,+0.035]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.040,0,-0.020]), toes,  f'toe1_{s}'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,0,+0.045]), toes,  f'toe2_{s}'),
-        'floor': osim.ContactHalfSpace( osim.Vec3([0.500,0,-0.250]), 
+        'S1': osim.ContactSphere(0.025, osim.Vec3([0.010,+0.000,-0.005]), calcn, f'heel_{s}'),
+        'S2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.003,-0.025]), calcn, f'mid1_{s}'),
+        'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f'mid2_{s}'),
+        'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f'fore1_{s}'),
+        'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f'fore2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.040,-0.003,-0.020]), toes,  f'toe1_{s}'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.003,+0.045]), toes,  f'toe2_{s}'),
+        'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.003,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
     for contact in contacts.keys():
@@ -178,26 +198,6 @@ if contact_tracking:
         contactForces[contactForce].set_hunt_crossley_smoothing(50)
         model.addForce(contactForces[contactForce])
         # model.addComponent(contactForces[contactForce])
-
-# adjust mtp joint range of motion
-# for cName in ['mtp_angle_r', 'mtp_angle_l']:
-#     coordinate = model.getCoordinateSet().get(cName)
-#     coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
-osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
-osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
-
-# adjust patellofemoral joint range of motion
-for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
-    coordinate = model.getCoordinateSet().get(cName)
-    coordinate.set_range(0, 0) # adjust the min range
-    coordinate.set_range(1, 2.0944) # adjust the max range
-
-# # set static pose as default
-# static = osim.TimeSeriesTable(static_path)
-# for coordinate in model.getCoordinateSet():
-#     cName = coordinate.getAbsolutePathString()
-#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
-#     coordinate.set_default_value(value)
 
 # finalize the model and write it
 model.finalizeConnections()
