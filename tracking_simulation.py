@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.007
+grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -177,13 +177,13 @@ if contact_tracking:
     toes  = model.getBodySet().get(f'toes_{s}')
     contacts = {
         'S1': osim.ContactSphere(0.025, osim.Vec3([0.010,+0.000,-0.005]), calcn, f'heel_{s}'),
-        'S2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.003,-0.025]), calcn, f'mid1_{s}'),
-        'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f'mid2_{s}'),
-        'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f'fore1_{s}'),
-        'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.050,-0.003,-0.010]), toes,  f'toe1_{s}'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.003,+0.032]), toes,  f'toe2_{s}'),
-        'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.003,-0.250]), 
+        'S2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.005,-0.025]), calcn, f'mid1_{s}'),
+        'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.005,+0.022]), calcn, f'mid2_{s}'),
+        'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.005,-0.027]), calcn, f'fore1_{s}'),
+        'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.005,+0.035]), calcn, f'fore2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.050,-0.005,-0.010]), toes,  f'toe1_{s}'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.005,+0.032]), toes,  f'toe2_{s}'),
+        'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.005,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
     for contact in contacts.keys():
