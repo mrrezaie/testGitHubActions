@@ -166,8 +166,8 @@ if contact_tracking:
         'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f'mid2_{s}'),
         'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f'fore1_{s}'),
         'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.040,-0.003,-0.020]), toes,  f'toe1_{s}'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.003,+0.045]), toes,  f'toe2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.030,-0.003,+0.010]), toes,  f'toe1_{s}'),
+        # 'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.003,+0.045]), toes,  f'toe2_{s}'),
         'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.003,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
@@ -182,7 +182,7 @@ if contact_tracking:
         'S4': osim.SmoothSphereHalfSpaceForce(f'floor_fore1_{s}', contacts['S4'], contacts['floor']), 
         'S5': osim.SmoothSphereHalfSpaceForce(f'floor_fore2_{s}', contacts['S5'], contacts['floor']), 
         'S6': osim.SmoothSphereHalfSpaceForce(f'floor_toe1_{s}',  contacts['S6'], contacts['floor']),
-        'S7': osim.SmoothSphereHalfSpaceForce(f'floor_toe2_{s}',  contacts['S7'], contacts['floor']),
+        # 'S7': osim.SmoothSphereHalfSpaceForce(f'floor_toe2_{s}',  contacts['S7'], contacts['floor']),
         }
 
     # adjust the SmoothSphereHalfSpaceForce parameters
@@ -198,6 +198,13 @@ if contact_tracking:
         contactForces[contactForce].set_hunt_crossley_smoothing(50)
         model.addForce(contactForces[contactForce])
         # model.addComponent(contactForces[contactForce])
+
+    #  create a list of contact forces' name for later use
+    nameContactForces = list()
+    for force in model.getForceSet():
+        # print(force.getConcreteClassName(), force.getAbsolutePathString())
+        if force.getConcreteClassName() == 'SmoothSphereHalfSpaceForce':
+            nameContactForces.append( force.getAbsolutePathString())
 
 # finalize the model and write it
 model.finalizeConnections()
@@ -292,10 +299,6 @@ if contact_tracking:
     # contact tracking goal
     contact = osim.MocoContactTrackingGoal('grf_tracking', grf_weight)
     contact.setExternalLoadsFile(ExtLoads_path)
-    nameContactForces = [f'/forceset/floor_heel_{s}',  
-                         f'/forceset/floor_mid1_{s}',  f'/forceset/floor_mid2_{s}',  
-                         f'/forceset/floor_fore1_{s}', f'/forceset/floor_fore2_{s}', 
-                         f'/forceset/floor_toe1_{s}',  f'/forceset/floor_toe2_{s}']
     ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
                             [f'/bodyset/toes_{s}']) # why 'toes' is typically used???
     # no need to use projection
@@ -376,7 +379,13 @@ solution.write( os.path.join(cwd,'output','tracking_solution.sto') )
 if contact_tracking:
     # get ground reaction forces
     GRFTable = osim.createExternalLoadsTableForGait(model, solution, nameContactForces, [])
+    # write the predicted GRF to an STO file
     osim.STOFileAdapter().write(GRFTable, os.path.join(cwd,'output','tracking_grf_solution.sto') )
+    # update the path to the predicted GRF STO file in the external loads
+    ExtLoads.setDataFileName( os.path.join(cwd,'output','tracking_grf_solution.sto') )
+    # add external loads to the model when there is contact tracking goal for further analysis
+    model.addComponent(ExtLoads)
+    model.initSystem()
 
 # get joint contact forces
 jointLoadTable = osim.analyzeMocoTrajectorySpatialVec(model, solution, ['.*reaction_on_child'])
