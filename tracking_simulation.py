@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.05
+grf_weight     = 0.005
 control_weight = 0.0001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -27,7 +27,7 @@ if residual <= 1:
     reduce_residuals = False
 else:
     reduce_residuals = True
-    residuals_weight = 100000 # increase the weight of the residuals in control-effort goal
+    residuals_weight = 100 # increase the their weights in control-effort goal
 
 # solver tolerances
 constraint_tol  = 1e-4
@@ -75,11 +75,11 @@ if not os.path.exists( os.path.join(cwd,'output') ):
 model = osim.Model(model_path)
 
 # adjust mtp joint range of motion
-# for cName in ['mtp_angle_r', 'mtp_angle_l']:
-#     coordinate = model.getCoordinateSet().get(cName)
-#     coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
-osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
-osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
+for cName in ['mtp_angle_r', 'mtp_angle_l']:
+    coordinate = model.getCoordinateSet().get(cName)
+    coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
+# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
+# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 
 # adjust patellofemoral joint range of motion
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
