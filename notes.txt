@@ -1,6 +1,6 @@
 The solution (MocoTrajectory) does not contain actuation force/moment; they are control, e.g. [-1,+1].
 
-There re two options for reducing residual forces/moments: either use very weak residual actuators, e.g. with 1N(m) optimal force with 1 controls, or use strong residual actuators, then increase their weight in the control-effort goal. The later one is more efficient computationally.
+There are two options for reducing residual forces/moments: either use very weak residual actuators, e.g. with 1N(m) optimal force with 1 controls, or use strong residual actuators, then increase their weight in the control-effort goal. The later one is more efficient computationally.
 
 Slack variables (gamma) only appear if there are kinematic constraints in the model.
 

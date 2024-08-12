@@ -20,7 +20,7 @@ control_weight = 0.0001 # (default==0.001 in MocoTrack)
 
 # actuators strength
 reserve_weak   = 1
-reserve_strong = 2000 # ID<150Nm
+reserve_strong = 200 # ID<150Nm
 residual       = 2000
 
 if residual <= 1:
@@ -30,8 +30,8 @@ else:
     residuals_weight = 100000 # increase the weight of the residuals in control-effort goal
 
 # solver tolerances
-constraint_tol  = 1e-5
-convergence_tol = 1e-3
+constraint_tol  = 1e-4
+convergence_tol = 1e-4
 
 # time frames (right stance only)
 t0   = 0.245 # init time
