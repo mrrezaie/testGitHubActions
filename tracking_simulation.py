@@ -180,9 +180,11 @@ if contact_tracking:
         # model.addComponent(contactForces[contactForce])
 
 # adjust mtp joint range of motion
-for cName in ['mtp_angle_r', 'mtp_angle_l']:
-    coordinate = model.getCoordinateSet().get(cName)
-    coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
+# for cName in ['mtp_angle_r', 'mtp_angle_l']:
+#     coordinate = model.getCoordinateSet().get(cName)
+#     coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
+osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
+osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 
 # adjust patellofemoral joint range of motion
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
