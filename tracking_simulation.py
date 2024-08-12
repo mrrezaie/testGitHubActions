@@ -14,8 +14,8 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 500
-control_weight = 0.01 # (default==0.001 in MocoTrack)
+grf_weight     = 0.005
+control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
 # actuators strength
@@ -300,7 +300,7 @@ if contact_tracking:
                             [f'/bodyset/toes_{s}']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
-    contact.setNormalizeTrackingError(True)
+    contact.setNormalizeTrackingError(False)
     problem.addGoal(contact)
 
 if reduce_residuals:
