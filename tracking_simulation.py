@@ -21,22 +21,23 @@ control_weight = 0.01 # (default==0.001 in MocoTrack)
 # actuators strength
 reserve_weak   = 1
 reserve_strong = 200 # ID<150Nm
-residual       = 2000
+residual       = 1
 
 if residual <= 1:
     reduce_residuals = False
 else:
     reduce_residuals = True
-    residuals_weight = 10000 # increase the weight of the residuals in control-effort goal
+    residuals_weight = 100000 # increase the weight of the residuals in control-effort goal
 
 # solver tolerances
 constraint_tol  = 1e-5
 convergence_tol = 1e-3
 
 # time frames (right stance only)
-t0 = 0.245 # init time
-t1 = 0.530 # end time # stride = 1.025 
-s = 'r' # side
+t0   = 0.245 # init time
+t1   = 0.530 # end time # stride = 1.025
+side = 'right' # side (right or left)
+s    = side[0] # side short term
 
 import opensim as osim
 import os
@@ -140,23 +141,22 @@ for force in model.getForceSet():
     if force.getConcreteClassName() == 'CoordinateActuator':
         CA = osim.CoordinateActuator().safeDownCast(force)
         cName  = CA.get_coordinate()
-        # residuals (should be low to allow dynamic consistancy) (can also be minimized through Moco control goal)
-        if cName.startswith('pelvis'): 
+        if cName.startswith('pelvis'): # residual actuators
             CA.setName(cName+'_residual')
-            CA.setOptimalForce(residual) # N(m) so weak residuals for dynamics consistancy
-        # reserve (should be low for coordinates with muscle(s) and high enough for others)
-        else: 
+            # either weak to allow dynamic consistancy, or strong with huge weight in control-effort goal
+            CA.setOptimalForce(residual)
+        else: # reserve actuators
             CA.setName(cName+'_reserve')
             if torque_driven:
                 CA.setOptimalForce(reserve_strong) # ID < 150Nm
             else:
-                if ('lumbar' in cName) or (not cName.endswith(f'_{s}')): # lumbar and the opposite sites
-                    CA.setOptimalForce(reserve_strong) # strong reserve; ID < 150Nm
-                else: # coordinates with muscles
-                    CA.setOptimalForce(reserve_weak) # weak reserve
+                if ('lumbar' in cName) or (not cName.endswith(f'_{s}')): # 
+                    CA.setOptimalForce(reserve_strong) # strong for lumbar and the opposite legs
+                else:
+                    CA.setOptimalForce(reserve_weak) # weak for coordinates with muscles
 
 if contact_tracking:
-    # add contact geometries (right foot only)
+    # add contact geometries (ipsilateral leg only)
     ground  = model.getGround()
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
@@ -289,8 +289,8 @@ problem = study.updProblem()
 
 
 ########## Bounds
-# Moco already adjust the bounds, so it's not mandatory
-# significant improvement in convergence time by reducing these bounds close to the real data
+# # already adjust by Moco under the hood, so it's not mandatory
+# # significant improvement in convergence time by reducing these bounds close to the real data
 # problem.setStateInfoPattern('/jointset/.*/speed', [-15, 15]) # not much significant
 # problem.setStateInfoPattern('.*/knee_angle_.*_beta/value', [0, 2.0944]) # done in model
 
@@ -299,7 +299,7 @@ if contact_tracking:
     # contact tracking goal
     contact = osim.MocoContactTrackingGoal('grf_tracking', grf_weight)
     contact.setExternalLoadsFile(ExtLoads_path)
-    ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, 'right', 
+    ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, side, 
                             [f'/bodyset/toes_{s}']) # why 'toes' is typically used???
     # no need to use projection
     contact.addContactGroup(ContactGroup)
