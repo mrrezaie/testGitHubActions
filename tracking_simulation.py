@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.001
+grf_weight     = 0.01
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -33,7 +33,7 @@ else:
 constraint_tol  = 1e-5
 convergence_tol = 1e-5
 
-# time frames (right stance only)
+# time frames (a stance only)
 t0   = 0.245 # init time
 t1   = 0.530 # end time # stride = 1.025
 side = 'right' # side (right or left)
