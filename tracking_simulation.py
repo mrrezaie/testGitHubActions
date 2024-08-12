@@ -87,6 +87,21 @@ for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate.set_range(0, 0) # adjust the min range
     coordinate.set_range(1, 2.0944) # adjust the max range
 
+# test remove patella and all its connections
+patella_r = model.getBodySet().get('patella_r')
+patella_l = model.getBodySet().get('patella_l')
+model.getBodySet().remove(patella_r)
+model.getBodySet().remove(patella_l)
+patella_r = model.getJointSet().get('patellofemoral_r')
+patella_l = model.getJointSet().get('patellofemoral_l')
+model.getJointSet().remove(patella_r)
+model.getJointSet().remove(patella_l)
+patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
+patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
+model.getConstraintSet().remove(patella_r)
+model.getConstraintSet().remove(patella_l)
+model.finalizeFromProperties()
+
 # # set static pose as default
 # static = osim.TimeSeriesTable(static_path)
 # for coordinate in model.getCoordinateSet():
