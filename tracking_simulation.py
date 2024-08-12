@@ -181,8 +181,8 @@ if contact_tracking:
         'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f'mid2_{s}'),
         'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f'fore1_{s}'),
         'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.040,-0.003,+0.015]), toes,  f'toe1_{s}'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.003,+0.045]), toes,  f'toe2_{s}'),
+        'S6': osim.ContactSphere(0.020, osim.Vec3([0.050,-0.003,-0.010]), toes,  f'toe1_{s}'),
+        'S7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.003,+0.032]), toes,  f'toe2_{s}'),
         'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.003,-0.250]), 
                                         osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
 
@@ -392,7 +392,7 @@ solution.write( os.path.join(cwd,'output','tracking_solution.sto') )
 # solution = osim.MocoTrajectory( os.path.join(cwd,'output','tracking_solution.sto') )
 
 if contact_tracking:
-    # get ground reaction forces
+    # get ground reaction forces from the solution
     GRFTable = osim.createExternalLoadsTableForGait(model, solution, nameContactForces, [])
     # write the predicted GRF to an STO file
     osim.STOFileAdapter().write(GRFTable, os.path.join(cwd,'output','tracking_grf_solution.sto') )
