@@ -15,7 +15,7 @@ joint_reaction_goal = False
 # goals weight
 marker_weight  = 1
 grf_weight     = 0.001
-control_weight = 0.001 # (default==0.001 in MocoTrack)
+control_weight = 0.0001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
 # actuators strength
