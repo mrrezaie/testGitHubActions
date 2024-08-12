@@ -14,7 +14,7 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 100
+grf_weight     = 250
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -394,13 +394,13 @@ maxAbs = 0
 plt.figure(tight_layout=True)
 for fName in solution.getControlNames():
     if fName.endswith('_residual'):
-        values = solution.getControl(fName).to_numpy()*1
+        values = solution.getControl(fName).to_numpy() * residual
         plt.plot(times, values, label=fName.split('/')[-1][:-9])
         if max(abs(values)) > maxAbs:
             maxAbs = max(abs(values))
-plt.title(f'Residual Actuators\nMaxAbs = {round(maxAbs,5)} Nm')
+plt.title(f'Residual Actuators\nMaxAbs = {round(maxAbs,5)}')
 plt.xlabel('Times (s)')
-plt.ylabel('Controls [-1, 1]')
+plt.ylabel('Actuation (N, Nm)')
 plt.legend()
 plt.savefig(os.path.join(cwd,'output','graph_residuals.png'))
 
