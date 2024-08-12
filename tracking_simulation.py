@@ -27,7 +27,7 @@ if residual <= 1:
     reduce_residuals = False
 else:
     reduce_residuals = True
-    residuals_weight = 100 # increase the weight of the residuals in control-effort goal
+    residuals_weight = 1000 # increase the weight of the residuals in control-effort goal
 
 # solver tolerances
 constraint_tol  = 1e-5
