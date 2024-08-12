@@ -20,8 +20,8 @@ control_weight = 0.0001 # (default==0.001 in MocoTrack)
 
 # actuators strength
 reserve_weak   = 1
-reserve_strong = 200 # ID<150Nm
-residual       = 1
+reserve_strong = 2000 # ID<150Nm
+residual       = 2000
 
 if residual <= 1:
     reduce_residuals = False
