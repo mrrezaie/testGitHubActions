@@ -170,11 +170,11 @@ if contact_tracking:
     toes  = model.getBodySet().get(f'toes_{s}')
     spheres = {
         's1': osim.ContactSphere(0.020, osim.Vec3([0.010,+0.000,-0.005]), calcn, f's1_{s}'),
-        's2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.000,-0.025]), calcn, f's2_{s}'),
-        's3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.000,+0.022]), calcn, f's3_{s}'),
-        's4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.000,-0.027]), calcn, f's4_{s}'),
-        's5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.000,+0.035]), calcn, f's5_{s}'),
-        's6': osim.ContactSphere(0.020, osim.Vec3([0.040,-0.000,-0.010]), toes,  f's6_{s}'),
+        's2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.003,-0.025]), calcn, f's2_{s}'),
+        's3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f's3_{s}'),
+        's4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f's4_{s}'),
+        's5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f's5_{s}'),
+        's6': osim.ContactSphere(0.020, osim.Vec3([0.030,-0.003,-0.000]), toes,  f's6_{s}'),
         # 's7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.000,+0.032]), toes,  f's7_{s}'),
         }
     floor = osim.ContactHalfSpace(osim.Vec3([0.500,-0.000,-0.250]), 
