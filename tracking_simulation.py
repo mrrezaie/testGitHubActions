@@ -198,7 +198,7 @@ if contact_tracking:
     for sName,sphere in spheres.items():
         model.addContactGeometry(sphere)
         fName = f'floor_{sName}_{s}'
-        nameContactForces.append(fName)
+        nameContactForces.append(f'/forceset/{fName}')
         # define force between ContactHalfSpace (floor) and the ContactSphere
         contactForce = osim.SmoothSphereHalfSpaceForce(fName, sphere, floor)
         contactForce.set_stiffness(3e+6)
