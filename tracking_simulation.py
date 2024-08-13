@@ -107,7 +107,6 @@ if torque_driven:
     model.setName('moco_torque_driven')
     # remove all forces (and groups)
     model.updForceSet().clearAndDestroy() 
-
 else:
     model.setName('moco_muscle_driven')
     # replace muscles with DeGrooteFregly2016
@@ -116,7 +115,7 @@ else:
     muscles = dict()
     for muscle in model.getMuscles():
         mName = muscle.getName()
-        if mName.endswith('_r'):
+        if mName.endswith(f'_{s}'):
             muscle = osim.DeGrooteFregly2016Muscle().safeDownCast(muscle)
             muscle.setMinControl(0.01) # less physiological but helps convergence
             muscle.set_fiber_damping(0.01) # less physiological but helps convergence
@@ -129,14 +128,11 @@ else:
             MIF = muscle.get_max_isometric_force()
             muscle.set_max_isometric_force(1.5 * MIF) # 1.5 times stronger
             muscles[mName] = muscle.clone()
-    
     # remove all forces (and groups)
     model.updForceSet().clearAndDestroy()
-    
     # include right muscles only
     for muscle in muscles.values():
         model.addForce(muscle)
-    
     # # or remove unwanted forces from ForceSet
     # indx = model.getForceSet().getIndex(name)
     # model.getForceSet().remove(indx)
@@ -170,12 +166,12 @@ if contact_tracking:
     toes  = model.getBodySet().get(f'toes_{s}')
     spheres = {
         's1': osim.ContactSphere(0.020, osim.Vec3([0.010,+0.000,-0.005]), calcn, f's1_{s}'),
-        's2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.003,-0.025]), calcn, f's2_{s}'),
-        's3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f's3_{s}'),
+        's2': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,-0.025]), calcn, f's2_{s}'),
+        # 's3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.003,+0.022]), calcn, f's3_{s}'),
         's4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.003,-0.027]), calcn, f's4_{s}'),
         's5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.003,+0.035]), calcn, f's5_{s}'),
         's6': osim.ContactSphere(0.020, osim.Vec3([0.030,-0.003,-0.000]), toes,  f's6_{s}'),
-        # 's7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.000,+0.032]), toes,  f's7_{s}'),
+        's7': osim.ContactSphere(0.020, osim.Vec3([0.000,-0.000,+0.030]), toes,  f's7_{s}'),
         }
     floor = osim.ContactHalfSpace(osim.Vec3([0.500,-0.000,-0.250]), 
                                   osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')
