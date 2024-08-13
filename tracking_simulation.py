@@ -165,22 +165,23 @@ if contact_tracking:
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
     spheres = {
-        's01': osim.ContactSphere(0.01, osim.Vec3([0.000,-0.004,-0.010]), calcn, f's01_{s}'),
-        's02': osim.ContactSphere(0.01, osim.Vec3([0.020,-0.004,-0.020]), calcn, f's02_{s}'),
-        's03': osim.ContactSphere(0.01, osim.Vec3([0.025,-0.004,+0.007]), calcn, f's03_{s}'),
-        's04': osim.ContactSphere(0.01, osim.Vec3([0.050,-0.004,-0.022]), calcn, f's04_{s}'),
-        's05': osim.ContactSphere(0.01, osim.Vec3([0.090,-0.004,-0.025]), calcn, f's05_{s}'),
-        's06': osim.ContactSphere(0.01, osim.Vec3([0.075,-0.004,+0.000]), calcn, f's06_{s}'),
-        's07': osim.ContactSphere(0.01, osim.Vec3([0.055,-0.004,+0.017]), calcn, f's07_{s}'),
-        's08': osim.ContactSphere(0.01, osim.Vec3([0.130,-0.004,-0.027]), calcn, f's08_{s}'),
-        's09': osim.ContactSphere(0.01, osim.Vec3([0.120,-0.004,+0.005]), calcn, f's09_{s}'),
-        's10': osim.ContactSphere(0.01, osim.Vec3([0.090,-0.004,+0.030]), calcn, f's10_{s}'),
-        's11': osim.ContactSphere(0.01, osim.Vec3([0.170,-0.004,-0.030]), calcn, f's11_{s}'),
-        's12': osim.ContactSphere(0.01, osim.Vec3([0.155,-0.004,+0.010]), calcn, f's12_{s}'),
-        's13': osim.ContactSphere(0.01, osim.Vec3([0.130,-0.004,+0.040]), calcn, f's13_{s}'),
-        's14': osim.ContactSphere(0.01, osim.Vec3([0.030,-0.000,-0.015]), toes,  f's14_{s}'),
-        's15': osim.ContactSphere(0.01, osim.Vec3([0.030,-0.000,+0.015]), toes,  f's15_{s}'),
-        's16': osim.ContactSphere(0.01, osim.Vec3([0.000,-0.000,+0.035]), toes,  f's16_{s}'),
+        's01': osim.ContactSphere(0.01, osim.Vec3([+0.000,-0.004,-0.010]), calcn, f's01_{s}'),
+        's02': osim.ContactSphere(0.01, osim.Vec3([+0.020,-0.004,-0.020]), calcn, f's02_{s}'),
+        's03': osim.ContactSphere(0.01, osim.Vec3([+0.025,-0.004,+0.007]), calcn, f's03_{s}'),
+        's04': osim.ContactSphere(0.01, osim.Vec3([+0.050,-0.004,-0.022]), calcn, f's04_{s}'),
+        's05': osim.ContactSphere(0.01, osim.Vec3([+0.090,-0.004,-0.025]), calcn, f's05_{s}'),
+        's06': osim.ContactSphere(0.01, osim.Vec3([+0.075,-0.004,+0.000]), calcn, f's06_{s}'),
+        's07': osim.ContactSphere(0.01, osim.Vec3([+0.055,-0.004,+0.017]), calcn, f's07_{s}'),
+        's08': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.004,-0.027]), calcn, f's08_{s}'),
+        's09': osim.ContactSphere(0.01, osim.Vec3([+0.120,-0.004,+0.005]), calcn, f's09_{s}'),
+        's10': osim.ContactSphere(0.01, osim.Vec3([+0.090,-0.004,+0.030]), calcn, f's10_{s}'),
+        's11': osim.ContactSphere(0.01, osim.Vec3([+0.170,-0.004,-0.030]), calcn, f's11_{s}'),
+        's12': osim.ContactSphere(0.01, osim.Vec3([+0.155,-0.004,+0.010]), calcn, f's12_{s}'),
+        's13': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.004,+0.040]), calcn, f's13_{s}'),
+        's14': osim.ContactSphere(0.01, osim.Vec3([+0.025,-0.000,-0.025]), toes,  f's14_{s}'),
+        's15': osim.ContactSphere(0.01, osim.Vec3([+0.010,-0.000,+0.015]), toes,  f's15_{s}'),
+        's16': osim.ContactSphere(0.01, osim.Vec3([-0.015,-0.000,+0.045]), toes,  f's16_{s}'),
+        's17': osim.ContactSphere(0.01, osim.Vec3([+0.050,-0.000,+0.010]), toes,  f's17_{s}'),
         }
         # 's1': osim.ContactSphere(0.025, osim.Vec3([0.010,+0.002,-0.005]), calcn, f's1_{s}'),
         # 's2': osim.ContactSphere(0.025, osim.Vec3([0.085,-0.002,-0.025]), calcn, f's2_{s}'),
@@ -198,7 +199,7 @@ if contact_tracking:
     for sName,sphere in spheres.items():
         model.addContactGeometry(sphere)
         fName = f'floor_{sName}_{s}'
-        nameContactForces.append(f'/forceset/{fName}')
+        nameContactForces.append(f'/forceset/{fName}') # absolute path name
         # define force between ContactHalfSpace (floor) and the ContactSphere
         contactForce = osim.SmoothSphereHalfSpaceForce(fName, sphere, floor)
         contactForce.set_stiffness(3e+6)
