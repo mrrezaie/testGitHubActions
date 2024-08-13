@@ -74,13 +74,13 @@ if not os.path.exists( os.path.join(cwd,'output') ):
 ########## model processing
 model = osim.Model(model_path)
 
-# adjust mtp joint range of motion
-for cName in ['mtp_angle_r', 'mtp_angle_l']:
-    coordinate = model.getCoordinateSet().get(cName)
-    coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
-# # convert mtp joints to weld
-# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
-# osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
+# # adjust mtp joint range of motion
+# for cName in ['mtp_angle_r', 'mtp_angle_l']:
+#     coordinate = model.getCoordinateSet().get(cName)
+#     coordinate.set_range(0, -80*osim.SimTK_DEGREE_TO_RADIAN) # adjust the min range
+# convert mtp joints to weld
+osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_r')
+osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 
 # adjust patellofemoral joint range of motion
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
@@ -180,7 +180,7 @@ if contact_tracking:
         's12': osim.ContactSphere(0.015, osim.Vec3([+0.155,-0.0,+0.010]), calcn, f's12_{s}'),
         's13': osim.ContactSphere(0.015, osim.Vec3([+0.130,-0.0,+0.040]), calcn, f's13_{s}'),
         's14': osim.ContactSphere(0.015, osim.Vec3([+0.205,-0.0,-0.025]), calcn, f's14_{s}'), # toes
-        's15': osim.ContactSphere(0.015, osim.Vec3([+0.180,-0.0,+0.020]), calcn, f's15_{s}'),
+        's15': osim.ContactSphere(0.015, osim.Vec3([+0.180,-0.0,+0.015]), calcn, f's15_{s}'),
         's16': osim.ContactSphere(0.015, osim.Vec3([+0.155,-0.0,+0.046]), calcn, f's16_{s}'),
         's17': osim.ContactSphere(0.015, osim.Vec3([+0.235,-0.0,+0.000]), calcn, f's17_{s}'),
         # 's14': osim.ContactSphere(0.015, osim.Vec3([+0.030,-0.000,-0.025]), toes,  f's14_{s}'),
