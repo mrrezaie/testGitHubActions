@@ -178,9 +178,9 @@ if contact_tracking:
         's11': osim.ContactSphere(0.01, osim.Vec3([+0.170,-0.004,-0.030]), calcn, f's11_{s}'),
         's12': osim.ContactSphere(0.01, osim.Vec3([+0.155,-0.004,+0.010]), calcn, f's12_{s}'),
         's13': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.004,+0.040]), calcn, f's13_{s}'),
-        's14': osim.ContactSphere(0.01, osim.Vec3([+0.025,-0.000,-0.025]), toes,  f's14_{s}'),
-        's15': osim.ContactSphere(0.01, osim.Vec3([+0.010,-0.000,+0.015]), toes,  f's15_{s}'),
-        's16': osim.ContactSphere(0.01, osim.Vec3([-0.015,-0.000,+0.045]), toes,  f's16_{s}'),
+        's14': osim.ContactSphere(0.01, osim.Vec3([+0.030,-0.000,-0.025]), toes,  f's14_{s}'),
+        's15': osim.ContactSphere(0.01, osim.Vec3([+0.007,-0.000,+0.019]), toes,  f's15_{s}'),
+        's16': osim.ContactSphere(0.01, osim.Vec3([-0.020,-0.000,+0.045]), toes,  f's16_{s}'),
         's17': osim.ContactSphere(0.01, osim.Vec3([+0.050,-0.000,+0.010]), toes,  f's17_{s}'),
         }
         # 's1': osim.ContactSphere(0.025, osim.Vec3([0.010,+0.002,-0.005]), calcn, f's1_{s}'),
