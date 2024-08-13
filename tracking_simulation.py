@@ -165,23 +165,23 @@ if contact_tracking:
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
     spheres = {
-        's01': osim.ContactSphere(0.01, osim.Vec3([+0.000,-0.005,-0.010]), calcn, f's01_{s}'), # heel
-        's02': osim.ContactSphere(0.01, osim.Vec3([+0.020,-0.005,-0.020]), calcn, f's02_{s}'),
-        's03': osim.ContactSphere(0.01, osim.Vec3([+0.025,-0.005,+0.007]), calcn, f's03_{s}'),
-        's04': osim.ContactSphere(0.01, osim.Vec3([+0.050,-0.005,-0.022]), calcn, f's04_{s}'),
-        's05': osim.ContactSphere(0.01, osim.Vec3([+0.090,-0.005,-0.025]), calcn, f's05_{s}'),
-        's06': osim.ContactSphere(0.01, osim.Vec3([+0.075,-0.005,+0.000]), calcn, f's06_{s}'),
-        's07': osim.ContactSphere(0.01, osim.Vec3([+0.055,-0.005,+0.017]), calcn, f's07_{s}'),
-        's08': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.005,-0.027]), calcn, f's08_{s}'),
-        's09': osim.ContactSphere(0.01, osim.Vec3([+0.120,-0.005,+0.005]), calcn, f's09_{s}'),
-        's10': osim.ContactSphere(0.01, osim.Vec3([+0.090,-0.005,+0.030]), calcn, f's10_{s}'),
-        's11': osim.ContactSphere(0.01, osim.Vec3([+0.170,-0.005,-0.030]), calcn, f's11_{s}'), # mtp
-        's12': osim.ContactSphere(0.01, osim.Vec3([+0.155,-0.005,+0.010]), calcn, f's12_{s}'),
-        's13': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.005,+0.040]), calcn, f's13_{s}'),
-        's14': osim.ContactSphere(0.01, osim.Vec3([+0.205,-0.005,-0.025]), calcn, f's14_{s}'), # toes
-        's15': osim.ContactSphere(0.01, osim.Vec3([+0.180,-0.005,+0.020]), calcn, f's15_{s}'),
-        's16': osim.ContactSphere(0.01, osim.Vec3([+0.155,-0.005,+0.046]), calcn, f's16_{s}'),
-        's17': osim.ContactSphere(0.01, osim.Vec3([+0.225,-0.005,+0.010]), calcn, f's17_{s}'),
+        's01': osim.ContactSphere(0.01, osim.Vec3([+0.000,-0.01,-0.010]), calcn, f's01_{s}'), # heel
+        's02': osim.ContactSphere(0.01, osim.Vec3([+0.020,-0.01,-0.020]), calcn, f's02_{s}'),
+        's03': osim.ContactSphere(0.01, osim.Vec3([+0.025,-0.01,+0.007]), calcn, f's03_{s}'),
+        's04': osim.ContactSphere(0.01, osim.Vec3([+0.050,-0.01,-0.022]), calcn, f's04_{s}'),
+        's05': osim.ContactSphere(0.01, osim.Vec3([+0.090,-0.01,-0.025]), calcn, f's05_{s}'),
+        's06': osim.ContactSphere(0.01, osim.Vec3([+0.075,-0.01,+0.000]), calcn, f's06_{s}'),
+        's07': osim.ContactSphere(0.01, osim.Vec3([+0.055,-0.01,+0.017]), calcn, f's07_{s}'),
+        's08': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.01,-0.027]), calcn, f's08_{s}'),
+        's09': osim.ContactSphere(0.01, osim.Vec3([+0.120,-0.01,+0.005]), calcn, f's09_{s}'),
+        's10': osim.ContactSphere(0.01, osim.Vec3([+0.090,-0.01,+0.030]), calcn, f's10_{s}'),
+        's11': osim.ContactSphere(0.01, osim.Vec3([+0.170,-0.01,-0.030]), calcn, f's11_{s}'), # mtp
+        's12': osim.ContactSphere(0.01, osim.Vec3([+0.155,-0.01,+0.010]), calcn, f's12_{s}'),
+        's13': osim.ContactSphere(0.01, osim.Vec3([+0.130,-0.01,+0.040]), calcn, f's13_{s}'),
+        's14': osim.ContactSphere(0.01, osim.Vec3([+0.205,-0.01,-0.025]), calcn, f's14_{s}'), # toes
+        's15': osim.ContactSphere(0.01, osim.Vec3([+0.180,-0.01,+0.020]), calcn, f's15_{s}'),
+        's16': osim.ContactSphere(0.01, osim.Vec3([+0.155,-0.01,+0.046]), calcn, f's16_{s}'),
+        's17': osim.ContactSphere(0.01, osim.Vec3([+0.225,-0.01,+0.010]), calcn, f's17_{s}'),
         # 's14': osim.ContactSphere(0.01, osim.Vec3([+0.030,-0.000,-0.025]), toes,  f's14_{s}'),
         # 's15': osim.ContactSphere(0.01, osim.Vec3([+0.007,-0.000,+0.019]), toes,  f's15_{s}'),
         # 's16': osim.ContactSphere(0.01, osim.Vec3([-0.020,-0.000,+0.045]), toes,  f's16_{s}'),
