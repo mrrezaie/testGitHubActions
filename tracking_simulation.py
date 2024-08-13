@@ -102,13 +102,6 @@ model.getConstraintSet().remove(patella_r)
 model.getConstraintSet().remove(patella_l)
 model.finalizeFromProperties()
 
-# # set static pose as default
-# static = osim.TimeSeriesTable(static_path)
-# for coordinate in model.getCoordinateSet():
-#     cName = coordinate.getAbsolutePathString()
-#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
-#     coordinate.set_default_value(value)
-
 # adjust coordinate actuators and muscles
 if torque_driven:
     model.setName('moco_torque_driven')
@@ -171,55 +164,55 @@ for force in model.getForceSet():
                     CA.setOptimalForce(reserve_weak) # weak for coordinates with muscles
 
 if contact_tracking:
-    # add contact geometries (ipsilateral leg only)
+    # create contact geometries (ipsilateral leg only)
     ground  = model.getGround()
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
-    contacts = {
-        'S1': osim.ContactSphere(0.020, osim.Vec3([0.010,+0.000,-0.005]), calcn, f'heel_{s}'),
-        'S2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.000,-0.025]), calcn, f'mid1_{s}'),
-        'S3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.000,+0.022]), calcn, f'mid2_{s}'),
-        'S4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.000,-0.027]), calcn, f'fore1_{s}'),
-        'S5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.000,+0.035]), calcn, f'fore2_{s}'),
-        'S6': osim.ContactSphere(0.020, osim.Vec3([0.050,-0.000,-0.010]), toes,  f'toe1_{s}'),
-        'S7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.000,+0.032]), toes,  f'toe2_{s}'),
-        'floor': osim.ContactHalfSpace( osim.Vec3([0.500,-0.000,-0.250]), 
-                                        osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')}
-
-    for contact in contacts.keys():
-        model.addContactGeometry(contacts[contact])
-
-    # add contact forces between ContactHalfSpace (floor) and the ContactSphere(s)
-    contactForces = {
-        'S1': osim.SmoothSphereHalfSpaceForce(f'floor_heel_{s}',  contacts['S1'], contacts['floor']), 
-        'S2': osim.SmoothSphereHalfSpaceForce(f'floor_mid1_{s}',  contacts['S2'], contacts['floor']), 
-        'S3': osim.SmoothSphereHalfSpaceForce(f'floor_mid2_{s}',  contacts['S3'], contacts['floor']), 
-        'S4': osim.SmoothSphereHalfSpaceForce(f'floor_fore1_{s}', contacts['S4'], contacts['floor']), 
-        'S5': osim.SmoothSphereHalfSpaceForce(f'floor_fore2_{s}', contacts['S5'], contacts['floor']), 
-        'S6': osim.SmoothSphereHalfSpaceForce(f'floor_toe1_{s}',  contacts['S6'], contacts['floor']),
-        'S7': osim.SmoothSphereHalfSpaceForce(f'floor_toe2_{s}',  contacts['S7'], contacts['floor']),
+    spheres = {
+        's1': osim.ContactSphere(0.020, osim.Vec3([0.010,+0.000,-0.005]), calcn, f's1_{s}'),
+        's2': osim.ContactSphere(0.020, osim.Vec3([0.090,-0.000,-0.025]), calcn, f's2_{s}'),
+        's3': osim.ContactSphere(0.020, osim.Vec3([0.070,-0.000,+0.022]), calcn, f's3_{s}'),
+        's4': osim.ContactSphere(0.020, osim.Vec3([0.165,-0.000,-0.027]), calcn, f's4_{s}'),
+        's5': osim.ContactSphere(0.020, osim.Vec3([0.125,-0.000,+0.035]), calcn, f's5_{s}'),
+        's6': osim.ContactSphere(0.020, osim.Vec3([0.040,-0.000,-0.010]), toes,  f's6_{s}'),
+        # 's7': osim.ContactSphere(0.020, osim.Vec3([0.010,-0.000,+0.032]), toes,  f's7_{s}'),
         }
-
+    floor = osim.ContactHalfSpace(osim.Vec3([0.500,-0.000,-0.250]), 
+                                  osim.Vec3([0,0,-osim.SimTK_PI/2]), ground, 'floor')
+    # add contact geometries to the model
+    model.addContactGeometry(floor)
+    for sphere in spheres.keys():
+        model.addContactGeometry(spheres[sphere])
+    # define force between ContactHalfSpace (floor) and the ContactSphere
+    contactForces = dict()
+    for sName,sphere in spheres.items():
+        contactForces[sName] = osim.SmoothSphereHalfSpaceForce(f'floor_{sName}_{s}', sphere, floor)
     # adjust the SmoothSphereHalfSpaceForce parameters
-    for contactForce in contactForces.keys():
-        contactForces[contactForce].set_stiffness(1e+6)
-        contactForces[contactForce].set_dissipation(2)
-        contactForces[contactForce].set_static_friction(0.8)
-        contactForces[contactForce].set_dynamic_friction(0.8)
-        contactForces[contactForce].set_viscous_friction(0.5)
-        contactForces[contactForce].set_transition_velocity(0.2)
-        contactForces[contactForce].set_constant_contact_force(1e-5)
-        contactForces[contactForce].set_hertz_smoothing(300)
-        contactForces[contactForce].set_hunt_crossley_smoothing(50)
-        model.addForce(contactForces[contactForce])
-        # model.addComponent(contactForces[contactForce])
-
+    for cForce in contactForces.keys():
+        contactForces[cForce].set_stiffness(1e+6)
+        contactForces[cForce].set_dissipation(2)
+        contactForces[cForce].set_static_friction(0.8)
+        contactForces[cForce].set_dynamic_friction(0.8)
+        contactForces[cForce].set_viscous_friction(0.5)
+        contactForces[cForce].set_transition_velocity(0.2)
+        contactForces[cForce].set_constant_contact_force(1e-5)
+        contactForces[cForce].set_hertz_smoothing(300)
+        contactForces[cForce].set_hunt_crossley_smoothing(50)
+        model.addForce(contactForces[cForce])
+        # model.addComponent(contactForces[cForce])
     # create a list of contact forces' name for later use
     nameContactForces = list()
     for force in model.getForceSet():
         # print(force.getConcreteClassName(), force.getAbsolutePathString())
         if force.getConcreteClassName() == 'SmoothSphereHalfSpaceForce':
             nameContactForces.append( force.getAbsolutePathString())
+
+# # set static pose as default
+# static = osim.TimeSeriesTable(static_path)
+# for coordinate in model.getCoordinateSet():
+#     cName = coordinate.getAbsolutePathString()
+#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
+#     coordinate.set_default_value(value)
 
 # finalize the model and write it
 model.finalizeConnections()
