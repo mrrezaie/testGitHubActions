@@ -197,9 +197,9 @@ if contact_tracking:
     nameContactForces = list() # a list of contact forces' name for later use
     for sName,sphere in spheres.items():
         model.addContactGeometry(sphere)
-        # define force between ContactHalfSpace (floor) and the ContactSphere
         fName = f'floor_{sName}_{s}'
         nameContactForces.append(fName)
+        # define force between ContactHalfSpace (floor) and the ContactSphere
         contactForce = osim.SmoothSphereHalfSpaceForce(fName, sphere, floor)
         contactForce.set_stiffness(3e+6)
         contactForce.set_dissipation(2)
