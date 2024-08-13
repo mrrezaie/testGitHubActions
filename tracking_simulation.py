@@ -182,7 +182,7 @@ if contact_tracking:
         's14': osim.ContactSphere(0.015, osim.Vec3([+0.205,-0.0,-0.025]), calcn, f's14_{s}'), # toes
         's15': osim.ContactSphere(0.015, osim.Vec3([+0.180,-0.0,+0.020]), calcn, f's15_{s}'),
         's16': osim.ContactSphere(0.015, osim.Vec3([+0.155,-0.0,+0.046]), calcn, f's16_{s}'),
-        's17': osim.ContactSphere(0.015, osim.Vec3([+0.225,-0.0,+0.010]), calcn, f's17_{s}'),
+        's17': osim.ContactSphere(0.015, osim.Vec3([+0.235,-0.0,+0.000]), calcn, f's17_{s}'),
         # 's14': osim.ContactSphere(0.015, osim.Vec3([+0.030,-0.000,-0.025]), toes,  f's14_{s}'),
         # 's15': osim.ContactSphere(0.015, osim.Vec3([+0.007,-0.000,+0.019]), toes,  f's15_{s}'),
         # 's16': osim.ContactSphere(0.015, osim.Vec3([-0.020,-0.000,+0.045]), toes,  f's16_{s}'),
