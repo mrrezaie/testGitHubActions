@@ -314,11 +314,9 @@ if contact_tracking:
     # contact tracking goal
     contact = osim.MocoContactTrackingGoal('grf_tracking', grf_weight)
     contact.setExternalLoadsFile(ExtLoads_path)
-    ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, side, 
-                            # [f'/bodyset/toes_{s}'], # why 'toes' is typically used???
-                            ) 
-    # no need to use projection
-    contact.addContactGroup(ContactGroup)
+    # ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, side, [f'/bodyset/toes_{s}']) 
+    # contact.addContactGroup(ContactGroup)
+    contact.addContactGroup(nameContactForces, side)
     contact.setNormalizeTrackingError(False)
     problem.addGoal(contact)
 
