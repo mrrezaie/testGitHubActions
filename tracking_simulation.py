@@ -74,6 +74,18 @@ if not os.path.exists( os.path.join(cwd,'output') ):
 ########## model processing
 model = osim.Model(model_path)
 
+# set static pose as default
+static = osim.TimeSeriesTable(static_path)
+for coordinate in model.getCoordinateSet():
+    cName = coordinate.getAbsolutePathString()
+    value = static.getDependentColumn(cName+'/value').getElt(0,0)
+    coordinate.set_default_value(value)
+state = model.initSystem()
+
+# get the origin of calcaneus
+calcn = model.getBodySet().get(f'calcn_{s}')
+v = round( calcn.getPositionInGround(state).get(1), 4)
+
 # # adjust mtp joint range of motion
 # for cName in ['mtp_angle_r', 'mtp_angle_l']:
 #     coordinate = model.getCoordinateSet().get(cName)
@@ -86,23 +98,23 @@ osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate = model.getCoordinateSet().get(cName)
     coordinate.set_range(0, 0) # adjust the min range
-    # coordinate.set_range(1, 2.0944) # adjust the max range
-    coordinate.set_range(1, 0) # adjust the max range
+    coordinate.set_range(1, 2.0944) # adjust the max range
+    # coordinate.set_range(1, 0) # adjust the max range
 
-# test remove patella and all its connections
-patella_r = model.getBodySet().get('patella_r')
-patella_l = model.getBodySet().get('patella_l')
-model.getBodySet().remove(patella_r)
-model.getBodySet().remove(patella_l)
-patella_r = model.getJointSet().get('patellofemoral_r')
-patella_l = model.getJointSet().get('patellofemoral_l')
-model.getJointSet().remove(patella_r)
-model.getJointSet().remove(patella_l)
-patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
-patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
-model.getConstraintSet().remove(patella_r)
-model.getConstraintSet().remove(patella_l)
-model.finalizeFromProperties()
+# # test remove patella and all its connections
+# patella_r = model.getBodySet().get('patella_r')
+# patella_l = model.getBodySet().get('patella_l')
+# model.getBodySet().remove(patella_r)
+# model.getBodySet().remove(patella_l)
+# patella_r = model.getJointSet().get('patellofemoral_r')
+# patella_l = model.getJointSet().get('patellofemoral_l')
+# model.getJointSet().remove(patella_r)
+# model.getJointSet().remove(patella_l)
+# patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
+# patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
+# model.getConstraintSet().remove(patella_r)
+# model.getConstraintSet().remove(patella_l)
+# # model.finalizeFromProperties()
 
 # adjust coordinate actuators and muscles
 if torque_driven:
@@ -167,23 +179,23 @@ if contact_tracking:
     calcn = model.getBodySet().get(f'calcn_{s}')
     toes  = model.getBodySet().get(f'toes_{s}')
     spheres = {
-        's01': osim.ContactSphere(0.015, osim.Vec3([+0.000,-0.000,-0.010]), calcn, f's01_{s}'), # heel
-        's02': osim.ContactSphere(0.015, osim.Vec3([+0.020,-0.000,-0.020]), calcn, f's02_{s}'),
-        's03': osim.ContactSphere(0.015, osim.Vec3([+0.025,-0.000,+0.007]), calcn, f's03_{s}'),
-        's04': osim.ContactSphere(0.015, osim.Vec3([+0.050,-0.000,-0.022]), calcn, f's04_{s}'),
-        's05': osim.ContactSphere(0.015, osim.Vec3([+0.090,-0.000,-0.025]), calcn, f's05_{s}'),
-        's06': osim.ContactSphere(0.015, osim.Vec3([+0.075,-0.000,+0.000]), calcn, f's06_{s}'),
-        's07': osim.ContactSphere(0.015, osim.Vec3([+0.055,-0.000,+0.017]), calcn, f's07_{s}'),
-        's08': osim.ContactSphere(0.015, osim.Vec3([+0.130,-0.000,-0.027]), calcn, f's08_{s}'),
-        's09': osim.ContactSphere(0.015, osim.Vec3([+0.120,-0.000,+0.005]), calcn, f's09_{s}'),
-        's10': osim.ContactSphere(0.015, osim.Vec3([+0.090,-0.000,+0.030]), calcn, f's10_{s}'),
-        's11': osim.ContactSphere(0.015, osim.Vec3([+0.170,-0.000,-0.030]), calcn, f's11_{s}'), # mtp
-        's12': osim.ContactSphere(0.015, osim.Vec3([+0.155,-0.000,+0.010]), calcn, f's12_{s}'),
-        's13': osim.ContactSphere(0.015, osim.Vec3([+0.130,-0.000,+0.040]), calcn, f's13_{s}'),
-        's14': osim.ContactSphere(0.015, osim.Vec3([+0.205,-0.000,-0.025]), calcn, f's14_{s}'), # toes
-        's15': osim.ContactSphere(0.015, osim.Vec3([+0.180,-0.000,+0.015]), calcn, f's15_{s}'),
-        's16': osim.ContactSphere(0.015, osim.Vec3([+0.155,-0.000,+0.046]), calcn, f's16_{s}'),
-        's17': osim.ContactSphere(0.015, osim.Vec3([+0.235,-0.000,+0.000]), calcn, f's17_{s}'),
+        's01': osim.ContactSphere(0.015, osim.Vec3([+0.000,0,-0.010]), calcn, f's01_{s}'), # heel
+        's02': osim.ContactSphere(0.015, osim.Vec3([+0.020,0,-0.020]), calcn, f's02_{s}'),
+        's03': osim.ContactSphere(0.015, osim.Vec3([+0.025,0,+0.007]), calcn, f's03_{s}'),
+        's04': osim.ContactSphere(0.015, osim.Vec3([+0.050,0,-0.022]), calcn, f's04_{s}'),
+        's05': osim.ContactSphere(0.015, osim.Vec3([+0.090,0,-0.025]), calcn, f's05_{s}'),
+        's06': osim.ContactSphere(0.015, osim.Vec3([+0.075,0,+0.000]), calcn, f's06_{s}'),
+        's07': osim.ContactSphere(0.015, osim.Vec3([+0.055,0,+0.017]), calcn, f's07_{s}'),
+        's08': osim.ContactSphere(0.015, osim.Vec3([+0.130,0,-0.027]), calcn, f's08_{s}'),
+        's09': osim.ContactSphere(0.015, osim.Vec3([+0.120,0,+0.005]), calcn, f's09_{s}'),
+        's10': osim.ContactSphere(0.015, osim.Vec3([+0.090,0,+0.030]), calcn, f's10_{s}'),
+        's11': osim.ContactSphere(0.015, osim.Vec3([+0.170,0,-0.030]), calcn, f's11_{s}'), # mtp
+        's12': osim.ContactSphere(0.015, osim.Vec3([+0.155,0,+0.010]), calcn, f's12_{s}'),
+        's13': osim.ContactSphere(0.015, osim.Vec3([+0.130,0,+0.040]), calcn, f's13_{s}'),
+        's14': osim.ContactSphere(0.015, osim.Vec3([+0.205,0,-0.025]), calcn, f's14_{s}'), # toes
+        's15': osim.ContactSphere(0.015, osim.Vec3([+0.180,0,+0.015]), calcn, f's15_{s}'),
+        's16': osim.ContactSphere(0.015, osim.Vec3([+0.155,0,+0.046]), calcn, f's16_{s}'),
+        's17': osim.ContactSphere(0.015, osim.Vec3([+0.235,0,+0.000]), calcn, f's17_{s}'),
         # 's14': osim.ContactSphere(0.015, osim.Vec3([+0.030,-0.000,-0.025]), toes,  f's14_{s}'),
         # 's15': osim.ContactSphere(0.015, osim.Vec3([+0.007,-0.000,+0.019]), toes,  f's15_{s}'),
         # 's16': osim.ContactSphere(0.015, osim.Vec3([-0.020,-0.000,+0.045]), toes,  f's16_{s}'),
@@ -219,13 +231,6 @@ if contact_tracking:
         contactForce.set_hunt_crossley_smoothing(50)
         model.addForce(contactForce)
         # model.addComponent(contactForces[cForce])
-
-# # set static pose as default
-# static = osim.TimeSeriesTable(static_path)
-# for coordinate in model.getCoordinateSet():
-#     cName = coordinate.getAbsolutePathString()
-#     value = static.getDependentColumn(cName+'/value').getElt(0,0)
-#     coordinate.set_default_value(value)
 
 # finalize the model and write it
 model.finalizeConnections()
