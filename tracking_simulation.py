@@ -89,20 +89,20 @@ for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     # coordinate.set_range(1, 2.0944) # adjust the max range
     coordinate.set_range(1, 0) # adjust the max range
 
-# # test remove patella and all its connections
-# patella_r = model.getBodySet().get('patella_r')
-# patella_l = model.getBodySet().get('patella_l')
-# model.getBodySet().remove(patella_r)
-# model.getBodySet().remove(patella_l)
-# patella_r = model.getJointSet().get('patellofemoral_r')
-# patella_l = model.getJointSet().get('patellofemoral_l')
-# model.getJointSet().remove(patella_r)
-# model.getJointSet().remove(patella_l)
-# patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
-# patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
-# model.getConstraintSet().remove(patella_r)
-# model.getConstraintSet().remove(patella_l)
-# model.finalizeFromProperties()
+# test remove patella and all its connections
+patella_r = model.getBodySet().get('patella_r')
+patella_l = model.getBodySet().get('patella_l')
+model.getBodySet().remove(patella_r)
+model.getBodySet().remove(patella_l)
+patella_r = model.getJointSet().get('patellofemoral_r')
+patella_l = model.getJointSet().get('patellofemoral_l')
+model.getJointSet().remove(patella_r)
+model.getJointSet().remove(patella_l)
+patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
+patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
+model.getConstraintSet().remove(patella_r)
+model.getConstraintSet().remove(patella_l)
+model.finalizeFromProperties()
 
 # adjust coordinate actuators and muscles
 if torque_driven:
@@ -429,7 +429,7 @@ for fName in solution.getControlNames():
         plt.plot(times, values, label=fName.split('/')[-1][:-9])
         if max(abs(values)) > maxAbs:
             maxAbs = max(abs(values))
-plt.title(f'Residual Actuators\nMaxAbs = {round(maxAbs,5)}', fontstyle='bold')
+plt.title(f'Residual Actuators\nMaxAbs = {round(maxAbs,5)}', fontweight='bold')
 plt.xlabel('Times (s)')
 plt.ylabel('Actuation (N, Nm)')
 plt.legend()
@@ -452,7 +452,7 @@ for i,cName in enumerate(cNames):
     plt.plot(timesState, valuesState, lw=2.5, label='IK')
     values = solution.getState(f'/jointset/{jName}/{cName}/value').to_numpy()
     plt.plot(times, values, lw=2.5, label='sim', ls='--')
-    plt.title(cName, fontstyle='bold')
+    plt.title(cName, fontweight='bold')
     plt.xlabel('Times (s)')
     plt.ylabel('Angle (Radians)')
     plt.legend()
@@ -473,7 +473,7 @@ if torque_driven:
         plt.plot(timesID, valuesID, lw=2.5, label='ID')
         values = solution.getControl(f'/forceset/{cName}_reserve').to_numpy()*reserve_strong
         plt.plot(times, values, lw=2.5, label='sim', ls='--')
-        plt.title(cName, fontstyle='bold')
+        plt.title(cName, fontweight='bold')
         plt.xlabel('Times (s)')
         plt.ylabel('Moment (Nm)')
         plt.legend()
@@ -496,7 +496,7 @@ if contact_tracking:
         plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
         values = GRFTable.getDependentColumn(f'ground_force_{s}_v{xyz}').to_numpy()
         plt.plot(times, values, lw=2.5, label='track', ls='--')
-        plt.title(f'F{xyz.upper()}', fontstyle='bold')
+        plt.title(f'F{xyz.upper()}', fontweight='bold')
         plt.xlabel('Times (s)')
         plt.ylabel('Force (N)')
         plt.legend()
