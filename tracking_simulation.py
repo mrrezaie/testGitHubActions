@@ -86,8 +86,8 @@ osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate = model.getCoordinateSet().get(cName)
     coordinate.set_range(0, 0) # adjust the min range
-    coordinate.set_range(1, 2.0944) # adjust the max range
-    # coordinate.set_range(1, 0.001) # adjust the max range
+    # coordinate.set_range(1, 2.0944) # adjust the max range
+    coordinate.set_range(1, 0) # adjust the max range
 
 # # test remove patella and all its connections
 # patella_r = model.getBodySet().get('patella_r')
