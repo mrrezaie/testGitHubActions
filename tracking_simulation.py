@@ -98,23 +98,22 @@ osim.ModelFactory().replaceJointWithWeldJoint(model, 'mtp_l')
 for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate = model.getCoordinateSet().get(cName)
     coordinate.set_range(0, 0) # adjust the min range
-    # coordinate.set_range(1, 2.0944) # adjust the max range
-    coordinate.set_range(1, 0) # adjust the max range
+    coordinate.set_range(1, 2.0944) # adjust the max range
 
-# # test remove patella and all its connections
-# patella_r = model.getBodySet().get('patella_r')
-# patella_l = model.getBodySet().get('patella_l')
-# model.getBodySet().remove(patella_r)
-# model.getBodySet().remove(patella_l)
-# patella_r = model.getJointSet().get('patellofemoral_r')
-# patella_l = model.getJointSet().get('patellofemoral_l')
-# model.getJointSet().remove(patella_r)
-# model.getJointSet().remove(patella_l)
-# patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
-# patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
-# model.getConstraintSet().remove(patella_r)
-# model.getConstraintSet().remove(patella_l)
-# # model.finalizeFromProperties()
+# test remove patella and all its connections
+patella_r = model.getBodySet().get('patella_r')
+patella_l = model.getBodySet().get('patella_l')
+model.getBodySet().remove(patella_r)
+model.getBodySet().remove(patella_l)
+patella_r = model.getJointSet().get('patellofemoral_r')
+patella_l = model.getJointSet().get('patellofemoral_l')
+model.getJointSet().remove(patella_r)
+model.getJointSet().remove(patella_l)
+patella_r = model.getConstraintSet().get('patellofemoral_knee_angle_r_con')
+patella_l = model.getConstraintSet().get('patellofemoral_knee_angle_l_con')
+model.getConstraintSet().remove(patella_r)
+model.getConstraintSet().remove(patella_l)
+# model.finalizeFromProperties()
 
 # adjust coordinate actuators and muscles
 if torque_driven:
