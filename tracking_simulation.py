@@ -108,7 +108,7 @@ for bs in ['r','l']:
     model.getJointSet().remove(temp)
     temp = model.getConstraintSet().get(f'patellofemoral_knee_angle_{bs}_con')
     model.getConstraintSet().remove(temp)
-# model.finalizeFromProperties()
+model.finalizeFromProperties()
 
 # adjust coordinate actuators and muscles
 if torque_driven:
