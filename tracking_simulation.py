@@ -35,7 +35,7 @@ convergence_tol = 1e-5
 
 # time frames (a stance only)
 t0   = 0.245 # init time
-t1   = 0.530 # end time # stride = 1.025
+t1   = 0.530 # end time # or stride = 1.025
 side = 'right' # side (right or left)
 s    = side[0] # side short term
 
