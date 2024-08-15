@@ -30,8 +30,8 @@ else:
     residuals_weight = 100 # increase the their weights in control-effort goal
 
 # solver tolerances
-constraint_tol  = 1e-6
-convergence_tol = 1e-6
+constraint_tol  = 1e-5
+convergence_tol = 1e-5
 
 # time frames (a stance only)
 t0   = 0.245 # init time
@@ -100,7 +100,7 @@ for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate.setRangeMin(0) # adjust the min range
     coordinate.setRangeMax(2.0944) # adjust the max range
 
-# test remove patella and all its connections
+# test remove the right/left patella and all its connections
 for bs in ['r','l']:
     temp = model.getBodySet().get(f'patella_{bs}')
     model.getBodySet().remove(temp)
