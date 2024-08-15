@@ -30,8 +30,8 @@ else:
     residuals_weight = 100 # increase the their weights in control-effort goal
 
 # solver tolerances
-constraint_tol  = 1e-5
-convergence_tol = 1e-5
+constraint_tol  = 1e-6
+convergence_tol = 1e-6
 
 # time frames (a stance only)
 t0   = 0.245 # init time
