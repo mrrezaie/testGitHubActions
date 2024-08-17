@@ -490,7 +490,7 @@ if contact_tracking:
     plt.figure(figsize=(10,6), tight_layout=True)
     plt.suptitle('Ground Reaction Forces')
     n = 1
-    for i,fp in enumerate(['v','p'])
+    for i,fp in enumerate(['v','p']):
         for j,xyz in enumerate(['x','y','z']):
             plt.subplot(2,3,n)
             valuesExp = GRFExp.getDependentColumn(f'ground_force_{s}_{fp}{xyz}').to_numpy()
