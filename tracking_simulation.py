@@ -14,14 +14,14 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.005
+grf_weight     = 500
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
 # actuators strength
 reserve_weak   = 1
 reserve_strong = 200 # ID<150Nm
-residual       = 2000
+residual       = 1
 
 if residual <= 1:
     reduce_residuals = False
@@ -322,7 +322,7 @@ if contact_tracking:
     # ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, side, [f'/bodyset/toes_{s}']) 
     # contact.addContactGroup(ContactGroup)
     contact.addContactGroup(nameContactForces, side)
-    contact.setNormalizeTrackingError(False)
+    contact.setNormalizeTrackingError(True)
     problem.addGoal(contact)
 
 if reduce_residuals:
@@ -487,18 +487,22 @@ if contact_tracking:
     idx_t1 = GRFExp.getNearestRowIndexForTime(t1)
     GRFExp.trimToIndices(idx_t0, idx_t1) # more robust to rounding error
     timesExp = GRFExp.getIndependentColumn()
-    plt.figure(figsize=(10,3.5), tight_layout=True)
+    plt.figure(figsize=(10,6), tight_layout=True)
     plt.suptitle('Ground Reaction Forces')
-    for i,xyz in enumerate(['x','y','z']):
-        plt.subplot(1,3,i+1)
-        valuesExp = GRFExp.getDependentColumn(f'ground_force_{s}_v{xyz}').to_numpy()
-        plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
-        values = GRFTable.getDependentColumn(f'ground_force_{s}_v{xyz}').to_numpy()
-        plt.plot(times, values, lw=2.5, label='track', ls='--')
-        plt.title(f'F{xyz.upper()}', fontweight='bold')
-        plt.xlabel('Times (s)')
-        plt.ylabel('Force (N)')
-        plt.legend()
+    n = 1
+    for i,fp in enumerate(['v','p'])
+        for j,xyz in enumerate(['x','y','z']):
+            plt.subplot(2,3,n)
+            valuesExp = GRFExp.getDependentColumn(f'ground_force_{s}_{fp}{xyz}').to_numpy()
+            plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
+            values = GRFTable.getDependentColumn(f'ground_force_{s}_{fp}{xyz}').to_numpy()
+            plt.plot(times, values, lw=2.5, label='track', ls='--')
+            plt.title(f'F{xyz.upper()}', fontweight='bold')
+            plt.xlabel('Times (s)')
+            if i==0: plt.ylabel('Force (N)')
+            if i==1: plt.ylabel('COP (m)')
+            plt.legend()
+            n =+ 1
     plt.savefig(os.path.join(cwd,'output','graph_grf.png'))
 
 
