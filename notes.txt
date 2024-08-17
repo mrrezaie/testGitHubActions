@@ -5,3 +5,5 @@ There are two options for reducing residual forces/moments: either use very weak
 Slack variables (gamma) only appear if there are kinematic constraints in the model.
 
 The weight of the controls must be low, otherwise, it changes the motion significantly.
+
+The implicit muscle contraction dynamics introduces either normalized muscle fiber length or normalized tendon force (OpenSim default) as a state variable, as well as an additional control defined as the time derivatives of the state,

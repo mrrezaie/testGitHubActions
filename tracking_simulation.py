@@ -10,11 +10,11 @@ Options:
 # type of simulation
 torque_driven       = True
 contact_tracking    = True
-joint_reaction_goal = False
+# joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 500
+grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
@@ -27,7 +27,7 @@ if residual <= 1:
     reduce_residuals = False
 else:
     reduce_residuals = True
-    residuals_weight = 10000 # increase the their weights in control-effort goal
+    residuals_weight = 10000 # increase their weights in control-effort goal
 
 # solver tolerances
 constraint_tol  = 1e-4
@@ -322,7 +322,7 @@ if contact_tracking:
     # ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, side, [f'/bodyset/toes_{s}']) 
     # contact.addContactGroup(ContactGroup)
     contact.addContactGroup(nameContactForces, side)
-    contact.setNormalizeTrackingError(True)
+    contact.setNormalizeTrackingError(False)
     problem.addGoal(contact)
 
 if reduce_residuals:
@@ -497,12 +497,11 @@ if contact_tracking:
             plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
             values = GRFTable.getDependentColumn(f'ground_force_{s}_{fp}{xyz}').to_numpy()
             plt.plot(times, values, lw=2.5, label='track', ls='--')
-            plt.title(f'F{xyz.upper()}', fontweight='bold')
             plt.xlabel('Times (s)')
-            if i==0: plt.ylabel('Force (N)')
-            if i==1: plt.ylabel('COP (m)')
+            if i==0: plt.ylabel('Force (N)'); plt.title(f'F{xyz.upper()}', fontweight='bold')
+            if i==1: plt.ylabel('COP (m)');   plt.title(f'P{xyz.upper()}', fontweight='bold')
             plt.legend()
-            n =+ 1
+            n += 1
     plt.savefig(os.path.join(cwd,'output','graph_grf.png'))
 
 
