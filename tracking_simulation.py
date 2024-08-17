@@ -328,7 +328,7 @@ if contact_tracking:
 
 # adjust control goal
 effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-effort.setExponent(2)
+effort.setExponent(3)
 if reduce_residuals:
     # if caring about dynamic consistency, this minimizes the residual actuation more than others
     effort.setWeightForControlPattern('.*residual', residuals_weight)
