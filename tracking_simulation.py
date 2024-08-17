@@ -10,7 +10,7 @@ Options:
 # type of simulation
 torque_driven       = True
 contact_tracking    = True
-# joint_reaction_goal = False
+joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
@@ -328,7 +328,7 @@ if contact_tracking:
 
 # adjust control goal
 effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-effort.setExponent(3)
+effort.setExponent(2)
 if reduce_residuals:
     # if caring about dynamic consistency, this minimizes the residual actuation more than others
     effort.setWeightForControlPattern('.*residual', residuals_weight)
