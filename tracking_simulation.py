@@ -14,14 +14,14 @@ joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.01
+grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
 # actuators strength
 reserve_weak   = 1
 reserve_strong = 200 # ID<150Nm
-residual       = 1
+residual       = 2000
 
 if residual <= 1:
     reduce_residuals = False
@@ -259,7 +259,7 @@ track = osim.MocoTrack()
 track.setModel( osim.ModelProcessor(model))
 track.set_initial_time(t0)
 track.set_final_time(t1)
-track.set_mesh_interval(0.001) # Hermite-Simpson
+track.set_mesh_interval(0.01) # Hermite-Simpson
 track.set_minimize_control_effort(True)
 track.set_control_effort_weight(control_weight) # (default==0.001 in MocoTrack)
 # track.set_track_reference_position_derivatives(True)
