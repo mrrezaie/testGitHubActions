@@ -15,7 +15,7 @@ joint_reaction_goal = False
 # goals weight
 marker_weight  = 1
 grf_weight     = 0.005
-control_weight = 0.001 # (default==0.001 in MocoTrack)
+control_weight = 0.01 # (default==0.001 in MocoTrack)
 # PFJL_weight    = 0.1
 
 # actuators strength
@@ -328,7 +328,7 @@ if contact_tracking:
 
 # adjust control goal
 effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-effort.setExponent(3)
+# effort.setExponent(2)
 if reduce_residuals:
     # if caring about dynamic consistency, this minimizes the residual actuation more than others
     effort.setWeightForControlPattern('.*residual', residuals_weight)
@@ -489,19 +489,20 @@ if contact_tracking:
     idx_t1 = GRFExp.getNearestRowIndexForTime(t1)
     GRFExp.trimToIndices(idx_t0, idx_t1) # more robust to rounding error
     timesExp = GRFExp.getIndependentColumn()
-    plt.figure(figsize=(10,6), tight_layout=True)
+    plt.figure(figsize=(10,9), tight_layout=True)
     plt.suptitle('Ground Reaction Forces')
     n = 1
-    for i,fp in enumerate(['v','p']):
+    for fp in ['v','p','m']:
         for j,xyz in enumerate(['x','y','z']):
-            plt.subplot(2,3,n)
-            valuesExp = GRFExp.getDependentColumn(f'ground_force_{s}_{fp}{xyz}').to_numpy()
+            plt.subplot(3,3,n)
+            if fp=='v': label=f'ground_force_{s}_v{xyz}'; plt.title(f'F{xyz.upper()}', fontweight='bold'); plt.ylabel('Force (N)')
+            if fp=='p': label=f'ground_force_{s}_p{xyz}'; plt.title(f'P{xyz.upper()}', fontweight='bold'); plt.ylabel('COP (m)')
+            if fp=='m': label=f'ground_torque_{s}_{xyz}'; plt.title(f'M{xyz.upper()}', fontweight='bold'); plt.ylabel('Moment (Nm)')
+            valuesExp = GRFExp.getDependentColumn(label).to_numpy()
             plt.plot(timesExp, valuesExp, lw=2.5, label='exp')
-            values = GRFTable.getDependentColumn(f'ground_force_{s}_{fp}{xyz}').to_numpy()
+            values = GRFTable.getDependentColumn(label).to_numpy()
             plt.plot(times, values, lw=2.5, label='track', ls='--')
             plt.xlabel('Times (s)')
-            if i==0: plt.ylabel('Force (N)'); plt.title(f'F{xyz.upper()}', fontweight='bold')
-            if i==1: plt.ylabel('COP (m)');   plt.title(f'P{xyz.upper()}', fontweight='bold')
             plt.legend()
             n += 1
     plt.savefig(os.path.join(cwd,'output','graph_grf.png'))
