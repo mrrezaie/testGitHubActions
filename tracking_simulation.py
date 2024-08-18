@@ -10,12 +10,13 @@ Options:
 # type of simulation
 torque_driven       = True
 contact_tracking    = True
+minimize_speeds     = False
 joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
 grf_weight     = 0.005
-control_weight = 0.01 # (default==0.001 in MocoTrack)
+control_weight = 0.001 # (default==0.001 in MocoTrack)
 speed_weight   = 0.001
 # PFJL_weight    = 0.1
 
@@ -31,8 +32,8 @@ else:
     residuals_weight = 10000 # increase their weights in control-effort goal
 
 # solver tolerances
-constraint_tol  = 1e-4
-convergence_tol = 1e-4
+constraint_tol  = 1e-5
+convergence_tol = 1e-5
 
 # time frames (a stance only)
 t0   = 0.245 # init time
@@ -336,10 +337,11 @@ if reduce_residuals:
 
 
 # minimize coordinates drivatives
-speeds = osim.MocoOutputGoal('minimize_speeds', 0.1)
-speeds.setExponent(2)
-speeds.setOutputPath('/jointset/.*/speed')
-problem.addGoal(speeds)
+if minimize_speeds:
+    speeds = osim.MocoOutputGoal('minimize_speeds', speed_weight)
+    speeds.setExponent(2)
+    speeds.setOutputPath('/jointset/.*/speed')
+    problem.addGoal(speeds)
 
 if joint_reaction_goal:
     # reaction goal
