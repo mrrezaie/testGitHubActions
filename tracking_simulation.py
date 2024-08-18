@@ -16,6 +16,7 @@ joint_reaction_goal = False
 marker_weight  = 1
 grf_weight     = 0.005
 control_weight = 0.01 # (default==0.001 in MocoTrack)
+speed_weight   = 0.001
 # PFJL_weight    = 0.1
 
 # actuators strength
@@ -333,6 +334,12 @@ if reduce_residuals:
     # if caring about dynamic consistency, this minimizes the residual actuation more than others
     effort.setWeightForControlPattern('.*residual', residuals_weight)
 
+
+# minimize coordinates drivatives
+speeds = osim.MocoOutputGoal('minimize_speeds', 0.1)
+speeds.setExponent(2)
+speeds.setOutputPath('/jointset/.*/speed')
+problem.addGoal(speeds)
 
 if joint_reaction_goal:
     # reaction goal
