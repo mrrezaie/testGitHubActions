@@ -330,7 +330,7 @@ if contact_tracking:
 
 # adjust control goal
 effort = osim.MocoControlGoal().safeDownCast(problem.updGoal('control_effort'))
-# effort.setExponent(2)
+effort.setExponent(2)
 if reduce_residuals:
     # if caring about dynamic consistency, this minimizes the residual actuation more than others
     effort.setWeightForControlPattern('.*residual', residuals_weight)
@@ -340,7 +340,7 @@ if reduce_residuals:
 if minimize_speeds:
     speeds = osim.MocoOutputGoal('minimize_speeds', speed_weight)
     speeds.setExponent(2)
-    speeds.setOutputPath('/jointset/.*/speed')
+    speeds.setOutputPath('/jointset/.*|speed')
     problem.addGoal(speeds)
 
 if joint_reaction_goal:
