@@ -10,7 +10,7 @@ Options:
 # type of simulation
 torque_driven       = True
 contact_tracking    = True
-minimize_speeds     = False
+minimize_speeds     = True
 joint_reaction_goal = False
 
 # goals weight
