@@ -10,14 +10,14 @@ Options:
 # type of simulation
 torque_driven       = True
 contact_tracking    = True
-minimize_speeds     = True
+minimize_accels     = True
 joint_reaction_goal = False
 
 # goals weight
 marker_weight  = 1
 grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
-speed_weight   = 1e-6
+accel_weight   = 1e-8
 # PFJL_weight    = 0.1
 
 # actuators strength
@@ -336,13 +336,13 @@ if reduce_residuals:
     effort.setWeightForControlPattern('.*residual', residuals_weight)
 
 # minimize coordinates drivatives
-if minimize_speeds:
+if minimize_accels:
     cNames = [c.getAbsolutePathString() for c in model.getCoordinateSet()]
     for cName in cNames:
-        speed = osim.MocoOutputGoal(f"minimize_{cName.split('/')[-1]}_speed", speed_weight)
-        speed.setExponent(2)
-        speed.setOutputPath(cName+'|acceleration')
-        problem.addGoal(speed)
+        accel = osim.MocoOutputGoal(f"minimize_{cName.split('/')[-1]}_accel", accel_weight)
+        accel.setExponent(2)
+        accel.setOutputPath(cName+'|acceleration')
+        problem.addGoal(accel)
 
 if joint_reaction_goal:
     # reaction goal
