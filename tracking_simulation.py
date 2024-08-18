@@ -335,13 +335,14 @@ if reduce_residuals:
     # if caring about dynamic consistency, this minimizes the residual actuation more than others
     effort.setWeightForControlPattern('.*residual', residuals_weight)
 
-
 # minimize coordinates drivatives
 if minimize_speeds:
-    speeds = osim.MocoOutputGoal('minimize_speeds', speed_weight)
-    speeds.setExponent(2)
-    speeds.setOutputPath('/jointset/.*|speed')
-    problem.addGoal(speeds)
+    cNames = [c.getAbsolutePathString() for c in model.getCoordinateSet()]
+    for cName in cNames:
+        speeds = osim.MocoOutputGoal(f"minimize_{cName.split('/')[-1]}_speeds", speed_weight)
+        speeds.setExponent(2)
+        speeds.setOutputPath(cName+'|speed')
+        problem.addGoal(speeds)
 
 if joint_reaction_goal:
     # reaction goal
