@@ -17,7 +17,7 @@ joint_reaction_goal = False
 marker_weight  = 1
 grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
-speed_weight   = 0.0001
+speed_weight   = 0.000001
 # PFJL_weight    = 0.1
 
 # actuators strength
@@ -339,10 +339,10 @@ if reduce_residuals:
 if minimize_speeds:
     cNames = [c.getAbsolutePathString() for c in model.getCoordinateSet()]
     for cName in cNames:
-        speeds = osim.MocoOutputGoal(f"minimize_{cName.split('/')[-1]}_speeds", speed_weight)
-        speeds.setExponent(2)
-        speeds.setOutputPath(cName+'|speed')
-        problem.addGoal(speeds)
+        speed = osim.MocoOutputGoal(f"minimize_{cName.split('/')[-1]}_speed", speed_weight)
+        speed.setExponent(2)
+        speed.setOutputPath(cName+'|speed')
+        problem.addGoal(speed)
 
 if joint_reaction_goal:
     # reaction goal
