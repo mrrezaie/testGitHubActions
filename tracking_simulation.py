@@ -17,7 +17,7 @@ joint_reaction_goal = False
 marker_weight  = 1
 grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
-accel_weight   = 1e-8
+accel_weight   = 1e-7
 # PFJL_weight    = 0.1
 
 # actuators strength
@@ -470,10 +470,6 @@ for i,cName in enumerate(cNames):
 plt.savefig(os.path.join(cwd,'output','graph_joint_angle.png'))
 
 # plot joints angular velocity
-# stateTable = osim.TimeSeriesTable(os.path.join(cwd,'output','state.sto'))
-cNames = [f'hip_flexion_{s}', f'hip_adduction_{s}', f'hip_rotation_{s}',
-          f'knee_angle_{s}',  f'ankle_angle_{s}',   f'subtalar_angle_{s}']
-timesState = stateTable.getIndependentColumn()
 plt.figure(figsize=(10,6), tight_layout=True)
 plt.suptitle('Joints Angular Velocity')
 for i,cName in enumerate(cNames):
