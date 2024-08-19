@@ -10,8 +10,9 @@ Options:
 # type of simulation
 torque_driven       = True
 contact_tracking    = True
-minimize_accels     = True
+minimize_accels     = False
 joint_reaction_goal = False
+adjust_torso_mass   = True
 
 # goals weight
 marker_weight  = 1
@@ -308,6 +309,12 @@ track.set_markers_weight_set(markerWeights)
 study = track.initialize()
 # study.set_write_solution(True)
 problem = study.updProblem()
+
+
+########## Parameters
+if adjust_torso_mass:
+    torsoMass = osim.MocoParameter('torso_mass', '/bodyset/pelvis', 'mass', [0,30])
+    problem.addParameter(torsoMass)
 
 
 ########## Bounds
