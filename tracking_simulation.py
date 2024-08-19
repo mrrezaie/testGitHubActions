@@ -313,7 +313,7 @@ problem = study.updProblem()
 
 ########## Parameters
 if adjust_torso_mass:
-    torsoMass = osim.MocoParameter('torso_mass', '/bodyset/pelvis', 'mass', [0,30])
+    torsoMass = osim.MocoParameter('torso_mass', '/bodyset/pelvis', 'mass', osim.MocoBounds(20,30))
     problem.addParameter(torsoMass)
 
 
