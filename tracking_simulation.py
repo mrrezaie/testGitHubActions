@@ -12,10 +12,10 @@ torque_driven       = True
 contact_tracking    = True
 minimize_accels     = False
 joint_reaction_goal = False
-adjust_torso_mass   = True
+adjust_torso_mass   = False
 
 # goals weight
-marker_weight  = 1
+marker_weight  = 0.01
 grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 accel_weight   = 1e-7
@@ -375,7 +375,7 @@ solver.set_optim_convergence_tolerance(convergence_tol) # 0.01 MocoTrack default
 solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
-solver.set_parameters_require_initsystem(True)
+# solver.set_parameters_require_initsystem(True) # if adjust torso mass
 # solver.set_minimize_implicit_auxiliary_derivatives(True)
 # solver.set_implicit_auxiliary_derivatives_weight(1)
 # solver.set_multibody_dynamics_mode('explicit') # explicit implicit
