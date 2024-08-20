@@ -103,15 +103,15 @@ for cName in ['knee_angle_r_beta', 'knee_angle_l_beta']:
     coordinate.setRangeMin(0) # adjust the min range
     coordinate.setRangeMax(2.0944) # adjust the max range
 
-# test remove the right/left patella and all its connections
-for bs in ['r','l']:
-    temp = model.getBodySet().get(f'patella_{bs}')
-    model.getBodySet().remove(temp)
-    temp = model.getJointSet().get(f'patellofemoral_{bs}')
-    model.getJointSet().remove(temp)
-    temp = model.getConstraintSet().get(f'patellofemoral_knee_angle_{bs}_con')
-    model.getConstraintSet().remove(temp)
-model.finalizeFromProperties()
+# # test remove the right/left patella and all its connections
+# for bs in ['r','l']:
+#     temp = model.getBodySet().get(f'patella_{bs}')
+#     model.getBodySet().remove(temp)
+#     temp = model.getJointSet().get(f'patellofemoral_{bs}')
+#     model.getJointSet().remove(temp)
+#     temp = model.getConstraintSet().get(f'patellofemoral_knee_angle_{bs}_con')
+#     model.getConstraintSet().remove(temp)
+# model.finalizeFromProperties()
 
 # adjust coordinate actuators and muscles
 if torque_driven:
@@ -376,8 +376,8 @@ solver.set_optim_max_iterations(10000)
 # solver.set_minimize_implicit_multibody_accelerations(True)
 # solver.set_implicit_multibody_accelerations_weight(1)
 # solver.set_parameters_require_initsystem(True) # if adjust torso mass
-solver.set_minimize_implicit_auxiliary_derivatives(True)
-solver.set_implicit_auxiliary_derivatives_weight(1)
+# solver.set_minimize_implicit_auxiliary_derivatives(True)
+# solver.set_implicit_auxiliary_derivatives_weight(1)
 # solver.set_multibody_dynamics_mode('explicit') # explicit implicit
 # solver.set_transcription_scheme('hermite-simpson') # trapezoidal
 # solver.set_interpolate_control_midpoints(True)
