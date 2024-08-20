@@ -8,14 +8,14 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = True
+torque_driven       = False
 contact_tracking    = True
 minimize_accels     = False
 joint_reaction_goal = False
 adjust_torso_mass   = False
 
 # goals weight
-marker_weight  = 0.01
+marker_weight  = 1
 grf_weight     = 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 accel_weight   = 1e-7
