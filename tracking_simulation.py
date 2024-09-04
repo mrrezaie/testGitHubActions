@@ -373,12 +373,12 @@ print('Total number of mesh intervals', solver.get_num_mesh_intervals())
 solver.set_optim_constraint_tolerance(constraint_tol) # 0.01 MocoTrack default
 solver.set_optim_convergence_tolerance(convergence_tol) # 0.01 MocoTrack default
 solver.set_optim_max_iterations(10000)
-# solver.set_minimize_implicit_multibody_accelerations(True)
-# solver.set_implicit_multibody_accelerations_weight(0.000001)
+solver.set_minimize_implicit_multibody_accelerations(True)
+solver.set_implicit_multibody_accelerations_weight(0.0001)
 # solver.set_parameters_require_initsystem(True) # if adjust torso mass
-solver.set_minimize_implicit_auxiliary_derivatives(True)
-solver.set_implicit_auxiliary_derivatives_weight(0.000001)
-# solver.set_multibody_dynamics_mode('explicit') # explicit implicit
+# solver.set_minimize_implicit_auxiliary_derivatives(True)
+# solver.set_implicit_auxiliary_derivatives_weight(0.000001)
+solver.set_multibody_dynamics_mode('implicit') # explicit implicit
 # solver.set_transcription_scheme('hermite-simpson') # trapezoidal
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
@@ -496,8 +496,8 @@ for i,cName in enumerate(cNames):
     plt.legend()
 plt.savefig(os.path.join(cwd,'output','graph_joint_angular_velocity.png'))
 
-# plot joints moment
 if torque_driven:
+    # plot joints moment
     IDExp  = osim.TimeSeriesTable(ID_path)
     idx_t0 = IDExp.getNearestRowIndexForTime(t0)
     idx_t1 = IDExp.getNearestRowIndexForTime(t1)
@@ -511,11 +511,23 @@ if torque_driven:
         plt.plot(timesID, valuesID, lw=2.5, label='ID')
         values = solution.getControl(f'/forceset/{cName}_reserve').to_numpy()*reserve_strong
         plt.plot(times, values, lw=2.5, label='sim', ls='--')
-        plt.title(cName, fontweight='bold')
+        plt.title(cName)
         plt.xlabel('Times (s)')
         plt.ylabel('Moment (Nm)')
         plt.legend()
     plt.savefig(os.path.join(cwd,'output','graph_joint_moment.png'))
+else:
+    # plot muscles control
+    nameMuscles = [muscle.getName() for muscle in model.getMuscles()] # getAbsolutePathString
+    _,axes = plt.subplots(5, 8, figsize=(12,8), sharex=True, sharey=True, tight_layout=True)
+    axes = axes.ravel()
+    plt.suptitle('Muscles Control')
+    for i,mName in enumerate(nameMuscles):
+        values = solution.getControl(f'/forceset/{mName}')
+        axes[i].plot(times, values)
+        axes[i].set_title(mName, fontweight='bold')
+        axes[i].set_ylim(0,1)
+    plt.savefig( os.path.join(cwd,'output','graph_muscle_control.png'))
 
 # plot GRF
 if contact_tracking:
