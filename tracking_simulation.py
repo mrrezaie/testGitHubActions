@@ -8,7 +8,7 @@ Options:
 
 '''
 # type of simulation
-torque_driven       = False
+torque_driven       = True
 contact_tracking    = True
 minimize_accels     = False
 joint_reaction_goal = False
