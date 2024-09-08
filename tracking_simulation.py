@@ -16,7 +16,7 @@ adjust_torso_mass   = False
 
 # goals weight
 marker_weight  = 1
-grf_weight     = 0.005
+grf_weight     = 200 # in unnorm 0.005
 control_weight = 0.001 # (default==0.001 in MocoTrack)
 accel_weight   = 1e-7
 # PFJL_weight    = 0.1
@@ -331,7 +331,7 @@ if contact_tracking:
     # ContactGroup = osim.MocoContactTrackingGoalGroup(nameContactForces, side, [f'/bodyset/toes_{s}']) 
     # contact.addContactGroup(ContactGroup)
     contact.addContactGroup(nameContactForces, side)
-    contact.setNormalizeTrackingError(False)
+    contact.setNormalizeTrackingError(True)
     problem.addGoal(contact)
 
 
@@ -378,7 +378,7 @@ solver.set_optim_max_iterations(10000)
 # solver.set_parameters_require_initsystem(True) # if adjust torso mass
 # solver.set_minimize_implicit_auxiliary_derivatives(True)
 # solver.set_implicit_auxiliary_derivatives_weight(0.000001)
-solver.set_multibody_dynamics_mode('explicit') # explicit implicit
+solver.set_multibody_dynamics_mode('implicit') # explicit implicit
 # solver.set_transcription_scheme('hermite-simpson') # trapezoidal
 # solver.set_interpolate_control_midpoints(True)
 # solver.set_enforce_path_constraint_midpoints(True)
